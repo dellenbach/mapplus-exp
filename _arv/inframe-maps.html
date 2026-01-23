@@ -1,0 +1,198 @@
+﻿<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <title>Karten</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="inframe-maps.css?v=20260116">
+  <style>
+    html, body { height: 100%; margin: 0; padding: 0; overflow: hidden; }
+    #mapFrame {
+      width: 100%;
+      height: 100%;
+      border: none;
+      display: block;
+    }
+    #loadingMessage {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 18px;
+      color: #666;
+    }
+  </style>
+</head>
+<body>
+  <div id="loadingMessage">Wird geladen...</div>
+  <script src="tnet-mapplus-helpers.js"></script>
+  <iframe id="mapFrame" src="/maps/active-maps-nw" style="visibility:hidden;"></iframe>
+  
+  <script>
+    // =============================================================
+    // SIMPLE AUTO-LOGIN
+    // =============================================================
+    // Logik:
+    // 1. Wenn URL ?loggedIn=1 hat -> Frame sofort anzeigen, fertig
+    // 2. Wenn URL group=*pro hat -> Auto-Login versuchen
+    // 3. Nach Button-Klick -> warten bis OAuth fertig
+    // 4. Dann Seite mit ?loggedIn=1 neu laden
+    
+    var urlParams = new URLSearchParams(window.location.search);
+    var alreadyLoggedIn = urlParams.get('loggedIn') === '1';
+    
+    function log(msg) {
+      console.log('[inframe] ' + msg);
+    }
+    
+    function showFrame() {
+      var f = document.getElementById('mapFrame');
+      var l = document.getElementById('loadingMessage');
+      if (f) f.style.visibility = 'visible';
+      if (l) l.style.display = 'none';
+      log('Frame angezeigt');
+    }
+    
+    function hasProGroup() {
+      var url = '';
+      try { url = window.top.location.href; } catch(e) {
+        try { url = window.parent.location.href; } catch(e2) {
+          url = window.location.href;
+        }
+      }
+      var match = url.match(/[?&]group=([^&]+)/);
+      if (match && match[1]) {
+        return decodeURIComponent(match[1]).indexOf('pro') !== -1;
+      }
+      return false;
+    }
+    
+    function reloadWithLoggedIn() {
+      var base = window.location.href.split('?')[0];
+      log('Lade Seite neu mit loggedIn=1');
+      window.location.href = base + '?loggedIn=1';
+    }
+    
+    // =============================================================
+    // FALL 1: Bereits eingeloggt (?loggedIn=1)
+    // =============================================================
+    if (alreadyLoggedIn) {
+      log('loggedIn=1 erkannt - zeige Frame sofort');
+      showFrame();
+    }
+    // =============================================================
+    // FALL 2: Pro-Gruppe -> Auto-Login
+    // =============================================================
+    else if (hasProGroup()) {
+      log('Pro-Gruppe erkannt - starte Auto-Login');
+      
+      var mapFrame = document.getElementById('mapFrame');
+      var loginClicked = false;
+      var checkCount = 0;
+      
+      function checkForLoginButton() {
+        checkCount++;
+        if (checkCount > 50) { // 10 Sekunden max
+          log('Timeout beim Suchen des Login-Buttons - zeige Frame');
+          showFrame();
+          return;
+        }
+        
+        try {
+          var doc = mapFrame.contentWindow.document;
+          var btn = doc.querySelector('.oauthloginbutton');
+          
+          if (btn && !loginClicked) {
+            var text = (btn.textContent || '').toLowerCase();
+            
+            // Logout-Button = bereits eingeloggt
+            if (text.indexOf('logout') !== -1 || text.indexOf('abmelden') !== -1) {
+              log('Logout-Button gefunden - bereits eingeloggt');
+              showFrame();
+              return;
+            }
+            
+            // Login-Button gefunden - klicken
+            log('Login-Button gefunden - klicke');
+            loginClicked = true;
+            btn.click();
+            
+            // Nach Klick: Warten bis iframe-load event
+            return;
+          }
+          
+          // Kein Button gefunden nach mehreren Versuchen - vielleicht schon eingeloggt?
+          if (!btn && checkCount > 15) {
+            log('Kein Login-Button nach 15 Versuchen - vermutlich eingeloggt');
+            showFrame();
+            return;
+          }
+          
+        } catch(e) {
+          // Cross-origin = OAuth läuft, warte
+          if (loginClicked) {
+            log('Cross-origin nach Login-Klick - OAuth läuft');
+            return;
+          }
+        }
+        
+        setTimeout(checkForLoginButton, 200);
+      }
+      
+      // Load-Event: Prüfen wo wir gelandet sind
+      mapFrame.addEventListener('load', function() {
+        var href = '';
+        try {
+          href = mapFrame.contentWindow.location.href;
+        } catch(e) {
+          href = '(cross-origin)';
+        }
+        
+        log('iframe load: ' + href);
+        
+        // Wenn Login geklickt wurde und wir wieder auf einer lesbaren URL sind
+        if (loginClicked) {
+          // Wenn wir die URL lesen können = same-origin = zurück auf Proxy
+          if (href.indexOf('/maps/active-maps-') !== -1) {
+            log('Nach Login zurück auf Proxy-URL - zeige Frame');
+            showFrame();
+            return;
+          }
+          
+          // Wenn gis-daten.ch erkannt wird = OAuth-Callback
+          if (href.indexOf('gis-daten.ch') !== -1) {
+            log('OAuth-Callback auf gis-daten.ch - lade mit loggedIn=1 neu');
+            reloadWithLoggedIn();
+            return;
+          }
+          
+          // Cross-origin = noch im OAuth-Flow
+          if (href === '(cross-origin)') {
+            log('Noch im OAuth-Flow (cross-origin)');
+            // Warte auf nächstes load-Event
+            return;
+          }
+        }
+      });
+      
+      // Fallback: Nach 15 Sekunden auf jeden Fall anzeigen
+      setTimeout(function() {
+        if (!document.getElementById('mapFrame').style.visibility !== 'visible') {
+          log('Fallback-Timeout 15s - zeige Frame');
+          showFrame();
+        }
+      }, 15000);
+      
+      // Start nach kurzer Verzögerung (iframe muss erst laden)
+      setTimeout(checkForLoginButton, 500);
+    }
+    // =============================================================
+    // FALL 3: Keine Pro-Gruppe -> Frame sofort anzeigen
+    // =============================================================
+    else {
+      log('Keine Pro-Gruppe - zeige Frame sofort');
+      showFrame();
+    }
+  </script>
+</body>
+</html>
