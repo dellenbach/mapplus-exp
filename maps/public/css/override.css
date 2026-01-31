@@ -368,3 +368,70 @@ h3 {
 #mapsInfoDialog.dijitDialogVisible .customRefreshBtn {
   display: flex;
 }
+/* ========================================
+   Themenkatalog - Layer Manager Styling
+   ======================================== */
+
+/* Fix TabContainer height for Bund and Weitere - set to same as Obwalden */
+#third_lyrmgr.dijitTabContainer,
+#forth_lyrmgr.dijitTabContainer {
+  height: 411px !important;
+  min-height: 411px !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+}
+
+/* Ensure content panes scroll within tab container */
+#third_lyrmgr .dijitTabPane,
+#forth_lyrmgr .dijitTabPane {
+  height: auto !important;
+  overflow-y: auto !important;
+}
+
+/* Fix für ContentPane Höhenrestriktionen */
+#layer_menu.dijitContentPane,
+#layer_menu2.dijitContentPane,
+#layer_menu3.dijitContentPane,
+#layer_menu4.dijitContentPane {
+  height: auto !important;
+  overflow: visible !important;
+}
+
+/* Direkter Fix der wrapper-divs wenn sie gehidden werden */
+#njs_main_lyrmgr_wrapper > *,
+#njs_second_lyrmgr_wrapper > *,
+#njs_third_lyrmgr_wrapper > *,
+#njs_forth_lyrmgr_wrapper > * {
+  width: 100% !important;
+  height: auto !important;
+  max-height: none !important;
+}
+
+/* Alle Kindelemente in den Wrappern */
+#njs_main_lyrmgr_wrapper > * > *,
+#njs_second_lyrmgr_wrapper > * > *,
+#njs_third_lyrmgr_wrapper > * > *,
+#njs_forth_lyrmgr_wrapper > * > * {
+  height: auto !important;
+  max-height: none !important;
+}
+
+/* Verhindere dass Dijit die TitlePane zu macht */
+.dijitTitlePane .dijitTitlePaneContentOuter {
+  overflow: visible !important;
+}
+
+#tp_layer_menu3 .dijitTitlePaneContentOuter,
+#tp_layer_menu4 .dijitTitlePaneContentOuter {
+  overflow: visible !important;
+  height: auto !important;
+}
+
+/* Layer Manager spezifische Container */
+.ClassicLayerMgr,
+.ClassicLayerMgr > div {
+  height: auto !important;
+  max-height: none !important;
+  overflow: visible !important;
+}
+
