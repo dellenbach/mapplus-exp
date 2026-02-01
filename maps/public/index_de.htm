@@ -193,37 +193,39 @@
             <div id="tp_overview_menu" data-dojo-type="dijit/TitlePane"
                 data-dojo-props="title: 'Themenkatalog', open:false" style="padding:0px;margin:0px;">
 
-                <!-- LAYERMANAGER MENU -->
-                <div id="tp_layer_menu" data-dojo-type="dijit/TitlePane" data-dojo-props="title: 'Nidwalden', open:false"
-                    style="padding:0px;margin:0px;">
-                    <div id="layer_menu" data-dojo-type="dijit.layout.ContentPane" title="Titel 1">
-                        <div id="njs_main_lyrmgr_wrapper" style="width: 100%;">
+                <!-- LAYERMANAGER MENU - wird per JS zu Tabs konvertiert -->
+                <div id="kantons_container">
+                    <div id="tp_layer_menu" data-dojo-type="dijit/TitlePane" data-dojo-props="title: 'Nidwalden', open:false"
+                        style="padding:0px;margin:0px;">
+                        <div id="layer_menu" data-dojo-type="dijit.layout.ContentPane" title="Titel 1">
+                            <div id="njs_main_lyrmgr_wrapper" style="width: 100%;">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div id="tp_layer_menu2" data-dojo-type="dijit/TitlePane" data-dojo-props="title: 'Obwalden', open:false"
+                        style="padding:0px;margin:0px;">
+                        <div id="layer_menu2" data-dojo-type="dijit.layout.ContentPane" title="Titel 2">
+                            <div id="njs_second_lyrmgr_wrapper" style="width: 100%;">
+                            </div>
+                        </div>
+                    </div>
+                    <div id="tp_layer_menu3" data-dojo-type="dijit/TitlePane" data-dojo-props="title: 'Bund', open:false"
+                        style="padding:0px;margin:0px;">
+                        <div id="layer_menu3" data-dojo-type="dijit.layout.ContentPane" title="Titel 3">
+                            <div id="njs_third_lyrmgr_wrapper" style="width: 100%;">
+                            </div>
+                        </div>
+                    </div>
+                    <div id="tp_layer_menu4" data-dojo-type="dijit/TitlePane" data-dojo-props="title: 'Weitere', open:false"
+                        style="padding:0px;margin:0px;">
+                        <div id="layer_menu4" data-dojo-type="dijit.layout.ContentPane" title="Titel 4">
+                            <div id="njs_forth_lyrmgr_wrapper" style="width: 100%;">
+                            </div>
                         </div>
                     </div>
                 </div>
-                
-                <div id="tp_layer_menu2" data-dojo-type="dijit/TitlePane" data-dojo-props="title: 'Obwalden', open:false"
-                    style="padding:0px;margin:0px;">
-                    <div id="layer_menu2" data-dojo-type="dijit.layout.ContentPane" title="Titel 2">
-                        <div id="njs_second_lyrmgr_wrapper" style="width: 100%;">
-                        </div>
-                    </div>
-                </div>
-                <div id="tp_layer_menu3" data-dojo-type="dijit/TitlePane" data-dojo-props="title: 'Bund', open:false"
-                    style="padding:0px;margin:0px;">
-                    <div id="layer_menu3" data-dojo-type="dijit.layout.ContentPane" title="Titel 3">
-                        <div id="njs_third_lyrmgr_wrapper" style="width: 100%;">
-                        </div>
-                    </div>
-                </div>
-                <div id="tp_layer_menu4" data-dojo-type="dijit/TitlePane" data-dojo-props="title: 'Weitere', open:false"
-                    style="padding:0px;margin:0px;">
-                    <div id="layer_menu4" data-dojo-type="dijit.layout.ContentPane" title="Titel 4">
-                        <div id="njs_forth_lyrmgr_wrapper" style="width: 100%;">
-                        </div>
-                    </div>
-                </div>
-                </div>
+            </div>
 
 
             <!-- LAYERMANAGER WMS -->
@@ -383,6 +385,10 @@
     <!-- TNET------------------------->
     <!-- TNET helpers for bookmarks&Co. -->
     <script type="text/javascript" src="/maps/tnet/tnet-mapplus-helpers.js"></script>
+    
+    <!-- TNET Accordion/Tab-Konverter -->
+    <link rel="stylesheet" href="/maps/tnet/tnet_toc.css" />
+    <script type="text/javascript" src="/maps/tnet/tnet_toc.js"></script>
 
     <script type="text/javascript">
         // Auto-Start für Bookmark-URLs direkt vor </body>

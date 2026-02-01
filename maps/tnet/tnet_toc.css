@@ -1,0 +1,547 @@
+/**
+ * tnet_toc.css
+ * Styling für Table of Contents, Accordion und Tab-Manipulation
+ * 
+ * Version: 2026-02-01
+ */
+
+/* ===========================================================================
+   TABS TO ACCORDION CONVERTER (dijit TabContainer)
+   =========================================================================== */
+
+.tabs2acc-header {
+  padding: 6px 10px;
+  background: linear-gradient(to bottom, #f5f5f5 0%, #e8e8e8 100%);
+  border: 1px solid #ccc;
+  border-radius: 3px;
+  margin-top: 2px;
+  cursor: pointer;
+  user-select: none;
+  display: flex;
+  align-items: center;
+  font-weight: bold;
+  font-size: 13px;
+}
+
+.tabs2acc-header:hover {
+  background: linear-gradient(to bottom, #fff 0%, #f0f0f0 100%);
+}
+
+.tabs2acc-header.is-open {
+  background: linear-gradient(to bottom, #e0e0e0 0%, #d0d0d0 100%);
+}
+
+.tabs2acc-header .acc-icon {
+  margin-right: 6px;
+  width: 16px;
+  height: 16px;
+}
+
+.tabs2acc-header .acc-arrow {
+  margin-right: 6px;
+  transition: transform 0.2s;
+}
+
+.tabs2acc-header.is-open .acc-arrow {
+  transform: rotate(90deg);
+}
+
+.tabs2acc-panel {
+  display: none !important;
+  border: 1px solid #ddd;
+  border-top: none;
+  padding: 0;
+  max-height: 350px;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.tabs2acc-panel.is-open {
+  display: block !important;
+}
+
+#kantons_container .tabs2acc-panel {
+  display: none !important;
+}
+
+#kantons_container .tabs2acc-panel.is-open {
+  display: block !important;
+}
+
+.tabs2acc-panel > .dijitContentPane {
+  padding: 4px !important;
+}
+
+/* Doppelte Kategorie-Header ausblenden */
+.tabs2acc-panel .categoryHeader {
+  display: none !important;
+}
+
+/* Tab-Leiste ausblenden */
+.tabs2acc-converted > .dijitTabListContainer-top,
+.tabs2acc-converted > .dijitTabSpacer {
+  display: none !important;
+}
+
+.tabs2acc-converted > .dijitTabPaneWrapper {
+  border: none !important;
+}
+
+.tabs2acc-converted {
+  height: auto !important;
+}
+
+/* ===========================================================================
+   TITLEPANES TO TABS CONVERTER (Kantons-Tabs)
+   =========================================================================== */
+
+/* Container-Höhe vom übergeordneten Themenkatalog TitlePane */
+#tp_overview_menu.dijitTitlePane > .dijitTitlePaneContentOuter {
+  height: 450px !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+#tp_overview_menu.dijitTitlePane > .dijitTitlePaneContentOuter > .dijitTitlePaneContentInner {
+  height: 100% !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+/* Kantons-Container Layout */
+#kantons_container {
+  position: relative;
+  height: 100%;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  margin: 0 !important;
+  padding: 0 !important;
+  background: transparent !important;
+}
+
+#kantons_tab_bar {
+  display: flex;
+  flex-wrap: nowrap;
+  background: transparent;
+  margin: 0 !important;
+  padding: 0 !important;
+  flex-shrink: 0;
+  width: 100%;
+}
+
+#kantons_tab_bar .kanton-tab {
+  flex: 1;
+  padding: 1px 0;
+  cursor: pointer;
+  border: none;
+  border-right: 2px solid rgba(255,255,255,0.4) !important;
+  margin: 0;
+  background: #648C96;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#kantons_tab_bar .kanton-tab:last-child {
+  border-right: none !important;
+}
+
+#kantons_tab_bar .kanton-tab:hover {
+  background: #567a83;
+}
+
+#kantons_tab_bar .kanton-tab.active {
+  background: #e8423f;
+}
+
+#kantons_tab_bar .kanton-tab.active:hover {
+  background: #d63a37;
+}
+
+#kantons_tab_bar .kanton-tab img {
+  width: auto !important;
+  height: 28px !important;
+  filter: brightness(0) invert(1);
+}
+
+/* Schweizerkreuz (Bund) etwas grösser */
+#kantons_tab_bar .kanton-tab:nth-child(3) img {
+  height: 36px !important;
+}
+
+/* Kantons-TitlePanes - Hauptebene */
+#kantons_container > .dijitTitlePane {
+  display: none !important;
+  background: transparent !important;
+}
+
+#kantons_container > .dijitTitlePane.active-tab {
+  display: block !important;
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: none !important;
+  width: 100% !important;
+}
+
+#kantons_container > .dijitTitlePane.active-tab > .dijitTitlePaneTitle {
+  display: none !important;
+}
+
+#kantons_container > .dijitTitlePane.active-tab > .dijitTitlePaneContentOuter {
+  height: auto !important;
+  overflow: visible !important;
+  border: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  width: 100% !important;
+  background: transparent !important;
+}
+
+#kantons_container > .dijitTitlePane.active-tab > .dijitTitlePaneContentOuter > .dijitTitlePaneContentInner {
+  height: auto !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  width: 100% !important;
+  background: transparent !important;
+}
+
+/* Scrollbar nur bei hover */
+#kantons_container > .dijitTitlePane.active-tab::-webkit-scrollbar {
+  width: 8px;
+}
+
+#kantons_container > .dijitTitlePane.active-tab::-webkit-scrollbar-thumb {
+  background: transparent;
+  border-radius: 4px;
+}
+
+#kantons_container > .dijitTitlePane.active-tab:hover::-webkit-scrollbar-thumb {
+  background: #999;
+}
+
+/* Innere ContentPanes */
+#kantons_container .dijitContentPane {
+  height: auto !important;
+  overflow: visible !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: none !important;
+  width: 100% !important;
+  background: transparent !important;
+}
+
+/* Layer Manager Wrapper - weisse Ränder entfernen */
+#kantons_container [id$="_lyrmgr_wrapper"] {
+  height: auto !important;
+  overflow: visible !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  width: 100% !important;
+  background: transparent !important;
+}
+
+#kantons_container [id$="_lyrmgr_wrapper"] > * {
+  width: 100% !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  background: transparent !important;
+}
+
+#kantons_container .ClassicLayerMgr {
+  height: auto !important;
+  overflow: visible !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  width: 100% !important;
+  background: transparent !important;
+  border: none !important;
+}
+
+/* TabContainer - weisse Ränder entfernen */
+#kantons_container .dijitTabContainer {
+  height: auto !important;
+  overflow: visible !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: none !important;
+  width: 100% !important;
+  background: transparent !important;
+}
+
+#kantons_container .dijitTabPaneWrapper {
+  height: auto !important;
+  overflow: visible !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: none !important;
+  width: 100% !important;
+  background: transparent !important;
+}
+
+#kantons_container .dijitTabContainerTopChildWrapper {
+  height: auto !important;
+  overflow: visible !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  width: 100% !important;
+  background: transparent !important;
+}
+
+#kantons_container .dijitTabListWrapper-top {
+  display: none !important;
+}
+
+/* Innere Kategorie-Accordions - Borders/Backgrounds entfernen aber Padding behalten */
+#kantons_container .dijitTitlePane {
+  margin: 0 !important;
+  border: none !important;
+  width: 100% !important;
+  background: transparent !important;
+}
+
+#kantons_container .dijitTitlePaneTitle {
+  width: 100% !important;
+  border: none !important;
+  border-radius: 0 !important;
+}
+
+#kantons_container .dijitTitlePaneTitleFocus {
+  border-radius: 0 !important;
+}
+
+#kantons_container .dijitTitlePaneContentOuter {
+  margin: 0 !important;
+  border: none !important;
+  width: 100% !important;
+  background: transparent !important;
+}
+
+#kantons_container .dijitTitlePaneContentInner {
+  margin: 0 !important;
+  width: 100% !important;
+  background: transparent !important;
+}
+
+/* Weisse Hintergründe/Borders global entfernen */
+#kantons_container,
+#kantons_container * {
+  box-sizing: border-box !important;
+}
+
+#kantons_container .dijitBorderContainer,
+#kantons_container .dijitBorderContainerPane {
+  border: none !important;
+  background: transparent !important;
+}
+
+#kantons_container .dijitAccordionContainer {
+  border: none !important;
+  background: transparent !important;
+}
+
+#kantons_container .dijitStackContainer {
+  border: none !important;
+  background: transparent !important;
+}
+
+/* Padding auf allen _pane Elementen entfernen (verursacht weisse Ränder) */
+#tp_overview_menu_pane {
+  padding: 0 !important;
+  height: auto !important;
+}
+
+#tp_layer_menu_pane,
+#tp_layer_menu2_pane,
+#tp_layer_menu3_pane,
+#tp_layer_menu4_pane {
+  padding: 0 !important;
+}
+
+#kantons_container [id$="_pane"].dijitTitlePaneContentInner {
+  padding: 0 !important;
+}
+
+/* Themenkatalog Höhe anpassen */
+#tp_overview_menu.dijitTitlePane > .dijitTitlePaneContentOuter {
+  height: auto !important;
+  max-height: 500px !important;
+}
+
+#kantons_container {
+  height: 450px !important;
+}
+
+/* ===========================================================================
+   TOC Container (für zukünftige Karten-Navigation)
+   =========================================================================== */
+
+.tnet-toc {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 280px;
+  height: 100vh;
+  background: #fff;
+  box-shadow: 2px 0 8px rgba(0,0,0,0.15);
+  z-index: 2000;
+  transform: translateX(-100%);
+  transition: transform 0.3s ease;
+  overflow-y: auto;
+}
+
+.tnet-toc.open {
+  transform: translateX(0);
+}
+
+/* ===========================================
+   TOC Header
+   =========================================== */
+
+.tnet-toc-header {
+  position: sticky;
+  top: 0;
+  background: #700011;
+  color: #fff;
+  padding: 15px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.tnet-toc-header img {
+  height: 32px;
+  width: auto;
+}
+
+.tnet-toc-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  flex: 1;
+}
+
+.tnet-toc-close {
+  background: none;
+  border: none;
+  color: #fff;
+  font-size: 1.5rem;
+  cursor: pointer;
+  padding: 0 5px;
+}
+
+.tnet-toc-close:hover {
+  opacity: 0.8;
+}
+
+/* ===========================================
+   TOC Toggle Button
+   =========================================== */
+
+.tnet-toc-toggle {
+  position: fixed;
+  top: 10px;
+  left: 10px;
+  z-index: 1999;
+  background: #700011;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  padding: 8px 12px;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.tnet-toc-toggle:hover {
+  background: #8a0015;
+}
+
+.tnet-toc-toggle img {
+  height: 20px;
+  width: auto;
+}
+
+/* ===========================================
+   TOC Sections (Gruppen)
+   =========================================== */
+
+.tnet-toc-section {
+  border-bottom: 1px solid #eee;
+}
+
+.tnet-toc-section-header {
+  padding: 12px 15px;
+  font-weight: 600;
+  color: #333;
+  background: #f5f5f5;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.tnet-toc-section-header:hover {
+  background: #eee;
+}
+
+.tnet-toc-section-header img {
+  height: 24px;
+  width: auto;
+}
+
+.tnet-toc-section-arrow {
+  margin-left: auto;
+  transition: transform 0.2s;
+}
+
+.tnet-toc-section.open .tnet-toc-section-arrow {
+  transform: rotate(90deg);
+}
+
+/* ===========================================
+   TOC Items (Karten-Links)
+   =========================================== */
+
+.tnet-toc-items {
+  display: none;
+  padding: 5px 0;
+}
+
+.tnet-toc-section.open .tnet-toc-items {
+  display: block;
+}
+
+.tnet-toc-item {
+  padding: 8px 15px 8px 40px;
+  color: #555;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.tnet-toc-item:hover {
+  background: #f0f0f0;
+  color: #700011;
+}
+
+.tnet-toc-item.active {
+  background: #fff0f2;
+  color: #700011;
+  font-weight: 500;
+}
+
+/* ===========================================
+   Responsive
+   =========================================== */
+
+@media (max-width: 600px) {
+  .tnet-toc {
+    width: 100%;
+  }
+}
