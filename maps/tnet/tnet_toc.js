@@ -248,7 +248,252 @@
       setTimeout(openFirstTab, 1000);
 
       container.dataset.tabified = 'true';
+      
+      // Alle Kantons-TitlePanes permanent offen halten
+      self.keepPanesOpen();
+      
+      // Event-Listener für Themenkatalog-Öffnen hinzufügen
+      self.watchThemenkatalog();
+      
       return true;
+    },
+
+    // Verhindert das Schließen der Kantons-TitlePanes
+    keepPanesOpen: function() {
+      var self = this;
+      
+      if (typeof dijit === 'undefined') return;
+      
+      this.panes.forEach(function(pane) {
+        var widget = dijit.byId(pane.id);
+        if (widget) {
+          // Überschreibe die toggle-Methode
+          widget._originalToggle = widget.toggle;
+          widget.toggle = function() {
+            // Nicht togglen - immer offen bleiben
+            return;
+          };
+          
+          // Überschreibe den Setter für 'open'
+          widget._originalSetOpen = widget._setOpenAttr;
+          widget._setOpenAttr = function(value) {
+            // Immer auf true setzen
+            if (this._originalSetOpen) {
+              this._originalSetOpen.call(this, true);
+            }
+          };
+          
+          // Öffne das Widget
+          widget.set('open', true);
+        }
+      });
+      
+      // MutationObserver um sofort zu reagieren wenn ein Pane geschlossen wird
+      var container = document.getElementById('kantons_container');
+      if (container && typeof MutationObserver !== 'undefined') {
+        var observer = new MutationObserver(function(mutations) {
+          self.panes.forEach(function(pane) {
+            var el = document.getElementById(pane.id);
+            if (el) {
+              // Prüfe ob es geschlossen wurde
+              if (el.classList.contains('dijitTitlePaneClosed')) {
+                el.classList.remove('dijitTitlePaneClosed');
+                el.classList.add('dijitTitlePaneOpened');
+                
+                // ContentOuter sichtbar machen
+                var content = el.querySelector('.dijitTitlePaneContentOuter');
+                if (content) {
+                  content.style.display = 'block';
+                  content.style.height = 'auto';
+                }
+              }
+            }
+          });
+        });
+        
+        observer.observe(container, { 
+          attributes: true, 
+          subtree: true,
+          attributeFilter: ['class', 'style']
+        });
+      }
+    },
+
+    // Überwacht den Themenkatalog und stellt aktiven Tab wieder her
+    watchThemenkatalog: function() {
+      var self = this;
+      
+      // Funktion zum Wiederherstellen des aktiven Tabs
+      function restoreActiveTab() {
+        var tabBar = document.getElementById('kantons_tab_bar');
+        if (!tabBar) return;
+        
+        var activeTab = tabBar.querySelector('.kanton-tab.active');
+        if (activeTab) {
+          var targetId = activeTab.dataset.target;
+          var targetPane = document.getElementById(targetId);
+          if (targetPane) {
+            // Stelle sicher, dass das Pane die active-tab Klasse hat
+            targetPane.classList.add('active-tab');
+            
+            // WICHTIG: Inline-Style display:none vom ContentOuter UND WipeNode entfernen!
+            var contentOuter = targetPane.querySelector('.dijitTitlePaneContentOuter');
+            if (contentOuter) {
+              // KOMPLETT das style-Attribut entfernen statt nur überschreiben
+              contentOuter.removeAttribute('style');
+              // Dann unsere Styles setzen
+              contentOuter.style.display = 'block';
+              contentOuter.style.height = 'auto';
+              contentOuter.style.overflow = 'visible';
+              
+              // Auch wipeNode (inneres div) muss sichtbar sein!
+              var wipeNode = contentOuter.querySelector('.dijitReset[data-dojo-attach-point="wipeNode"]');
+              if (!wipeNode) {
+                wipeNode = contentOuter.querySelector('.dijitReset');
+              }
+              if (!wipeNode) {
+                wipeNode = contentOuter.firstElementChild;
+              }
+              if (wipeNode) {
+                // KOMPLETT das style-Attribut entfernen
+                wipeNode.removeAttribute('style');
+                wipeNode.style.display = 'block';
+                wipeNode.style.height = 'auto';
+                wipeNode.style.overflow = 'visible';
+              }
+            }
+            
+            // TitleBarNode auf "offen" setzen (Klassen korrigieren)
+            var titleBarNode = targetPane.querySelector('.dijitTitlePaneTitle');
+            if (titleBarNode) {
+              titleBarNode.classList.remove('dijitTitlePaneTitleClosed', 'dijitClosed');
+              titleBarNode.classList.add('dijitTitlePaneTitleOpen', 'dijitOpen');
+              // aria-pressed aktualisieren
+              var focusNode = titleBarNode.querySelector('.dijitTitlePaneTitleFocus');
+              if (focusNode) {
+                focusNode.setAttribute('aria-pressed', 'true');
+              }
+            }
+            
+            // ContentInner aria-hidden auf false setzen
+            var contentInner = targetPane.querySelector('.dijitTitlePaneContentInner');
+            if (contentInner) {
+              contentInner.setAttribute('aria-hidden', 'false');
+            }
+            
+            // Öffne das Widget falls es existiert
+            if (typeof dijit !== 'undefined') {
+              var widget = dijit.byId(targetId);
+              if (widget) {
+                // WICHTIG: Dijit-interne Flags direkt setzen
+                widget._wipeIn = null;  // Animation abbrechen
+                widget._wipeOut = null;
+                widget.open = true;
+                widget._setOpenAttr(true);
+                if (widget.hideNode) {
+                  widget.hideNode.style.display = 'block';
+                  widget.hideNode.style.height = 'auto';
+                }
+                if (widget.wipeNode) {
+                  widget.wipeNode.style.display = 'block';
+                  widget.wipeNode.style.height = 'auto';
+                }
+                if (widget.resize) widget.resize();
+              }
+            }
+          }
+        }
+      }
+      
+      // AGGRESSIVER FIX: Kontinuierlich prüfen und korrigieren (alle 100ms für 2 Sekunden nach Klick)
+      var fixIntervalId = null;
+      var fixCount = 0;
+      
+      function startAggressiveFix() {
+        fixCount = 0;
+        if (fixIntervalId) clearInterval(fixIntervalId);
+        fixIntervalId = setInterval(function() {
+          restoreActiveTab();
+          fixCount++;
+          if (fixCount > 20) { // Nach 2 Sekunden stoppen
+            clearInterval(fixIntervalId);
+            fixIntervalId = null;
+          }
+        }, 100);
+      }
+      
+      // GLOBALER Observer: Reagiert auf ALLE TitlePane-Änderungen im Seitenbereich
+      var leftPane = document.querySelector('.leftPane, #left_pane, [data-dojo-type*="ContentPane"]');
+      if (!leftPane) leftPane = document.body;
+      
+      if (typeof MutationObserver !== 'undefined') {
+        var globalObserver = new MutationObserver(function(mutations) {
+          var needsRestore = false;
+          
+          mutations.forEach(function(mutation) {
+            // Prüfe ob ein TitlePane geöffnet/geschlossen wurde
+            if (mutation.target && mutation.target.classList) {
+              if (mutation.target.classList.contains('dijitTitlePane') ||
+                  mutation.target.classList.contains('dijitTitlePaneContentOuter') ||
+                  mutation.target.classList.contains('dijitReset')) {
+                needsRestore = true;
+              }
+            }
+            // Auch auf style-Änderungen am wipeNode reagieren
+            if (mutation.attributeName === 'style' && mutation.target.dataset && 
+                mutation.target.dataset.dojoAttachPoint === 'wipeNode') {
+              needsRestore = true;
+            }
+          });
+          
+          if (needsRestore) {
+            // Sofort und aggressiv wiederherstellen
+            restoreActiveTab();
+            startAggressiveFix();
+          }
+        });
+        
+        globalObserver.observe(leftPane, { 
+          attributes: true, 
+          subtree: true,
+          attributeFilter: ['class', 'style']
+        });
+      }
+      
+      // Auch auf Dijit-Events reagieren falls verfügbar
+      if (typeof dijit !== 'undefined') {
+        var widget = dijit.byId('tp_overview_menu');
+        if (widget) {
+          widget.watch('open', function(name, oldValue, newValue) {
+            if (newValue === true) {
+              startAggressiveFix();
+            }
+          });
+        }
+        
+        // Reagiere auf ALLE TitlePane toggle-Events
+        ['tp_wms_menu', 'tp_sort_menu', 'tp_tools_menu', 'tp_overview_menu'].forEach(function(id) {
+          var pane = dijit.byId(id);
+          if (pane) {
+            pane.watch('open', function() {
+              startAggressiveFix();
+            });
+          }
+        });
+      }
+      
+      // DIREKTER KLICK-HANDLER auf alle TitlePane-Titel außerhalb unserer Tabs
+      document.addEventListener('click', function(e) {
+        var titleBar = e.target.closest('.dijitTitlePaneTitle');
+        if (titleBar) {
+          // Prüfen ob es NICHT einer unserer Tab-Panes ist
+          var pane = titleBar.closest('.dijitTitlePane');
+          if (pane && !pane.classList.contains('kantons-tab')) {
+            // Ein anderer TitlePane wurde geklickt - aggressiv wiederherstellen
+            startAggressiveFix();
+          }
+        }
+      }, true); // capture phase
     },
 
     init: function() {

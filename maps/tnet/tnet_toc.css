@@ -193,22 +193,126 @@
   display: none !important;
 }
 
-#kantons_container > .dijitTitlePane.active-tab > .dijitTitlePaneContentOuter {
+/* KRITISCH: ContentOuter IMMER sichtbar - alle möglichen Dijit-Zustände überschreiben */
+#kantons_container > .dijitTitlePane.active-tab > .dijitTitlePaneContentOuter,
+#kantons_container > .dijitTitlePane.active-tab.dijitTitlePaneClosed > .dijitTitlePaneContentOuter,
+#kantons_container > .dijitTitlePane.active-tab.dijitClosed > .dijitTitlePaneContentOuter,
+#kantons_container > .dijitTitlePane.active-tab[aria-hidden="true"] > .dijitTitlePaneContentOuter,
+#kantons_container .dijitTitlePane.active-tab .dijitTitlePaneContentOuter,
+/* ULTIMATIV: Auch mit inline style attribute selector */
+#kantons_container > .dijitTitlePane.active-tab > .dijitTitlePaneContentOuter[style],
+#kantons_container > .dijitTitlePane.active-tab > .dijitTitlePaneContentOuter[style*="display"],
+#kantons_container > .dijitTitlePane.active-tab > .dijitTitlePaneContentOuter[style*="none"],
+#tp_layer_menu.active-tab > .dijitTitlePaneContentOuter,
+#tp_layer_menu.active-tab > .dijitTitlePaneContentOuter[style],
+#tp_layer_menu2.active-tab > .dijitTitlePaneContentOuter,
+#tp_layer_menu2.active-tab > .dijitTitlePaneContentOuter[style],
+#tp_layer_menu3.active-tab > .dijitTitlePaneContentOuter,
+#tp_layer_menu3.active-tab > .dijitTitlePaneContentOuter[style],
+#tp_layer_menu4.active-tab > .dijitTitlePaneContentOuter,
+#tp_layer_menu4.active-tab > .dijitTitlePaneContentOuter[style] {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
   height: auto !important;
+  max-height: none !important;
   overflow: visible !important;
   border: none !important;
   margin: 0 !important;
   padding: 0 !important;
   width: 100% !important;
   background: transparent !important;
+  position: relative !important;
+  clip: auto !important;
+  transform: none !important;
 }
 
-#kantons_container > .dijitTitlePane.active-tab > .dijitTitlePaneContentOuter > .dijitTitlePaneContentInner {
+/* ContentInner auch immer sichtbar */
+#kantons_container > .dijitTitlePane.active-tab .dijitTitlePaneContentInner,
+#kantons_container .dijitTitlePane.active-tab .dijitTitlePaneContentInner {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
   height: auto !important;
+  max-height: none !important;
   margin: 0 !important;
   padding: 0 !important;
   width: 100% !important;
   background: transparent !important;
+}
+
+/* Alle inneren Inhalte sichtbar */
+#kantons_container .dijitTitlePane.active-tab .dijitContentPane,
+#kantons_container .dijitTitlePane.active-tab [id*="lyrmgr_wrapper"],
+#kantons_container .dijitTitlePane.active-tab #layer_menu,
+#kantons_container .dijitTitlePane.active-tab #layer_menu2,
+#kantons_container .dijitTitlePane.active-tab #layer_menu3,
+#kantons_container .dijitTitlePane.active-tab #layer_menu4 {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  height: auto !important;
+}
+
+/* KRITISCH: TabPaneWrapper und alle inneren Elemente IMMER sichtbar halten */
+#kantons_container .dijitTitlePane.active-tab .dijitTabPaneWrapper,
+#kantons_container .dijitTitlePane.active-tab .dijitTabPaneWrapper * {
+  visibility: visible !important;
+}
+
+/* ========================================================================
+   ULTIMATIVER FIX: wipeNode (dijitReset) MUSS sichtbar bleiben!
+   Dijit setzt display:none auf BEIDE ContentOuter UND wipeNode
+   ======================================================================== */
+#kantons_container .dijitTitlePane.active-tab .dijitTitlePaneContentOuter .dijitReset,
+#kantons_container .dijitTitlePane.active-tab .dijitTitlePaneContentOuter > .dijitReset,
+#kantons_container .dijitTitlePane.active-tab .dijitTitlePaneContentOuter > div[data-dojo-attach-point="wipeNode"],
+#kantons_container > .dijitTitlePane.active-tab > .dijitTitlePaneContentOuter > .dijitReset,
+#kantons_container > .dijitTitlePane.active-tab > .dijitTitlePaneContentOuter > .dijitReset[style],
+#kantons_container > .dijitTitlePane.active-tab > .dijitTitlePaneContentOuter > .dijitReset[style*="display"],
+#kantons_container > .dijitTitlePane.active-tab > .dijitTitlePaneContentOuter > .dijitReset[style*="none"],
+#tp_layer_menu.active-tab .dijitTitlePaneContentOuter .dijitReset,
+#tp_layer_menu.active-tab .dijitTitlePaneContentOuter .dijitReset[style],
+#tp_layer_menu2.active-tab .dijitTitlePaneContentOuter .dijitReset,
+#tp_layer_menu2.active-tab .dijitTitlePaneContentOuter .dijitReset[style],
+#tp_layer_menu3.active-tab .dijitTitlePaneContentOuter .dijitReset,
+#tp_layer_menu3.active-tab .dijitTitlePaneContentOuter .dijitReset[style],
+#tp_layer_menu4.active-tab .dijitTitlePaneContentOuter .dijitReset,
+#tp_layer_menu4.active-tab .dijitTitlePaneContentOuter .dijitReset[style] {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  height: auto !important;
+  max-height: none !important;
+  overflow: visible !important;
+}
+
+/* SUPER-ULTIMATIV: Alle Elemente mit inline display:none innerhalb active-tab überschreiben */
+#kantons_container .dijitTitlePane.active-tab [style*="display: none"],
+#kantons_container .dijitTitlePane.active-tab [style*="display:none"],
+#tp_layer_menu.active-tab [style*="display: none"],
+#tp_layer_menu.active-tab [style*="display:none"],
+#tp_layer_menu2.active-tab [style*="display: none"],
+#tp_layer_menu2.active-tab [style*="display:none"],
+#tp_layer_menu3.active-tab [style*="display: none"],
+#tp_layer_menu3.active-tab [style*="display:none"],
+#tp_layer_menu4.active-tab [style*="display: none"],
+#tp_layer_menu4.active-tab [style*="display:none"] {
+  display: block !important;
+}
+
+/* Ausnahme: tabs2acc-panel ohne is-open soll versteckt bleiben */
+#kantons_container .dijitTitlePane.active-tab .tabs2acc-panel:not(.is-open) {
+  display: none !important;
+}
+
+/* tabs2acc-panel mit is-open Klasse IMMER sichtbar */
+#kantons_container .dijitTitlePane.active-tab .tabs2acc-panel.is-open {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  height: auto !important;
+  overflow: visible !important;
 }
 
 /* Scrollbar nur bei hover */
