@@ -14,11 +14,6 @@ div[id*="njs_"] * {
   background-size: 260px;
 } */
 
-div#njs_search_wrapper {
-  background: #DDDDDD;
-  height: 35px;
-}
-
 #infowin_wait {
   filter: grayscale(100%);
 }
@@ -178,11 +173,6 @@ input[type="range"]::-webkit-slider-thumb:hover {
    Modal Dialog Styling für Maps-Katalog
    ======================================== */
 
-div#njs_search_wrapper {
-  background: #DDDDDD;
-  height: 35px;
-}
-
 div#search_container {
   position: fixed;
   left: 50%;
@@ -198,27 +188,200 @@ input#solrsearchFirstParamSelect {
   box-sizing: border-box;
 }
 
-div#njs_search_wrapper {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  box-sizing: border-box;
-  z-index: 1000;
-  background: #fcfcfcc0 !important;
+/* Header-Bereich */
+div#njs_search_wrapper,
+body div#njs_search_wrapper {
+  position: fixed !important;
+  top: 12px !important;
+  left: 340px !important;
+  right: 0 !important;
+  width: auto !important;
+  box-sizing: border-box !important;
+  z-index: 1000 !important;
+  background: transparent !important;
+  height: 45px !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  border: none !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+}
+
+/* Search Container */
+div#search_container,
+body div#search_container,
+div#njs_search_wrapper div#search_container {
+  position: relative !important;
+  top: auto !important;
+  left: auto !important;
+  transform: none !important;
+  width: 330px !important;
+  height: 45px !important;
+  background: #e8f0f1 !important;
+  border: none !important;
+  border-radius: 0 !important;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1) !important;
+  display: flex !important;
+  align-items: center !important;
+  padding: 0 10px !important;
+  box-sizing: border-box !important;
+}
+
+div#search_container #srch_free {
+  width: 100% !important;
+  display: flex !important;
+  align-items: center !important;
+}
+
+div#search_container #srch_free > div {
+  width: 100% !important;
+  align-items: center !important;
+}
+
+/* Lupe links */
+div#search_container .iconSearch {
+  flex-shrink: 0 !important;
+  width: 20px !important;
+  height: 20px !important;
+  margin-right: 10px !important;
+  opacity: 0.6;
+}
+
+/* Suchfeld-Input Styling */
+div#search_container .dijitTextBox {
+  flex: 1 !important;
+  height: 40px !important;
+  border: none !important;
+  background: transparent !important;
+  overflow: visible !important;
+}
+
+div#search_container .dijitInputInner {
+  width: 100% !important;
+  height: 40px !important;
+  border: none !important;
+  outline: none !important;
+  font-size: 14px !important;
+  background: transparent !important;
+  padding: 0 !important;
+  text-align: left !important;
+  margin-top: 2px !important;
+  overflow: visible !important;
+}
+
+div#search_container .dijitPlaceHolder {
+  text-align: left !important;
+  color: #888 !important;
+  font-size: 14px !important;
+  margin-top: 8px !important;
+  overflow: visible !important;
+}
+
+div#search_container .dijitInputContainer {
+  overflow: visible !important;
+}
+
+/* Kreuz rechts, feiner */
+div#search_container .clearSearch {
+  flex-shrink: 0 !important;
+  width: 18px !important;
+  height: 18px !important;
+  margin-left: 10px !important;
+  cursor: pointer !important;
+  opacity: 0.5 !important;
+}
+
+div#search_container .clearSearch:hover {
+  opacity: 1 !important;
+}
+
+/* Arrow Button verstecken */
+div#search_container .dijitArrowButton {
+  display: none !important;
+}
+
+/* Validation Icon verstecken */
+div#search_container .dijitValidationContainer {
+  display: none !important;
+}
+
+/* Disclaimer unterhalb Header */
+#disclaimer_pdf,
+body #disclaimer_pdf,
+div#disclaimer_pdf,
+#disclaimer_news,
+body #disclaimer_news,
+div#disclaimer_news {
+  top: 75px !important;
+  left: 340px !important;
+}
+
+/* Search Dropdown Popup */
+.dijitComboBoxMenuPopup,
+#widget_solrsearchFirstParamSelect_dropdown {
+  left: 340px !important;
+  top: 57px !important;
+}
+
+div#njs_search_wrapper .solrsearchSearchInputCancel:hover,
+div#njs_search_wrapper [class*="cancel"]:hover,
+div#njs_search_wrapper button:hover {
+  color: #dd1533 !important;
 }
 
 div#leftPaneHeader {
   margin-left: 0;
   box-sizing: border-box;
   color: #700011 !important;
+  display: none; /* Ausgeblendet, Logo ist jetzt separat */
 }
 
 div#freepane {
   left: 0 !important;
-  top: 35px !important;
+  top: 69px !important;
   width: 340px;
   z-index: 50;
+}
+
+/* GIS Logo Header links oben */
+#gis_logo_header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 69px;
+  background: #fcfcfc;
+  z-index: 999;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+#gis_logo_container {
+  position: fixed;
+  top: 5px;
+  left: 12px;
+  z-index: 1001;
+  cursor: pointer;
+  display: block;
+  text-decoration: none;
+}
+
+#gis_logo_container .gis-logo-svg {
+  height: 58px;
+  width: auto;
+  display: block;
+}
+
+#gis_logo_container .gis-logo-cube {
+  position: absolute;
+  height: 18px;
+  width: auto;
+  top: -3px;
+  left: 30px;
+}
+
+#gis_logo_container:hover {
+  opacity: 0.85;
 }
 
 /* Hintergrund abdunkeln */
