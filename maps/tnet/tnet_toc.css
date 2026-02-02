@@ -10,25 +10,30 @@
    =========================================================================== */
 
 .tabs2acc-header {
-  padding: 6px 10px;
-  background: linear-gradient(to bottom, #f5f5f5 0%, #e8e8e8 100%);
-  border: 1px solid #ccc;
-  border-radius: 3px;
-  margin-top: 2px;
+  padding: 8px 10px;
+  background: #95b5be;
+  border: none;
+  border-radius: 0;
+  margin-top: 1px;
   cursor: pointer;
   user-select: none;
   display: flex;
   align-items: center;
   font-weight: bold;
   font-size: 13px;
+  color: #fff;
+  position: relative;
+  z-index: 1;
+  min-height: 28px;
+  box-sizing: border-box;
 }
 
 .tabs2acc-header:hover {
-  background: linear-gradient(to bottom, #fff 0%, #f0f0f0 100%);
+  background: #a5c5ce;
 }
 
 .tabs2acc-header.is-open {
-  background: linear-gradient(to bottom, #e0e0e0 0%, #d0d0d0 100%);
+  background: #7aa0aa;
 }
 
 .tabs2acc-header .acc-icon {
@@ -40,6 +45,7 @@
 .tabs2acc-header .acc-arrow {
   margin-right: 6px;
   transition: transform 0.2s;
+  color: #648B95;
 }
 
 .tabs2acc-header.is-open .acc-arrow {
@@ -48,12 +54,12 @@
 
 .tabs2acc-panel {
   display: none !important;
-  border: 1px solid #ddd;
-  border-top: none;
+  border: none;
   padding: 0;
-  max-height: 350px;
-  overflow-y: auto;
+  max-height: none;
+  overflow-y: visible;
   overflow-x: hidden;
+  position: relative;
 }
 
 .tabs2acc-panel.is-open {
@@ -62,6 +68,8 @@
 
 #kantons_container .tabs2acc-panel {
   display: none !important;
+  max-height: none;
+  overflow: visible;
 }
 
 #kantons_container .tabs2acc-panel.is-open {
@@ -69,7 +77,7 @@
 }
 
 .tabs2acc-panel > .dijitContentPane {
-  padding: 4px !important;
+  padding: 0 !important;
 }
 
 /* Doppelte Kategorie-Header ausblenden */
@@ -94,6 +102,11 @@
 /* ===========================================================================
    TITLEPANES TO TABS CONVERTER (Kantons-Tabs)
    =========================================================================== */
+
+/* Themenkatalog: Dreieck-Pfeil ausblenden */
+#tp_overview_menu .dijitArrowNode {
+  display: none !important;
+}
 
 /* Container-Höhe vom übergeordneten Themenkatalog TitlePane */
 #tp_overview_menu.dijitTitlePane > .dijitTitlePaneContentOuter {
@@ -288,16 +301,27 @@
 }
 
 /* SUPER-ULTIMATIV: Alle Elemente mit inline display:none innerhalb active-tab überschreiben */
-#kantons_container .dijitTitlePane.active-tab [style*="display: none"],
-#kantons_container .dijitTitlePane.active-tab [style*="display:none"],
-#tp_layer_menu.active-tab [style*="display: none"],
-#tp_layer_menu.active-tab [style*="display:none"],
-#tp_layer_menu2.active-tab [style*="display: none"],
-#tp_layer_menu2.active-tab [style*="display:none"],
-#tp_layer_menu3.active-tab [style*="display: none"],
-#tp_layer_menu3.active-tab [style*="display:none"],
-#tp_layer_menu4.active-tab [style*="display: none"],
-#tp_layer_menu4.active-tab [style*="display:none"] {
+/* ABER: Layer-Gruppen (div_gis_...) ausnehmen, damit Einklappen funktioniert */
+#kantons_container .dijitTitlePane.active-tab .dijitTitlePaneContentOuter[style*="display: none"],
+#kantons_container .dijitTitlePane.active-tab .dijitTitlePaneContentOuter[style*="display:none"],
+#kantons_container .dijitTitlePane.active-tab .dijitReset[style*="display: none"],
+#kantons_container .dijitTitlePane.active-tab .dijitReset[style*="display:none"],
+#tp_layer_menu.active-tab .dijitTitlePaneContentOuter[style*="display: none"],
+#tp_layer_menu.active-tab .dijitTitlePaneContentOuter[style*="display:none"],
+#tp_layer_menu.active-tab .dijitReset[style*="display: none"],
+#tp_layer_menu.active-tab .dijitReset[style*="display:none"],
+#tp_layer_menu2.active-tab .dijitTitlePaneContentOuter[style*="display: none"],
+#tp_layer_menu2.active-tab .dijitTitlePaneContentOuter[style*="display:none"],
+#tp_layer_menu2.active-tab .dijitReset[style*="display: none"],
+#tp_layer_menu2.active-tab .dijitReset[style*="display:none"],
+#tp_layer_menu3.active-tab .dijitTitlePaneContentOuter[style*="display: none"],
+#tp_layer_menu3.active-tab .dijitTitlePaneContentOuter[style*="display:none"],
+#tp_layer_menu3.active-tab .dijitReset[style*="display: none"],
+#tp_layer_menu3.active-tab .dijitReset[style*="display:none"],
+#tp_layer_menu4.active-tab .dijitTitlePaneContentOuter[style*="display: none"],
+#tp_layer_menu4.active-tab .dijitTitlePaneContentOuter[style*="display:none"],
+#tp_layer_menu4.active-tab .dijitReset[style*="display: none"],
+#tp_layer_menu4.active-tab .dijitReset[style*="display:none"] {
   display: block !important;
 }
 
@@ -413,10 +437,69 @@
   width: 100% !important;
   border: none !important;
   border-radius: 0 !important;
+  min-height: 28px !important;
+  height: auto !important;
+  line-height: 1.4 !important;
+  padding: 6px 8px !important;
+  overflow: visible !important;
+}
+
+#kantons_container .dijitTitlePaneTextNode,
+#kantons_container .dijitTitlePaneTextNode .appendtitle {
+  display: inline-block !important;
+  overflow: visible !important;
+  white-space: nowrap !important;
+  text-overflow: clip !important;
+  line-height: 1.4 !important;
+  height: auto !important;
+  max-height: none !important;
+  vertical-align: middle !important;
+}
+
+/* Checkbox im TitlePane horizontal neben dem Text */
+#kantons_container .dijitTitlePaneTextNode .dijitCheckBox,
+.tabs2acc-panel .dijitTitlePaneTextNode .dijitCheckBox,
+.dijitTitlePaneTextNode > .dijitCheckBox {
+  display: inline-block !important;
+  vertical-align: middle !important;
+  margin-right: 6px !important;
+  margin-top: 0 !important;
+  margin-bottom: 0 !important;
+}
+
+/* TitlePaneTitleFocus vertikal zentrieren */
+.dijitTitlePaneTitleFocus {
+  display: flex !important;
+  align-items: center !important;
+  min-height: 28px !important;
+}
+
+/* TitlePaneTextNode inline mit vertikaler Zentrierung */
+.dijitTitlePaneTextNode {
+  display: inline-flex !important;
+  align-items: center !important;
+  flex-wrap: nowrap !important;
+  vertical-align: middle !important;
+}
+
+.dijitTitlePaneTextNode .appendtitle {
+  display: inline !important;
+  vertical-align: middle !important;
+}
+
+/* Arrow-Elemente vertikal zentrieren */
+.dijitArrowNode,
+.dijitArrowNodeInner {
+  display: inline-flex !important;
+  align-items: center !important;
+  vertical-align: middle !important;
 }
 
 #kantons_container .dijitTitlePaneTitleFocus {
   border-radius: 0 !important;
+  height: auto !important;
+  min-height: 28px !important;
+  overflow: visible !important;
 }
 
 #kantons_container .dijitTitlePaneContentOuter {
@@ -648,4 +731,56 @@
   .tnet-toc {
     width: 100%;
   }
+}
+/* ===========================================================================
+   EBENEN-FARBSCHEMA - Graugrün Abstufungen
+   =========================================================================== */
+
+/* Ebene 1: Hauptmenü-Titel (Themenkatalog, Werkzeuge, Drucken, etc.) */
+#spring > .dijitTitlePane > .dijitTitlePaneTitle {
+  background: #4b7b81 !important;
+}
+
+#spring > .dijitTitlePane > .dijitTitlePaneTitle .dijitTitlePaneTextNode {
+  color: #fff !important;
+}
+
+#spring > .dijitTitlePane > .dijitTitlePaneTitle .dijitArrowNode {
+  display: none !important;
+}
+
+/* Ebene 2: tabs2acc-header (ÖREB, RAUMENTWICKLUNG, etc.) - bereits definiert oben */
+/* background: linear-gradient(to bottom, #a8c4cc 0%, #95b5be 100%); */
+
+/* Ebene 3: Innere TitlePanes (RAUMPLANUNG, etc.) */
+#kantons_container .dijitTitlePane .dijitTitlePane .dijitTitlePaneTitle,
+.tabs2acc-panel .dijitTitlePane .dijitTitlePaneTitle {
+  background: #b8cdd2 !important;
+}
+
+.tabs2acc-panel .dijitTitlePane .dijitTitlePaneTitle .dijitTitlePaneTextNode,
+#kantons_container .dijitTitlePane .dijitTitlePane .dijitTitlePaneTitle .dijitTitlePaneTextNode {
+  color: #3d5a5f !important;
+}
+
+.tabs2acc-panel .dijitTitlePane .dijitTitlePaneTitle .dijitArrowNodeInner,
+#kantons_container .dijitTitlePane .dijitTitlePane .dijitTitlePaneTitle .dijitArrowNodeInner {
+  color: #3d5a5f !important;
+}
+
+/* Ebene 4: Layer-Items (div_head_...) */
+[id^="div_head_"] {
+  background: #e8f0f1 !important;
+  padding: 4px 6px !important;
+  margin: 1px 0 !important;
+  border-radius: 2px;
+}
+
+[id^="div_head_"]:hover {
+  background: #dbe8ea !important;
+}
+
+/* Layer-Labels */
+[id^="div_head_"] label {
+  color: #2d4a4f !important;
 }

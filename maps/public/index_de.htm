@@ -5,7 +5,11 @@
     <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
     <link rel="preconnect" href="https://www.gis-daten.ch" crossorigin>
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
     <link rel="dns-prefetch" href="//www.gis-daten.ch">
+    <link rel="dns-prefetch" href="//cdn.jsdelivr.net">
+    <link rel="dns-prefetch" href="//cdnjs.cloudflare.com">
     <title>MAP+ GIS Daten AG</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ol@v10.6.0/ol.css"
         onerror="this.href='/mapplus-lib/openlayers/v10.6.0-package/ol.css';">
@@ -18,8 +22,10 @@
     <link rel="stylesheet" type="text/css"
         href="/mapplus-lib/dojo-release/dojo-release-1.17.3/dojox/widget/ColorPicker/ColorPicker.css" />
     <link rel="shortcut icon" href="favicon.png?" />
-    <!-- google fonts -->
-    <link href="https://fonts.googleapis.com/css?family=Roboto+Slab:400,700" rel="stylesheet">
+    <!-- google fonts - Roboto als Hauptschrift -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
     <!--
 	Layout CSS dojo FloatingPane module
   -->
@@ -103,9 +109,6 @@
     <script>window.define || document.write('<script data-dojo-config= \'packages:[{name:"dojo",location:"/mapplus-lib/dojo-release/dojo-release-1.17.3/dojo"},{name:"dijit",location:"/mapplus-lib/dojo-release/dojo-release-1.17.3/dijit"},{name:"dojox",location:"/mapplus-lib/dojo-release/dojo-release-1.17.3/dojox"}],mblAlwaysHideAddressBar:true\' src="/mapplus-lib/dojo-release/dojo-release-1.17.3/dojo/dojo.js">\x3C/script>')</script>
 
     <link rel="stylesheet" href="public/css/override.css" />
-    <style type="css">
-        div[id*="njs_"] *{background: transparent !important;}
-    </style>
     <script>
         var isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
         if ((navigator.userAgent.indexOf("iPad") > -1) || (navigator.platform.indexOf('Mac') > -1)) {
@@ -121,8 +124,22 @@
 </head>
 
 <body class="tundra">
-    <!-- Must be the first element loaded (before the scripts -->
-    <div id="preloader"></div>
+    <!-- Preloader mit Critical Inline CSS für sofortige Anzeige -->
+    <style>
+      #preloader{position:fixed;top:0;left:0;right:0;bottom:0;width:100%;height:100%;background:rgba(255,255,255,0.95);background-image:none!important;display:flex;align-items:center;justify-content:center;z-index:99999;perspective:200px}
+      #preloader .preloader-cube{width:32px;height:32px;position:relative;transform-style:preserve-3d;transform:rotateX(-30deg) rotateY(-30deg);animation:pRotate 1s infinite linear;will-change:transform;backface-visibility:hidden}
+      #preloader .preloader-cube .cube-face{position:absolute;width:32px;height:32px;backface-visibility:hidden}
+      #preloader .preloader-cube .cube-front{transform:rotateY(0deg) translateZ(16px);background:#f00}
+      #preloader .preloader-cube .cube-back{transform:rotateY(180deg) translateZ(16px);background:#8a0000}
+      #preloader .preloader-cube .cube-left{transform:rotateY(-90deg) translateZ(16px);background:#8a0000}
+      #preloader .preloader-cube .cube-right{transform:rotateY(90deg) translateZ(16px);background:#ffe4e4}
+      #preloader .preloader-cube .cube-top{transform:rotateX(90deg) translateZ(16px);background:#f69f9f}
+      #preloader .preloader-cube .cube-bottom{transform:rotateX(-90deg) translateZ(16px);background:#8a0000}
+      @keyframes pRotate{from{transform:rotateX(-30deg) rotateY(0deg)}to{transform:rotateX(-30deg) rotateY(360deg)}}
+    </style>
+    <div id="preloader">
+      <div class="preloader-cube"><div class="cube-face cube-front"></div><div class="cube-face cube-back"></div><div class="cube-face cube-left"></div><div class="cube-face cube-right"></div><div class="cube-face cube-top"></div><div class="cube-face cube-bottom"></div></div>
+    </div>
     <!-- begin modules load: must be done here in body-->
 
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ol-ext/dist/ol-ext.min.css"
@@ -156,7 +173,7 @@
 
 
     <div id="disclaimer_copyright" class="njsDisclaimer"></div>
-    <div id="disclaimer_mapplusbytydac" class="njsDisclaimer"></div>
+    <!-- TYDAC Disclaimer entfernt -->
     <div id="disclaimer_tips" class="njsDisclaimer"></div>
     <div id="disclaimer_news" class="njsDisclaimer"></div>
     <div id="disclaimer_pdf" class="njsDisclaimer" style='visibility:hidden'></div>
@@ -175,6 +192,41 @@
     
     <!-- GIS Header-Leiste -->
     <div id="gis_logo_header"></div>
+    
+    <!-- Header Toolbar rechts oben -->
+    <div id="header_toolbar">
+        <!-- Anmelde-Button (nicht angemeldet) -->
+        <div id="header_login" title="Anmelden" onclick="window.location.href=window.location.href+'&amp;group=?'">
+            <span class="login-text">Anmelden</span>
+            <svg class="login-arrow" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+        </div>
+        <!-- Abmelde-Bereich (angemeldet) -->
+        <div id="header_logout" style="display: none;" title="Abmelden" onclick="doLogout()">
+            <svg class="user-icon" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+            <span id="header_username" class="username-text"></span>
+            <span class="separator">|</span>
+            <span class="logout-text">Abmelden</span>
+            <svg class="logout-arrow" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+        </div>
+        <!-- News (Glocke) -->
+        <div class="toolbar-item" title="News" onclick="window.open('https://www.gis-daten.ch/news-termine/news/', '_blank')">
+            <svg viewBox="0 0 24 24"><path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.63-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.64 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2zm-2 1H8v-6c0-2.48 1.51-4.5 4-4.5s4 2.02 4 4.5v6z"/></svg>
+        </div>
+        <!-- Support (Mail) -->
+        <div class="toolbar-item" title="Support kontaktieren" onclick="window.open('https://www.gis-daten.ch/ueber-uns/support/', '_blank')">
+            <svg viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
+        </div>
+        <!-- Menü -->
+        <div class="toolbar-item" title="Menü">
+            <svg viewBox="0 0 24 24"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></svg>
+        </div>
+    </div>
+    
+    <!-- Kartenauswahl Button links oben -->
+    <div id="header_maps_select" onclick="openMapsInfoDialog()" title="Kartenauswahl öffnen">
+        <span class="maps-icon"><img src="/maps/tnet/resources/icon-maps.svg" alt=""></span>
+        <span class="maps-text">Karten</span>
+    </div>
     
     <!-- Suchfeld im Header (fixed positioniert) -->
     <div id="njs_search_wrapper"></div>
@@ -307,12 +359,13 @@
                     </div>
                 </div> <!-- End FooterPane for coords-->
             </div>
+            
+            <!-- Panel Zuklapp-Button -->
+            <div class="close_switch" title="Panel ein-/ausklappen" onclick="document.getElementById('freepane').classList.toggle('close');"></div>
         </div>
 
-
-        <div class="close_switch" title="Toggle" onclick="document.getElementById('spring').classList.toggle('close');">
-        </div>
-
+        <!-- Scroll-to-Top Button (Chevron wird via CSS generiert) -->
+        <button id="scrollToTopBtn" onclick="scrollSpringToTop()" title="Nach oben"></button>
 
     </div>
 
@@ -361,6 +414,112 @@
                     <div id="paneSwitcher" class="edgePanel"
                         style="position: absolute;left: 0px;top: 0px;display: none"></div>
 
+                    <!-- Basemap Selector rechts unten -->
+                    <div id="basemap_selector" title="Hintergrundkarte wählen" onclick="toggleBasemapWidget()">
+                        <div class="basemap-preview"></div>
+                        <span class="basemap-label">Hintergrund</span>
+                    </div>
+
+                    <!-- Basemap Widget -->
+                    <div id="basemap_widget" class="basemap-widget-hidden">
+                        <div class="basemap-widget-header">
+                            <span>GRUNDKARTE</span>
+                            <button class="basemap-widget-close" onclick="toggleBasemapWidget()">&times;</button>
+                        </div>
+                        <div class="basemap-widget-content">
+                            <!-- Layer Toggles -->
+                            <div class="basemap-layer-section">
+                                <div class="basemap-layer-row">
+                                    <span class="layer-icon">〰</span>
+                                    <span class="layer-label">Höhenkurven</span>
+                                    <div class="layer-toggle">
+                                        <button class="toggle-btn active" data-layer="hoehenkurven" data-value="on">EIN</button>
+                                        <button class="toggle-btn" data-layer="hoehenkurven" data-value="off">AUS</button>
+                                    </div>
+                                </div>
+                                <div class="basemap-layer-row">
+                                    <span class="layer-icon">⊞</span>
+                                    <span class="layer-label">Projektebene</span>
+                                    <div class="layer-toggle">
+                                        <button class="toggle-btn" data-layer="projektebene" data-value="on">EIN</button>
+                                        <button class="toggle-btn active" data-layer="projektebene" data-value="off">AUS</button>
+                                    </div>
+                                </div>
+                                <div class="basemap-layer-row">
+                                    <span class="layer-icon">◯</span>
+                                    <span class="layer-label">Gemeindegrenzen</span>
+                                    <div class="layer-toggle">
+                                        <button class="toggle-btn active" data-layer="gemeindegrenzen" data-value="on">EIN</button>
+                                        <button class="toggle-btn" data-layer="gemeindegrenzen" data-value="off">AUS</button>
+                                    </div>
+                                </div>
+                                <div class="basemap-layer-row">
+                                    <span class="layer-icon">◧</span>
+                                    <span class="layer-label">Farbig / Grau</span>
+                                    <div class="layer-toggle">
+                                        <button class="toggle-btn active" data-layer="farbmodus" data-value="color" 
+                                            onclick="njs.AppManager.toggleBaseLayerColor('main','toggle_coltool1',this); this.classList.add('active'); this.nextElementSibling.classList.remove('active');">FARBE</button>
+                                        <button class="toggle-btn" data-layer="farbmodus" data-value="grey"
+                                            onclick="njs.AppManager.toggleBaseLayerColor('main','toggle_coltool1',this); this.classList.add('active'); this.previousElementSibling.classList.remove('active');">GRAU</button>
+                                    </div>
+                                </div>
+                                <div class="basemap-layer-row">
+                                    <span class="layer-label">Transparenz</span>
+                                    <input type="range" class="transparency-slider" min="0" max="100" value="0" 
+                                        oninput="njs.AppManager.setBaseLayerOpacity('main',this.value); this.nextElementSibling.textContent=this.value;" 
+                                        onchange="njs.AppManager.setBaseLayerOpacity('main',this.value);">
+                                    <span class="transparency-value">0</span>
+                                </div>
+                            </div>
+
+                            <!-- Haupt-Basemaps (immer sichtbar) -->
+                            <div class="basemap-cards-main">
+                                <div class="basemap-card active" data-basemap="swissimage" onclick="njs.AppManager.Maps['main'].changeBaseMap('swissimage');">
+                                    <div class="basemap-card-preview orthofoto"></div>
+                                    <span class="basemap-card-label">Orthofoto</span>
+                                </div>
+                                <div class="basemap-card" data-basemap="av_sw" onclick="njs.AppManager.Maps['main'].changeBaseMap('av_sw');">
+                                    <div class="basemap-card-preview basisplan"></div>
+                                    <span class="basemap-card-label">Basisplan</span>
+                                </div>
+                                <div class="basemap-card" data-basemap="plan_fuer_grundbuch_bund" onclick="njs.AppManager.Maps['main'].changeBaseMap('plan_fuer_grundbuch_bund');">
+                                    <div class="basemap-card-preview grundbuch"></div>
+                                    <span class="basemap-card-label">Plan f. Grundbuch</span>
+                                </div>
+                            </div>
+
+                            <!-- Erweiterte Basemap Auswahl -->
+                            <div class="basemap-expand-header">
+                                <span class="expand-icon">▶</span> erweitern
+                            </div>
+                            <div class="basemap-cards">
+                                <div class="basemap-card" data-basemap="pk_color" onclick="njs.AppManager.Maps['main'].changeBaseMap('pk_color');">
+                                    <div class="basemap-card-preview landeskarte"></div>
+                                    <span class="basemap-card-label">Landeskarte</span>
+                                </div>
+                                <div class="basemap-card" data-basemap="siegfried" onclick="njs.AppManager.Maps['main'].changeBaseMap('siegfried');">
+                                    <div class="basemap-card-preview siegfried"></div>
+                                    <span class="basemap-card-label">Siegfriedkarten</span>
+                                </div>
+                                <div class="basemap-card" data-basemap="none" onclick="njs.AppManager.Maps['main'].changeBaseMap('none');">
+                                    <div class="basemap-card-preview transparent"></div>
+                                    <span class="basemap-card-label">Transparent</span>
+                                </div>
+                                <div class="basemap-card" data-basemap="leer" onclick="njs.AppManager.Maps['main'].changeBaseMap('leer');">
+                                    <div class="basemap-card-preview keine"></div>
+                                    <span class="basemap-card-label">Leer</span>
+                                </div>
+                                <div class="basemap-card" data-basemap="av_color" onclick="njs.AppManager.Maps['main'].changeBaseMap('av_color');">
+                                    <div class="basemap-card-preview av-color"></div>
+                                    <span class="basemap-card-label">Basisplan farbig</span>
+                                </div>
+                                <div class="basemap-card" data-basemap="osm" onclick="njs.AppManager.Maps['main'].changeBaseMap('osm');">
+                                    <div class="basemap-card-preview osm"></div>
+                                    <span class="basemap-card-label">OpenStreetMap</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
                 </div>
                 <!-- /map container -->
@@ -400,6 +559,98 @@
     <!-- TNET Accordion/Tab-Konverter -->
     <link rel="stylesheet" href="/maps/tnet/tnet_toc.css" />
     <script type="text/javascript" src="/maps/tnet/tnet_toc.js"></script>
+
+    <!-- Panel-Schatten dynamisch positioniert -->
+    <script type="text/javascript">
+        (function() {
+            function initPanelShadow() {
+                var freepane = document.getElementById('freepane');
+                var closeSwitch = document.querySelector('.close_switch');
+                if (!freepane || !closeSwitch) {
+                    setTimeout(initPanelShadow, 200);
+                    return;
+                }
+                
+                // Schatten-Element erstellen
+                var shadow = document.createElement('div');
+                shadow.id = 'panelShadow';
+                freepane.parentNode.insertBefore(shadow, freepane.nextSibling);
+                
+                function updateShadow() {
+                    var rect = closeSwitch.getBoundingClientRect();
+                    var headerTop = 69;
+                    var bottom = rect.bottom;
+                    var width = rect.width;
+                    
+                    shadow.style.top = headerTop + 'px';
+                    shadow.style.height = (bottom - headerTop) + 'px';
+                    shadow.style.width = width + 'px';
+                    
+                    // Bei geschlossenem Panel: Breite der minimierten Leiste
+                    if (freepane.classList.contains('close')) {
+                        shadow.style.width = '170px';
+                        shadow.style.left = ((340 - 170) / 2) + 'px';
+                        shadow.style.borderRadius = '0 0 4px 4px';
+                    } else {
+                        shadow.style.left = '0px';
+                        shadow.style.borderRadius = '0 0 4px 4px';
+                    }
+                }
+                
+                // Kontinuierliche Animation mit requestAnimationFrame
+                function animateLoop() {
+                    updateShadow();
+                    requestAnimationFrame(animateLoop);
+                }
+                animateLoop();
+                
+                window.addEventListener('resize', updateShadow);
+            }
+            
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', initPanelShadow);
+            } else {
+                initPanelShadow();
+            }
+        })();
+    </script>
+
+    <!-- Scroll-to-Top Button Logic -->
+    <script type="text/javascript">
+        // Scroll-to-Top Funktionalität für #spring
+        function scrollSpringToTop() {
+            var spring = document.getElementById('spring');
+            if (spring) {
+                spring.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+        }
+        
+        // Button ein-/ausblenden basierend auf Scroll-Position
+        (function() {
+            function initScrollToTop() {
+                var spring = document.getElementById('spring');
+                var btn = document.getElementById('scrollToTopBtn');
+                if (!spring || !btn) {
+                    setTimeout(initScrollToTop, 500);
+                    return;
+                }
+                
+                spring.addEventListener('scroll', function() {
+                    if (spring.scrollTop > 100) {
+                        btn.classList.add('visible');
+                    } else {
+                        btn.classList.remove('visible');
+                    }
+                });
+            }
+            
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', initScrollToTop);
+            } else {
+                initScrollToTop();
+            }
+        })();
+    </script>
 
     <script type="text/javascript">
         // Auto-Start für Bookmark-URLs direkt vor </body>
@@ -463,6 +714,11 @@
         window.openMapsInfoDialog = function() {
             var dialog = dijit.byId("mapsInfoDialog");
             if (dialog) {
+                // Toggle: Wenn Dialog offen ist, schliessen
+                if (dialog.open) {
+                    window.closeMapsInfoDialog();
+                    return;
+                }
                 dialog.show();
                 var iframe = document.getElementById("mapsInfoFrame");
                 if (iframe) {
@@ -516,6 +772,134 @@
                 iframe.src = newSrc;
             }
         };
+
+        // Basemap Widget Toggle - Kachel wächst zum Widget
+        window.toggleBasemapWidget = function() {
+            var widget = document.getElementById('basemap_widget');
+            var selector = document.getElementById('basemap_selector');
+            if (widget && selector) {
+                widget.classList.toggle('basemap-widget-hidden');
+                selector.classList.toggle('hidden');
+            }
+        };
+
+        // Login/Logout Status prüfen und anzeigen
+        window.updateLoginStatus = function() {
+            var loginBtn = document.getElementById('header_login');
+            var logoutSection = document.getElementById('header_logout');
+            var usernameEl = document.getElementById('header_username');
+            
+            // Prüfe ob njs.AppManager und auth_user verfügbar
+            if (window.njs && njs.AppManager && njs.AppManager.auth_user && njs.AppManager.auth_user !== '') {
+                var username = njs.AppManager.auth_user;
+                // Angemeldet
+                if (loginBtn) loginBtn.style.display = 'none';
+                if (logoutSection) logoutSection.style.display = 'flex';
+                if (usernameEl) usernameEl.textContent = username;
+            } else {
+                // Nicht angemeldet
+                if (loginBtn) loginBtn.style.display = 'flex';
+                if (logoutSection) logoutSection.style.display = 'none';
+            }
+        };
+
+        // Logout-Funktion
+        window.doLogout = function() {
+            // Direkte Navigation zur logout.php
+            window.location.href = 'logout.php';
+        };
+
+        // Login-Status beim Laden prüfen
+        (function checkLoginStatus() {
+            if (window.njs && njs.AppManager && typeof njs.AppManager.auth_user !== 'undefined') {
+                updateLoginStatus();
+            } else {
+                setTimeout(checkLoginStatus, 500);
+            }
+        })();
+
+        // Basemap Widget Interaktion
+        document.addEventListener('DOMContentLoaded', function() {
+            // Toggle Buttons
+            document.querySelectorAll('.layer-toggle .toggle-btn').forEach(function(btn) {
+                btn.addEventListener('click', function() {
+                    var parent = this.closest('.layer-toggle');
+                    parent.querySelectorAll('.toggle-btn').forEach(function(b) {
+                        b.classList.remove('active');
+                    });
+                    this.classList.add('active');
+                    // TODO: Hier Layer ein/ausschalten
+                    console.log('Layer:', this.dataset.layer, 'Value:', this.dataset.value);
+                });
+            });
+
+            // Basemap Cards - Aktiv-Status setzen
+            document.querySelectorAll('.basemap-card').forEach(function(card) {
+                card.addEventListener('click', function() {
+                    // Alle Cards deaktivieren (auch in main und expanded)
+                    document.querySelectorAll('.basemap-card').forEach(function(c) {
+                        c.classList.remove('active');
+                    });
+                    this.classList.add('active');
+                });
+            });
+
+            // Expand Header
+            var expandHeader = document.querySelector('.basemap-expand-header');
+            if (expandHeader) {
+                expandHeader.addEventListener('click', function() {
+                    var cards = document.querySelector('.basemap-cards');
+                    var icon = this.querySelector('.expand-icon');
+                    if (cards) {
+                        cards.classList.toggle('expanded');
+                        icon.textContent = cards.classList.contains('expanded') ? '▼' : '▶';
+                    }
+                });
+            }
+        });
+
+        // FloatingPane (Maptips Dialog) unter Header positionieren
+        (function() {
+            var headerHeight = 69;
+            var minTop = 80;
+            
+            function adjustPanePosition(pane) {
+                if (!pane) return;
+                var top = parseInt(pane.style.top) || 0;
+                if (top < headerHeight) {
+                    pane.style.top = minTop + 'px';
+                }
+            }
+            
+            // Observer für das ganze Dokument - fängt neue Elemente ab
+            var bodyObserver = new MutationObserver(function(mutations) {
+                mutations.forEach(function(mutation) {
+                    if (mutation.type === 'childList') {
+                        mutation.addedNodes.forEach(function(node) {
+                            if (node.nodeType === 1 && node.classList && 
+                                node.classList.contains('dojoxFloatingPane')) {
+                                adjustPanePosition(node);
+                                // Observer für Style-Änderungen auf diesem Pane
+                                var styleObserver = new MutationObserver(function() {
+                                    adjustPanePosition(node);
+                                });
+                                styleObserver.observe(node, { attributes: true, attributeFilter: ['style'] });
+                            }
+                        });
+                    }
+                });
+            });
+            bodyObserver.observe(document.body, { childList: true, subtree: true });
+            
+            // Bestehende Panes auch behandeln
+            document.querySelectorAll('.dojoxFloatingPane').forEach(function(pane) {
+                adjustPanePosition(pane);
+                var styleObserver = new MutationObserver(function() {
+                    adjustPanePosition(pane);
+                });
+                styleObserver.observe(pane, { attributes: true, attributeFilter: ['style'] });
+            });
+        })();
 
         // Preload des iFrames bei erster Nutzerinteraktion
         (function(){

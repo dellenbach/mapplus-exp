@@ -3,9 +3,73 @@
 @import "/mapplus-lib/dojo-release/dojo-release-1.17.3/dojox/grid/enhanced/resources/tundra/EnhancedGrid.css";
 @import "/mapplus-lib/dojo-release/dojo-release-1.17.3/dojox/grid/enhanced/resources/EnhancedGrid_rtl.css";
 
-/* NJS Elements Transparency */
-div[id*="njs_"] * {
-  background: transparent !important;
+/* TYDAC Disclaimer ausblenden */
+#disclaimer_mapplusbytydac {
+  display: none !important;
+}
+
+/* ========================================
+   WMS Menu - Kompaktere Darstellung
+   ======================================== */
+#tp_wms_menu .dijitTitlePaneTextNode {
+  font-size: 13px !important;
+}
+
+#tp_wms_menu .wms-cont {
+  font-size: 12px;
+}
+
+#tp_wms_menu .dijitTextBox,
+#tp_wms_menu .dijitComboBox {
+  font-size: 12px !important;
+}
+
+#tp_wms_menu .dijitInputInner {
+  font-size: 12px !important;
+  padding: 4px 6px !important;
+}
+
+#tp_wms_menu .dijitPlaceHolder {
+  font-size: 11px !important;
+}
+
+#tp_wms_menu .dijitButton .dijitButtonText {
+  font-size: 12px !important;
+}
+
+#tp_wms_menu .dijitButtonNode {
+  padding: 2px 8px !important;
+}
+
+#tp_wms_menu .dojoxGridHeader th {
+  font-size: 12px !important;
+  padding: 4px !important;
+}
+
+#tp_wms_menu .dojoxGridCell {
+  font-size: 12px !important;
+}
+
+#tp_wms_menu .dijitDialogPaneContent {
+  font-size: 12px !important;
+  padding: 4px !important;
+}
+
+#tp_wms_menu .row {
+  margin: 4px 0 !important;
+}
+
+#tp_wms_menu #wmsimportGrid {
+  height: 120px !important;
+}
+
+#tp_wms_menu .dojoxGridMasterHeader {
+  height: auto !important;
+}
+
+#tp_wms_menu #wmsimport_abstract_wrapper {
+  height: 50px !important;
+  font-size: 11px !important;
 }
 
 /* #logoMapPlus {
@@ -44,6 +108,12 @@ input[type="range"]::-webkit-slider-thumb:hover {
 
 .tundra .dojoxFloatingPaneTitle {
   background-color: #4b7b81 !important;
+}
+
+/* FloatingPane (Maptips Dialog) - Verschieben durch Header-Bereich verhindern */
+.dojoxFloatingPane .dojoxFloatingPaneTitle {
+  position: relative;
+  z-index: 1000;
 }
 
 [type="checkbox"],
@@ -99,73 +169,14 @@ input[type="range"]::-webkit-slider-thumb:hover {
 }
 
 .infolay_wait {
-  height: 30px;
-  width: 30px;
+  height: 60px;
+  width: 60px;
   border: none;
   font-size: 0px;
-  position: absolute;
-  top: 30px;
-  left: 118px;
-  perspective: 200px;
-  transform: scalex(0.6) scaley(0.57);
-}
-
-
-.cube {
-  width: 32px;
-  height: 32px;
-  position: relative;
-  transform-style: preserve-3d;
-  transform: rotateX(-30deg) rotateY(-30deg);
-  animation: rotateY 1s infinite linear;
-}
-
-.face {
-  position: absolute;
-  width: 32px;
-  height: 32px;
-  opacity:0;
-  animation: opaC 1s infinite linear;
-}
-
-.front {
-  transform: rotateY(0deg) translateZ(16px);
-  background-color: red;
-}
-
-.back {
-  transform: rotateY(180deg) translateZ(16px);
-  background-color: rgb(138, 0, 0);
-}
-
-.left {
-  transform: rotateY(-90deg) translateZ(16px);
-  background-color: rgb(138, 0, 0);
-}
-
-.right {
-  transform: rotateY(90deg) translateZ(16px);
-  background-color: rgb(255, 228, 228);
-}
-
-.top {
-  transform: rotateX(90deg) translateZ(16px);
-  background-color: rgb(246, 159, 159);
-}
-
-.bottom {
-  transform: rotateX(-90deg) translateZ(16px);
-  background-color: rgb(138, 0, 0);
-}
-
-@keyframes rotateY {
-  from { transform: rotateX(-30deg) rotateY(0deg); }
-  to { transform: rotateX(-30deg) rotateY(360deg); }
-}
-@keyframes opaC {
-  0% { opacity: 0; }
-  50% { opacity: 1; }
-  100% { opacity: 0; }
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
 }
 
 /* GIS Daten AG Overload Styles - Modal Dialog */
@@ -317,8 +328,7 @@ div#disclaimer_news {
   left: 340px !important;
 }
 
-/* Search Dropdown Popup */
-.dijitComboBoxMenuPopup,
+/* Search Dropdown Popup - NUR für Suche, nicht global! */
 #widget_solrsearchFirstParamSelect_dropdown {
   left: 340px !important;
   top: 57px !important;
@@ -342,6 +352,176 @@ div#freepane {
   top: 69px !important;
   width: 340px;
   z-index: 50;
+  position: fixed !important;
+  bottom: 0 !important;
+  height: auto !important;
+  overflow: visible !important;
+}
+
+/* Spring Container - scrollbar ohne Scrollbalken */
+#spring {
+  height: 100% !important;
+  overflow-y: auto !important;
+  overflow-x: visible !important;
+  padding-bottom: 60px !important;
+  box-sizing: border-box !important;
+  /* Scrollbalken verstecken */
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE/Edge */
+}
+
+#spring::-webkit-scrollbar {
+  display: none; /* Chrome/Safari/Opera */
+}
+
+/* Scroll-to-Top Button - Kreis mit Chevron */
+#scrollToTopBtn {
+  position: fixed;
+  bottom: 24px;
+  left: 318px;
+  width: 44px;
+  height: 44px;
+  background: #e8423f;
+  color: white;
+  border: 4px solid #e8423f;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 0;
+  text-align: center;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Chevron-Pfeil mit CSS - zentriert */
+#scrollToTopBtn::before {
+  content: '';
+  display: block;
+  width: 12px;
+  height: 12px;
+  border-left: 3px solid white;
+  border-top: 3px solid white;
+  transform: rotate(45deg) translateX(2px) translateY(2px);
+}
+
+#scrollToTopBtn.visible {
+  opacity: 1;
+  visibility: visible;
+}
+
+#scrollToTopBtn:hover {
+  background: #4b7b81;
+  border-color: #4b7b81;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
+
+#scrollToTopBtn:active {
+  transform: translateY(0);
+}
+
+/* Panel Zusammenklappen Button */
+#freepane {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+}
+
+#spring {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+/* Panel-Schatten wird per JavaScript positioniert */
+#panelShadow {
+  position: fixed;
+  left: 0;
+  pointer-events: none;
+  z-index: 99;
+  box-shadow: 4px 0 10px rgba(0,0,0,0.15);
+  border-radius: 0 0 4px 4px;
+  overflow: hidden;
+}
+
+.close_switch {
+  position: relative;
+  width: 100%;
+  height: 10px;
+  background: #95b5be;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  flex-shrink: 0;
+  left: 0;
+}
+
+.close_switch:hover {
+  background: #4b7b81;
+}
+
+.close_switch::before {
+  content: '';
+  width: 40px;
+  height: 2px;
+  background: rgba(255,255,255,0.8);
+  border-radius: 1px;
+}
+
+.close_switch:hover::before {
+  background: rgba(255,255,255,1);
+}
+
+/* Panel geschlossen Status */
+#freepane {
+  max-height: 100vh;
+  transition: max-height 0.5s ease;
+  overflow: visible;
+}
+
+#freepane.close {
+  max-height: 10px !important;
+  min-height: 0 !important;
+}
+
+#freepane.close .close_switch {
+  width: 170px;
+  margin: 0 auto;
+  border-radius: 0 0 4px 4px;
+  height: 10px !important;
+  min-height: 10px !important;
+}
+
+/* Balken schrumpft nur beim Schließen */
+#freepane:not(.close) .close_switch {
+  transition: none;
+}
+
+#freepane.close .close_switch {
+  transition: width 0.5s ease, margin 0.5s ease;
+}
+
+#freepane.close .close_switch::before {
+  width: 30px;
+  height: 2px;
+}
+
+/* Haupt-Container unter Header positionieren */
+#NeapoljsContainer {
+  position: fixed !important;
+  top: 69px !important;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: auto !important;
 }
 
 /* GIS Logo Header links oben */
@@ -354,6 +534,157 @@ div#freepane {
   background: #fcfcfc;
   z-index: 999;
   box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+/* Header Toolbar rechts oben */
+#header_toolbar {
+  position: fixed;
+  top: 18px;
+  right: 20px;
+  z-index: 1001;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+#header_toolbar .toolbar-item {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px;
+  background: transparent;
+  border: none;
+  color: #666;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border-radius: 4px;
+}
+
+#header_toolbar .toolbar-item:hover {
+  color: #4b7b81;
+  background: rgba(75, 123, 129, 0.1);
+}
+
+#header_toolbar .toolbar-item svg {
+  width: 20px;
+  height: 20px;
+  fill: currentColor;
+}
+
+/* Anmelde-Button in Toolbar */
+#header_login {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  background: transparent;
+  border: none;
+  color: #4b7b81;
+  font-family: "Roboto", sans-serif;
+  font-size: 14px;
+  font-weight: 400;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+#header_login:hover {
+  background: rgba(75, 123, 129, 0.1);
+}
+
+#header_login .login-text {
+  font-size: 14px;
+}
+
+#header_login .login-arrow {
+  width: 14px;
+  height: 14px;
+  fill: #4b7b81;
+}
+
+/* Abmelde-Bereich (angemeldet) */
+#header_logout {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  background: transparent;
+  border: none;
+  color: #444;
+  font-family: "Roboto", sans-serif;
+  font-size: 14px;
+  font-weight: 400;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+#header_logout:hover {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+#header_logout .user-icon {
+  width: 18px;
+  height: 18px;
+  fill: #666;
+}
+
+#header_logout .username-text {
+  color: #444;
+  font-weight: 500;
+}
+
+#header_logout .separator {
+  color: #999;
+  margin: 0 2px;
+}
+
+#header_logout .logout-text {
+  color: #666;
+}
+
+#header_logout .logout-arrow {
+  width: 14px;
+  height: 14px;
+  fill: #4b7b81;
+  transform: rotate(180deg);
+}
+
+/* Kartenauswahl Button links oben */
+#header_maps_select {
+  position: fixed;
+  left: 200px;
+  top: 18px;
+  z-index: 1002;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-family: 'Roboto', Arial, sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  color: #4b7b81;
+  transition: all 0.2s ease;
+}
+
+#header_maps_select:hover {
+  color: #3a6268;
+}
+
+#header_maps_select .maps-icon {
+  display: flex;
+  align-items: center;
+}
+
+#header_maps_select .maps-icon img {
+  width: 30px;
+  height: 30px;
+}
+
+#header_maps_select:hover .maps-icon img {
+  transform: scale(1.05);
+  transition: transform 0.2s ease;
 }
 
 #gis_logo_container {
@@ -390,11 +721,24 @@ div#freepane {
   opacity: 1 !important;
 }
 
-/* Base Typography from gis-daten.ch */
+/* Base Typography - Roboto als Hauptschrift */
+body,
+.tundra,
+.dijitContentPane,
+.dijitTitlePane,
+.dijitButton,
+.dijitTextBox,
+.dijitSelect,
+input,
+button,
+select,
+textarea {
+  font-family: "Roboto", sans-serif !important;
+}
+
 body {
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-  font-size: 16px;
-  line-height: 1.6;
+  font-size: 14px;
+  line-height: 1.5;
   color: #333;
 }
 
@@ -598,3 +942,341 @@ h3 {
   overflow: visible !important;
 }
 
+/* Basemap Selector rechts unten */
+#basemap_selector {
+  position: absolute;
+  right: 20px;
+  bottom: 30px;
+  z-index: 999;
+  width: 100px;
+  height: 80px;
+  background: #fff;
+  border: 2px solid #424A52;
+  border-radius: 4px;
+  cursor: pointer;
+  overflow: hidden;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.3s ease;
+}
+
+#basemap_selector:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+}
+
+/* Kachel ausblenden wenn Widget offen */
+#basemap_selector.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+#basemap_selector .basemap-preview {
+  width: 100%;
+  height: 100%;
+  background-image: url('/maps/tnet/resources/images/basemap-preview-grey.png');
+  background-size: cover;
+  background-position: center;
+  background-color: #b6c6cb;
+}
+
+#basemap_selector .basemap-label {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: rgba(66, 74, 82, 0.85);
+  color: white;
+  font-family: 'Roboto', Arial, sans-serif;
+  font-size: 11px;
+  font-weight: 500;
+  text-align: center;
+  padding: 4px 0;
+}
+
+/* Basemap Widget - wächst aus der Kachel */
+#basemap_widget {
+  position: fixed;
+  right: 20px;
+  bottom: 30px;
+  width: 340px;
+  background: #fff;
+  border-radius: 4px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.25);
+  z-index: 1000;
+  font-family: 'Roboto', Arial, sans-serif;
+  overflow: hidden;
+  transform-origin: right bottom;
+  transition: transform 0.35s cubic-bezier(0.34, 1.3, 0.64, 1), 
+              opacity 0.25s ease;
+}
+
+#basemap_widget.basemap-widget-hidden {
+  opacity: 0;
+  transform: scale(0.29) translateX(0) translateY(0); /* 100/340 ≈ 0.29 */
+  pointer-events: none;
+}
+
+.basemap-widget-header {
+  background: #4b7b81;
+  color: white;
+  padding: 12px 16px;
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 1px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.basemap-widget-close {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 22px;
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+  opacity: 0.8;
+}
+
+.basemap-widget-close:hover {
+  opacity: 1;
+}
+
+.basemap-widget-content {
+  padding: 16px;
+}
+
+/* Layer Toggles */
+.basemap-layer-section {
+  margin-bottom: 16px;
+}
+
+.basemap-layer-row {
+  display: flex;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid #eee;
+}
+
+.basemap-layer-row:last-child {
+  border-bottom: none;
+}
+
+.layer-icon {
+  width: 28px;
+  color: #e8423f;
+  font-size: 16px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.layer-label {
+  flex: 1;
+  font-size: 13px;
+  color: #333;
+}
+
+.layer-toggle {
+  display: flex;
+  gap: 0;
+}
+
+.toggle-btn {
+  padding: 4px 10px;
+  font-size: 11px;
+  font-weight: 500;
+  border: 1px solid #ccc;
+  background: #fff;
+  color: #666;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.toggle-btn:first-child {
+  border-radius: 3px 0 0 3px;
+}
+
+.toggle-btn:last-child {
+  border-radius: 0 3px 3px 0;
+  border-left: none;
+}
+
+.toggle-btn.active {
+  background: #4b7b81;
+  border-color: #4b7b81;
+  color: white;
+}
+
+.toggle-btn:hover:not(.active) {
+  background: #f0f0f0;
+}
+
+/* Transparency Slider */
+.transparency-slider {
+  flex: 1;
+  margin: 0 10px;
+  height: 4px;
+  -webkit-appearance: none;
+  appearance: none;
+  background: #ddd;
+  border-radius: 2px;
+  cursor: pointer;
+}
+
+.transparency-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 14px;
+  height: 14px;
+  background: #4b7b81;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.transparency-slider::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  background: #4b7b81;
+  border-radius: 50%;
+  cursor: pointer;
+  border: none;
+}
+
+.transparency-value {
+  font-size: 12px;
+  color: #666;
+  min-width: 28px;
+  text-align: right;
+}
+
+/* Expand Header */
+.basemap-expand-header {
+  background: #4b7b81;
+  color: white;
+  padding: 8px 12px;
+  font-size: 12px;
+  cursor: pointer;
+  margin: 0 -16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.basemap-expand-header:hover {
+  background: #3d6a6f;
+}
+
+.expand-icon {
+  font-size: 10px;
+  transition: transform 0.2s ease;
+}
+
+/* Haupt-Basemap Kacheln (immer sichtbar) */
+.basemap-cards-main {
+  display: flex;
+  gap: 10px;
+  padding: 0 0 12px 0;
+}
+
+.basemap-cards-main .basemap-card {
+  flex: 1;
+  min-width: 0;
+}
+
+/* Erweiterte Basemap Cards */
+.basemap-cards {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 0 -16px;
+  padding: 12px 16px;
+  background: #f5f5f5;
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease, padding 0.3s ease;
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
+.basemap-cards.expanded {
+  max-height: 200px;
+  padding: 12px 16px;
+}
+
+.basemap-cards .basemap-card {
+  flex: 0 0 calc(33.333% - 7px);
+  min-width: 0;
+}
+
+.basemap-card {
+  cursor: pointer;
+  border-radius: 4px;
+  overflow: hidden;
+  border: 2px solid transparent;
+  transition: border-color 0.2s ease, transform 0.2s ease;
+}
+
+.basemap-card:hover {
+  transform: scale(1.02);
+}
+
+.basemap-card.active {
+  border-color: #4b7b81;
+}
+
+.basemap-card-preview {
+  height: 60px;
+  background-size: cover;
+  background-position: center;
+  background-color: #b6c6cb;
+}
+
+/* Basemap Preview Bilder */
+.basemap-card-preview.orthofoto {
+  background: #3a6b35 url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 80"><rect fill="%233a6b35" width="100" height="80"/><rect fill="%234a7b43" x="10" y="5" width="25" height="20" rx="2"/><rect fill="%232d5a27" x="40" y="10" width="30" height="25"/><rect fill="%235a8b53" x="75" y="0" width="25" height="35"/><rect fill="%234a7b43" x="0" y="30" width="35" height="25"/><rect fill="%232d5a27" x="45" y="40" width="20" height="20"/><rect fill="%235a8b53" x="70" y="45" width="30" height="35"/><rect fill="%234a7b43" x="5" y="60" width="40" height="20"/><path stroke="%23888" stroke-width="2" fill="none" d="M0,40 L100,40"/><path stroke="%23888" stroke-width="2" fill="none" d="M50,0 L50,80"/><rect fill="%23c4a882" x="20" y="35" width="8" height="10"/><rect fill="%23c4a882" x="55" y="15" width="12" height="8"/><rect fill="%23c4a882" x="70" y="55" width="10" height="12"/></svg>') center/cover no-repeat;
+}
+
+.basemap-card-preview.basisplan {
+  background: #e8e8e8 url('/maps/tnet/resources/images/basemap-preview-grey.png') center/cover no-repeat;
+}
+
+.basemap-card-preview.grundbuch {
+  background: #fff url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 80"><rect fill="%23fff" width="100" height="80"/><path stroke="%23333" stroke-width="0.8" fill="none" d="M0,25 L40,25 L40,0"/><path stroke="%23333" stroke-width="0.8" fill="none" d="M40,25 L40,55 L0,55"/><path stroke="%23333" stroke-width="0.8" fill="none" d="M40,25 L70,15 L100,15"/><path stroke="%23333" stroke-width="0.8" fill="none" d="M40,55 L70,45 L100,45"/><path stroke="%23333" stroke-width="0.8" fill="none" d="M70,15 L70,45"/><path stroke="%23333" stroke-width="0.8" fill="none" d="M0,70 L50,70 L50,80"/><path stroke="%23333" stroke-width="0.8" fill="none" d="M50,55 L50,70"/><path stroke="%23333" stroke-width="0.8" fill="none" d="M70,45 L70,80"/><rect fill="none" stroke="%23333" stroke-width="1" x="12" y="30" width="15" height="12"/><rect fill="none" stroke="%23333" stroke-width="1" x="50" y="20" width="12" height="10"/><rect fill="none" stroke="%23333" stroke-width="1" x="75" y="50" width="18" height="14"/><rect fill="none" stroke="%23333" stroke-width="1" x="8" y="58" width="10" height="8"/><text x="20" y="48" font-size="6" fill="%23666">234</text><text x="55" y="38" font-size="6" fill="%23666">235</text><text x="80" y="35" font-size="6" fill="%23666">236</text></svg>') center/cover no-repeat;
+}
+
+.basemap-card-preview.landeskarte {
+  background: #f5efe6 url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 80"><rect fill="%23f5efe6" width="100" height="80"/><path stroke="%23c4a060" stroke-width="0.5" fill="none" d="M0,15 Q25,10 50,18 T100,12"/><path stroke="%23c4a060" stroke-width="1" fill="none" d="M0,35 Q35,28 70,38 T100,32"/><path stroke="%23c4a060" stroke-width="0.5" fill="none" d="M0,55 Q30,50 65,58 T100,52"/><path stroke="%23c4a060" stroke-width="1" fill="none" d="M0,65 Q40,58 75,68 T100,62"/><ellipse fill="%238cb070" cx="20" cy="25" rx="12" ry="10"/><ellipse fill="%238cb070" cx="75" cy="60" rx="15" ry="12"/><path stroke="%23e04040" stroke-width="2" fill="none" d="M0,40 L45,38 L100,42"/><path stroke="%23fff" stroke-width="1.5" fill="none" d="M50,0 L48,40 L52,80"/><rect fill="%23ffd" x="40" y="32" width="20" height="15"/></svg>') center/cover no-repeat;
+}
+
+.basemap-card-preview.siegfried {
+  background: #e8dcc0 url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 80"><rect fill="%23e8dcc0" width="100" height="80"/><path stroke="%23a08060" stroke-width="0.4" fill="none" d="M0,12 Q20,8 45,15 T100,10"/><path stroke="%23a08060" stroke-width="0.8" fill="none" d="M0,36 Q30,28 65,38 T100,32"/><path stroke="%23a08060" stroke-width="0.4" fill="none" d="M0,60 Q35,54 70,62 T100,56"/><path stroke="%23a08060" stroke-width="0.8" fill="none" d="M0,72 Q40,64 75,74 T100,68"/><path stroke="%238b4513" stroke-width="1.5" fill="none" d="M0,40 L100,38"/><path stroke="%238b4513" stroke-width="1" fill="none" d="M50,0 L48,80"/></svg>') center/cover no-repeat;
+}
+
+.basemap-card-preview.transparent {
+  background: repeating-conic-gradient(#ccc 0% 25%, #fff 0% 50%) 50% / 16px 16px;
+}
+
+.basemap-card-preview.keine {
+  background: #fff;
+  border: 1px solid #ddd;
+}
+
+.basemap-card-preview.av-color {
+  background: #f8f4ee url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 80"><rect fill="%23f8f4ee" width="100" height="80"/><path stroke="%23ddd" stroke-width="3" fill="none" d="M0,40 L100,40"/><path stroke="%23ddd" stroke-width="3" fill="none" d="M50,0 L50,80"/><path stroke="%23eee" stroke-width="1.5" fill="none" d="M0,20 L100,20"/><path stroke="%23eee" stroke-width="1.5" fill="none" d="M0,60 L100,60"/><rect fill="%23f0d8c0" stroke="%23c0a080" stroke-width="0.5" x="10" y="8" width="12" height="10"/><rect fill="%23e8c8b0" stroke="%23c0a080" stroke-width="0.5" x="55" y="5" width="18" height="12"/><rect fill="%23f0d8c0" stroke="%23c0a080" stroke-width="0.5" x="5" y="45" width="15" height="12"/><rect fill="%23e8c8b0" stroke="%23c0a080" stroke-width="0.5" x="55" y="45" width="20" height="15"/><rect fill="%23f0d8c0" stroke="%23c0a080" stroke-width="0.5" x="80" y="50" width="12" height="10"/></svg>') center/cover no-repeat;
+}
+
+.basemap-card-preview.osm {
+  background: #f2efe9 url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 80"><rect fill="%23f2efe9" width="100" height="80"/><path fill="%23aad3df" d="M70,0 L100,0 L100,30 L85,25 L70,30 Z"/><path stroke="%23fff" stroke-width="4" fill="none" d="M0,40 L100,40"/><path stroke="%23fcd6a4" stroke-width="3" fill="none" d="M0,40 L100,40"/><path stroke="%23fff" stroke-width="3" fill="none" d="M50,0 L50,80"/><rect fill="%23d9d0c9" stroke="%23bbb" stroke-width="0.3" x="10" y="8" width="12" height="10"/><rect fill="%23d9d0c9" stroke="%23bbb" stroke-width="0.3" x="55" y="5" width="18" height="12"/><rect fill="%23d9d0c9" stroke="%23bbb" stroke-width="0.3" x="5" y="45" width="15" height="12"/><rect fill="%23d9d0c9" stroke="%23bbb" stroke-width="0.3" x="55" y="45" width="20" height="15"/><ellipse fill="%23cdebb0" cx="85" cy="65" rx="12" ry="10"/></svg>') center/cover no-repeat;
+}
+
+.basemap-card-label {
+  display: block;
+  background: rgba(66, 74, 82, 0.85);
+  color: white;
+  font-size: 10px;
+  text-align: center;
+  padding: 4px 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
