@@ -325,7 +325,7 @@ div#disclaimer_pdf,
 body #disclaimer_news,
 div#disclaimer_news {
   top: 75px !important;
-  left: 340px !important;
+  left: 390px !important;
 }
 
 /* Search Dropdown Popup - NUR für Suche, nicht global! */
@@ -566,6 +566,68 @@ div#freepane {
 }
 
 #header_toolbar .toolbar-item svg {
+  width: 20px;
+  height: 20px;
+  fill: currentColor;
+}
+
+/* Hamburger Menü Dropdown */
+#header_menu {
+  position: relative;
+}
+
+.menu-dropdown {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: 8px;
+  min-width: 180px;
+  background: white;
+  border-radius: 4px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-10px);
+  transition: all 0.2s ease;
+  z-index: 9999;
+}
+
+#header_menu.open .menu-dropdown {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+.menu-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  color: #444;
+  font-family: "Roboto", sans-serif;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.menu-item:first-child {
+  border-radius: 4px 4px 0 0;
+}
+
+.menu-item:last-child {
+  border-radius: 0 0 4px 4px;
+}
+
+.menu-item:only-child {
+  border-radius: 4px;
+}
+
+.menu-item:hover {
+  background: rgba(75, 123, 129, 0.1);
+  color: #4b7b81;
+}
+
+.menu-item svg {
   width: 20px;
   height: 20px;
   fill: currentColor;
@@ -1279,4 +1341,332 @@ h3 {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+/* ===== RECHTSKLICK-KONTEXTMENÜ ===== */
+.context-menu {
+  display: none;
+  position: fixed;
+  z-index: 100000;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.25), 0 0 1px rgba(0,0,0,0.1);
+  min-width: 220px;
+  padding: 6px 0;
+  font-family: 'Roboto', sans-serif;
+  font-size: 13px;
+  animation: ctxFadeIn 0.15s ease-out;
+}
+
+@keyframes ctxFadeIn {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.context-menu.show {
+  display: block;
+}
+
+.context-menu-header {
+  padding: 8px 14px 6px;
+  font-size: 11px;
+  color: #666;
+  border-bottom: 1px solid #eee;
+  margin-bottom: 4px;
+  font-family: 'Roboto Mono', monospace;
+}
+
+.context-menu-item {
+  display: flex;
+  align-items: center;
+  padding: 8px 14px;
+  cursor: pointer;
+  transition: background 0.1s;
+  color: #333;
+}
+
+.context-menu-item:hover {
+  background: #4b7b81;
+  color: white;
+}
+
+.context-menu-item:hover svg {
+  fill: white;
+}
+
+.context-menu-item svg {
+  width: 18px;
+  height: 18px;
+  margin-right: 10px;
+  fill: #666;
+  flex-shrink: 0;
+  transition: fill 0.1s;
+}
+
+.context-menu-divider {
+  height: 1px;
+  background: #eee;
+  margin: 4px 0;
+}
+
+/* Toast-Benachrichtigung für kopierte Koordinaten */
+.ctx-toast {
+  position: fixed;
+  bottom: 80px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #333;
+  color: white;
+  padding: 10px 20px;
+  border-radius: 6px;
+  font-size: 13px;
+  z-index: 100001;
+  animation: toastIn 0.3s ease-out;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
+
+@keyframes toastIn {
+  from { opacity: 0; transform: translateX(-50%) translateY(10px); }
+  to { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+
+.ctx-toast.fade-out {
+  animation: toastOut 0.3s ease-in forwards;
+}
+
+@keyframes toastOut {
+  to { opacity: 0; transform: translateX(-50%) translateY(-10px); }
+}
+
+/* ===== MAP FOOTER BAR - Durchgehende Leiste ===== */
+#map-footer-bar {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 26px;
+  background: rgba(90, 90, 90, 0.9);
+  font-family: 'Roboto', Arial, sans-serif;
+  font-size: 11px;
+  color: #fff;
+  padding: 0 10px;
+  backdrop-filter: blur(2px);
+}
+
+.map-footer-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.map-footer-scale {
+  font-weight: 500;
+  padding: 0;
+  background: transparent;
+  border-radius: 3px;
+}
+
+/* Maßstabs-Dropdown */
+#map-scale-select {
+  background: rgba(255,255,255,0.15);
+  color: white;
+  border: 1px solid rgba(255,255,255,0.3);
+  border-radius: 3px;
+  padding: 3px 6px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  outline: none;
+  min-width: 90px;
+}
+
+#map-scale-select:hover {
+  background: rgba(255,255,255,0.25);
+  border-color: rgba(255,255,255,0.5);
+}
+
+#map-scale-select:focus {
+  border-color: #4b7b81;
+  box-shadow: 0 0 0 2px rgba(75,123,129,0.3);
+}
+
+#map-scale-select option {
+  background: #3a3a3a;
+  color: white;
+  padding: 5px;
+}
+
+.map-footer-scalebar {
+  display: flex;
+  align-items: center;
+}
+
+/* Scale Line im Footer */
+#map-footer-bar #scale-line {
+  position: relative !important;
+  left: auto !important;
+  bottom: auto !important;
+}
+
+#map-footer-bar .ol-scale-line {
+  position: relative !important;
+  background: transparent !important;
+  padding: 0 !important;
+  bottom: auto !important;
+  left: auto !important;
+}
+
+#map-footer-bar .ol-scale-line-inner {
+  background: rgba(255,255,255,0.2) !important;
+  border: 1px solid rgba(255,255,255,0.5) !important;
+  border-top: none !important;
+  color: #fff !important;
+  font-size: 10px !important;
+  text-align: center !important;
+  padding: 1px 4px !important;
+}
+
+.map-footer-center {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.map-footer-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  background: rgba(255,255,255,0.1);
+  border-radius: 3px;
+}
+
+.map-footer-label {
+  color: rgba(255,255,255,0.7);
+  font-size: 10px;
+}
+
+.map-footer-value {
+  font-family: 'Roboto Mono', 'Consolas', monospace;
+  font-size: 11px;
+  color: #fff;
+  font-weight: 500;
+}
+
+/* Koordinatensystem Dropdown */
+.map-coord-system {
+  padding: 2px 4px !important;
+}
+
+#map-coord-switch {
+  appearance: none;
+  -webkit-appearance: none;
+  background: transparent url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24'%3E%3Cpath fill='white' d='M7 10l5 5 5-5z'/%3E%3C/svg%3E") no-repeat right center;
+  border: none;
+  font-family: 'Roboto', Arial, sans-serif;
+  font-size: 11px;
+  font-weight: 500;
+  color: #fff;
+  cursor: pointer;
+  padding: 0 16px 0 0;
+}
+
+#map-coord-switch:focus {
+  outline: none;
+}
+
+#map-coord-switch option {
+  background: #555;
+  color: #fff;
+}
+
+/* Picker Button */
+.map-footer-picker {
+  cursor: pointer;
+  padding: 3px 6px !important;
+  color: rgba(255,255,255,0.7);
+  transition: all 0.15s;
+}
+
+.map-footer-picker:hover {
+  background: rgba(255,255,255,0.2);
+  color: #fff;
+}
+
+.map-footer-picker.active {
+  background: #4b7b81;
+  color: white;
+}
+
+.map-footer-picker svg {
+  display: block;
+}
+
+.map-footer-right {
+  font-size: 10px;
+  color: rgba(255,255,255,0.8);
+}
+
+/* Hide original scale-line if outside footer */
+#centerPaneLayout > #scale-line,
+#mapContainer > #scale-line:not(#map-footer-bar #scale-line) {
+  display: none !important;
+}
+
+/* Mapcontrols ausblenden (S/W Button, Opacity Slider) */
+#mapcontrols_div {
+  display: none !important;
+}
+
+/* ===== KOMPASS / NORTH ARROW ===== */
+.ol-rotate {
+  opacity: 1 !important;
+  visibility: visible !important;
+  top: auto !important;
+  right: auto !important;
+  bottom: 32px !important;
+  left: 100px !important;
+  background: transparent !important;
+  z-index: 1001 !important;
+}
+
+.ol-rotate.ol-hidden {
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+.ol-rotate-reset {
+  width: 28px !important;
+  height: 28px !important;
+  background: rgba(255,255,255,0.9) !important;
+  border: none !important;
+  border-radius: 4px !important;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.2) !important;
+  cursor: pointer !important;
+  padding: 4px !important;
+  transition: background 0.15s !important;
+}
+
+.ol-rotate-reset:hover {
+  background: white !important;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.25) !important;
+}
+
+.ol-rotate-reset:focus {
+  outline: none !important;
+}
+
+/* Schlichter Nordpfeil als SVG */
+.ol-compass {
+  display: block !important;
+  width: 100% !important;
+  height: 100% !important;
+  font-size: 0 !important;
+  color: transparent !important;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23e8423f' d='M12 2L9 11h6L12 2z'/%3E%3Cpath fill='%23555' d='M12 22l3-9H9l3 9z'/%3E%3C/svg%3E") center/contain no-repeat !important;
+  transform-origin: center center !important;
 }

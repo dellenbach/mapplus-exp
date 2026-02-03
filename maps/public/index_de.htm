@@ -11,6 +11,97 @@
     <link rel="dns-prefetch" href="//cdn.jsdelivr.net">
     <link rel="dns-prefetch" href="//cdnjs.cloudflare.com">
     <title>MAP+ GIS Daten AG</title>
+    
+    <!-- Critical CSS für Splash Screen - inline für sofortige Anzeige -->
+    <style>
+        #splash-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #4b7b81 0%, #3a6268 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 99999;
+            transition: opacity 1s ease, visibility 1s ease, transform 1s ease;
+        }
+        #splash-screen.hidden {
+            opacity: 0;
+            visibility: hidden;
+            transform: scale(1.05);
+        }
+        #splash-logo {
+            position: relative;
+            margin-bottom: 10px;
+        }
+        #splash-logo img {
+            width: 200px;
+            height: auto;
+            filter: brightness(0) invert(1);
+        }
+        /* Drehender Cube auf dem I von GIS */
+        #splash-cube {
+            width: 32px;
+            height: 32px;
+            position: absolute;
+            top: -3px;
+            left: 50%;
+            margin-left: -16px;
+            transform-style: preserve-3d;
+            animation: splashRotate 1s infinite linear;
+        }
+        #splash-cube .cube-face {
+            position: absolute;
+            width: 32px;
+            height: 32px;
+            backface-visibility: hidden;
+        }
+        #splash-cube .cube-front { transform: rotateY(0deg) translateZ(16px); background: #e8423f; }
+        #splash-cube .cube-back { transform: rotateY(180deg) translateZ(16px); background: #8a0000; }
+        #splash-cube .cube-left { transform: rotateY(-90deg) translateZ(16px); background: #8a0000; }
+        #splash-cube .cube-right { transform: rotateY(90deg) translateZ(16px); background: #ffe4e4; }
+        #splash-cube .cube-top { transform: rotateX(90deg) translateZ(16px); background: #f69f9f; }
+        #splash-cube .cube-bottom { transform: rotateX(-90deg) translateZ(16px); background: #8a0000; }
+        @keyframes splashRotate {
+            from { transform: rotateX(-30deg) rotateY(0deg); }
+            to { transform: rotateX(-30deg) rotateY(360deg); }
+        }
+        #splash-title {
+            color: white;
+            font-family: 'Roboto', Arial, sans-serif;
+            font-size: 42px;
+            font-weight: 300;
+            letter-spacing: 8px;
+            margin-top: 20px;
+            margin-bottom: 40px;
+        }
+        #splash-loader {
+            width: 200px;
+            height: 4px;
+            background: rgba(255,255,255,0.15);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 60px;
+            box-shadow: 0 0 10px rgba(255,255,255,0.1);
+        }
+        #splash-loader-bar {
+            width: 30%;
+            height: 100%;
+            background: linear-gradient(90deg, rgba(255,255,255,0.3), white, rgba(255,255,255,0.3));
+            border-radius: 4px;
+            animation: loading 1.5s ease-in-out infinite;
+            box-shadow: 0 0 8px rgba(255,255,255,0.5);
+        }
+        @keyframes loading {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(400%); }
+        }
+        }
+    </style>
+    
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ol@v10.6.0/ol.css"
         onerror="this.href='/mapplus-lib/openlayers/v10.6.0-package/ol.css';">
 
@@ -188,6 +279,24 @@
             style="width: 100%; height: 100%; border: none;"></iframe>
     </div>
 
+    <!-- Splash Screen - sofort sichtbar -->
+    <div id="splash-screen">
+        <div id="splash-logo">
+            <img src="/maps/tnet/resources/logo_gis.svg" alt="GIS Daten AG">
+            <div id="splash-cube">
+                <div class="cube-face cube-front"></div>
+                <div class="cube-face cube-back"></div>
+                <div class="cube-face cube-left"></div>
+                <div class="cube-face cube-right"></div>
+                <div class="cube-face cube-top"></div>
+                <div class="cube-face cube-bottom"></div>
+            </div>
+        </div>
+        <div id="splash-loader">
+            <div id="splash-loader-bar"></div>
+        </div>
+    </div>
+
 
     
     <!-- GIS Header-Leiste -->
@@ -216,9 +325,16 @@
         <div class="toolbar-item" title="Support kontaktieren" onclick="window.open('https://www.gis-daten.ch/ueber-uns/support/', '_blank')">
             <svg viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
         </div>
-        <!-- Menü -->
-        <div class="toolbar-item" title="Menü">
+        <!-- Hamburger Menü -->
+        <div id="header_menu" class="toolbar-item" title="Menü" onclick="toggleHeaderMenu()">
             <svg viewBox="0 0 24 24"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></svg>
+            <!-- Dropdown Menü -->
+            <div id="header_menu_dropdown" class="menu-dropdown">
+                <div class="menu-item" onclick="event.stopPropagation(); openHelp();">
+                    <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H8c0-2.21 1.79-4 4-4s4 1.79 4 4c0 .88-.36 1.68-.93 2.25z"/></svg>
+                    <span>Hilfe</span>
+                </div>
+            </div>
         </div>
     </div>
     
@@ -349,15 +465,15 @@
                 </div>
             </div>
 
-            <!-- FooterPane for coords-->
+            <!-- FooterPane for coords - versteckt -->
             <div id="footPane_main" class="edgePanel" data-dojo-type="dijit.layout.ContentPane"
-                data-dojo-props="region: 'bottom'" style="background: #ffffff;">
+                data-dojo-props="region: 'bottom'" style="display:none;">
                 <div id="footPane" class="edgePanel" data-dojo-type="dijit.layout.ContentPane"
                     data-dojo-props="region: 'bottom'">
                     <div id="leftPaneFooter" class="njsFooter">
                         <div id="njs_coordinates_wrapper"></div>
                     </div>
-                </div> <!-- End FooterPane for coords-->
+                </div>
             </div>
             
             <!-- Panel Zuklapp-Button -->
@@ -389,8 +505,112 @@
 
                     <div id="njs_main_shop_wrapper" style="display:none"></div>
                     <div id="map" class="map-cont" style="height:100%;"></div>
+                    
+                    <!-- Rechtsklick-Kontextmenü -->
+                    <div id="map-context-menu" class="context-menu">
+                        <div class="context-menu-header">
+                            <span id="ctx-coords-display">--</span>
+                        </div>
+                        <div class="context-menu-item" onclick="ctxCopyCoords('lv95')">
+                            <svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+                            <span>Koordinaten kopieren (LV95)</span>
+                        </div>
+                        <div class="context-menu-item" onclick="ctxCopyCoords('wgs84')">
+                            <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>
+                            <span>Koordinaten kopieren (WGS84)</span>
+                        </div>
+                        <div class="context-menu-item" onclick="ctxFixCoords()">
+                            <svg viewBox="0 0 24 24"><path d="M17 4h-3V2h-4v2H7c-1.1 0-2 .9-2 2v15c0 1.1.9 2 2 2h10c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 17H7V6h10v15z"/><path d="M8 10h8v2H8zm0 4h8v2H8z"/></svg>
+                            <span>Koordinaten fixieren</span>
+                        </div>
+                        <div class="context-menu-divider"></div>
+                        <div class="context-menu-item" onclick="ctxWhatIsHere()">
+                            <svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+                            <span>Was ist hier?</span>
+                        </div>
+                        <div class="context-menu-item" onclick="ctxZoomHere()">
+                            <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14zm.5-7H9v2H7v1h2v2h1v-2h2V9h-2z"/></svg>
+                            <span>Hierher zoomen</span>
+                        </div>
+                        <div class="context-menu-item" onclick="ctxSetMarker()">
+                            <svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/></svg>
+                            <span>Marker setzen</span>
+                        </div>
+                        <div class="context-menu-divider"></div>
+                        <div class="context-menu-item" onclick="ctxRouteFrom()">
+                            <svg viewBox="0 0 24 24"><path d="M2 12l5 5v-4h9v6l7-7-7-7v6H7V7z"/></svg>
+                            <span>Route von hier</span>
+                        </div>
+                        <div class="context-menu-item" onclick="ctxRouteTo()">
+                            <svg viewBox="0 0 24 24"><path d="M22 12l-5-5v4H8V5l-7 7 7 7v-6h9v4z"/></svg>
+                            <span>Route hierher</span>
+                        </div>
+                        <div class="context-menu-divider"></div>
+                        <div class="context-menu-item" onclick="ctxOpenGoogleMaps()">
+                            <svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+                            <span>In Google Maps öffnen</span>
+                        </div>
+                        <div class="context-menu-item" onclick="ctxOpenStreetView()">
+                            <svg viewBox="0 0 24 24"><path d="M12.56 14.33c-.34.27-.56.7-.56 1.17V21h7c1.1 0 2-.9 2-2v-5.98c-.94-.33-1.95-.52-3-.52-2.03 0-3.93.7-5.44 1.83zM12 6c1.93 0 3.5 1.57 3.5 3.5S13.93 13 12 13s-3.5-1.57-3.5-3.5S10.07 6 12 6zM12 2C6.48 2 2 6.48 2 12s4.48 10 10 10h1v-6.5c0-.91.47-1.71 1.19-2.17C15.27 12.54 16.6 12 18 12c1.34 0 2.61.29 3.76.8.16-.59.24-1.21.24-1.8 0-5.52-4.48-10-10-10z"/></svg>
+                            <span>StreetView öffnen</span>
+                        </div>
+                        <div class="context-menu-divider"></div>
+                        <div class="context-menu-item" onclick="ctxCopyLink()">
+                            <svg viewBox="0 0 24 24"><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"/></svg>
+                            <span>Link zu Position kopieren</span>
+                        </div>
+                    </div>
+                    
                     <div id="mainButtonBar"></div>
-                    <div id='scale-line' style="position:absolute; left:10px; bottom:30px; z-Index:999;"></div>
+                    
+                    <!-- Map Footer Bar - Durchgehende Leiste unten -->
+                    <div id="map-footer-bar">
+                        <div class="map-footer-left">
+                            <div class="map-footer-scale">
+                                <select id="map-scale-select" onchange="setMapScale(this.value)" title="Maßstab wählen">
+                                    <option value="100">1:100</option>
+                                    <option value="250">1:250</option>
+                                    <option value="500">1:500</option>
+                                    <option value="1000">1:1'000</option>
+                                    <option value="2500">1:2'500</option>
+                                    <option value="5000">1:5'000</option>
+                                    <option value="10000">1:10'000</option>
+                                    <option value="25000" selected>1:25'000</option>
+                                    <option value="50000">1:50'000</option>
+                                    <option value="100000">1:100'000</option>
+                                    <option value="200000">1:200'000</option>
+                                    <option value="500000">1:500'000</option>
+                                    <option value="1000000">1:1'000'000</option>
+                                </select>
+                            </div>
+                            <div class="map-footer-scalebar">
+                                <div id="scale-line"></div>
+                            </div>
+                        </div>
+                        <div class="map-footer-center">
+                            <div class="map-footer-item map-coord-system">
+                                <select id="map-coord-switch" onchange="switchCoordSystem(this.value)">
+                                    <option value="lv95">CH1903+ / LV95</option>
+                                    <option value="wgs84">WGS84</option>
+                                </select>
+                            </div>
+                            <div class="map-footer-item">
+                                <span class="map-footer-label">Koordinaten (m)</span>
+                                <span id="map-coord-display" class="map-footer-value">--</span>
+                            </div>
+                            <div class="map-footer-item" title="Höhe 1: Geländehöhe&#10;Höhe 2: Oberflächenhöhe&#10;Höhe 3: Objekthöhe">
+                                <span class="map-footer-label">Höhe:</span>
+                                <span id="map-coord-altitude" class="map-footer-value">--</span>
+                            </div>
+                            <div class="map-footer-item map-footer-picker" id="map-coord-picker-btn" onclick="toggleCoordPicker()" title="Koordinaten fixieren">
+                                <svg viewBox="0 0 24 24" width="14" height="14"><path fill="currentColor" d="M16,12V4H17V2H7V4H8V12L6,14V16H11.2V22H12.8V16H18V14L16,12Z"/></svg>
+                            </div>
+                        </div>
+                        <div class="map-footer-right">
+                            <span id="map-footer-copyright">© LK / Swissimage: swisstopo, Übrige Daten GIS Daten AG</span>
+                        </div>
+                    </div>
+                    
                     <div id='mapcontrols_div' style="z-index:99999;">
                         <div id='toggle_coltool1_div' style="visibility: hidden;">
                             <input type="button" class="toggle_coltool" id="btnBW"
@@ -538,7 +758,7 @@
                     <!-- <div id="custompaneDiv"></div> -->
                 </div>
                 <div dojotype="dijit.layout.ContentPane" id='streetviewContainer' class="outer"
-                    style="width:500px; -webkit-overflow-scrolling:touch !important; margin: 0px;padding: 0px;border: none;"
+                    style="width:500px; display:none; -webkit-overflow-scrolling:touch !important; margin: 0px;padding: 0px;border: none;"
                     data-dojo-props="region: 'right', splitter: true">
                     <iframe id="streetviewFrame" src="" height="100%"
                         style="border:0px; width:100%; height:calc(100%+1px);">
@@ -809,12 +1029,58 @@
             window.location.href = 'logout.php';
         };
 
-        // Login-Status beim Laden prüfen
-        (function checkLoginStatus() {
-            if (window.njs && njs.AppManager && typeof njs.AppManager.auth_user !== 'undefined') {
+        // Hamburger Menü Toggle
+        window.toggleHeaderMenu = function() {
+            var menu = document.getElementById('header_menu');
+            if (menu) {
+                menu.classList.toggle('open');
+            }
+        };
+
+        // Hilfe öffnen
+        window.openHelp = function() {
+            toggleHeaderMenu(); // Menü schließen
+            if (window.njs && njs.AppManager && njs.AppManager.toggleCustomPaneContent) {
+                njs.AppManager.toggleCustomPaneContent('help', 'custompane', './core/help/help_de.htm', '', '');
+            }
+        };
+
+        // Menü schließen bei Klick außerhalb
+        document.addEventListener('click', function(e) {
+            var menu = document.getElementById('header_menu');
+            if (menu && menu.classList.contains('open') && !menu.contains(e.target)) {
+                menu.classList.remove('open');
+            }
+        });
+
+        // Splash Screen ausblenden wenn App bereit
+        window.hideSplashScreen = function() {
+            var splash = document.getElementById('splash-screen');
+            // Anderen Preloader verstecken
+            var preloader = document.getElementById('preloader');
+            if (preloader) preloader.style.display = 'none';
+            
+            // streetviewContainer sicher verstecken
+            var streetview = document.getElementById('streetviewContainer');
+            if (streetview) streetview.style.display = 'none';
+            
+            if (splash) {
+                splash.classList.add('hidden');
+                // Nach Animation entfernen
+                setTimeout(function() {
+                    splash.remove();
+                }, 1000);
+            }
+        };
+
+        // Login-Status beim Laden prüfen und Splash ausblenden
+        (function checkAppReady() {
+            if (window.njs && njs.AppManager && njs.AppManager.Maps && njs.AppManager.Maps['main']) {
                 updateLoginStatus();
+                // App ist bereit - Splash ausblenden
+                hideSplashScreen();
             } else {
-                setTimeout(checkLoginStatus, 500);
+                setTimeout(checkAppReady, 300);
             }
         })();
 
@@ -919,6 +1185,649 @@
             document.addEventListener('keydown', preloadMapsInfoIframe, opts);
             document.addEventListener('touchstart', preloadMapsInfoIframe, opts);
             document.addEventListener('mouseover', preloadMapsInfoIframe, opts);
+        })();
+
+        // ===== KOORDINATEN-LEISTE AUF DER KARTE =====
+        (function() {
+            console.log('Footer Bar Script gestartet');
+            var currentCoordSystem = 'lv95';
+            
+            // Koordinaten-System umschalten
+            window.switchCoordSystem = function(system) {
+                currentCoordSystem = system;
+                updateCoordDisplay();
+            };
+            
+            // Picker toggle (Koordinaten fixieren)
+            // Wenn aktiv = Koordinaten sind FIXIERT (laufen nicht mit)
+            // Wenn inaktiv = Koordinaten laufen mit Mauszeiger
+            window.toggleCoordPicker = function() {
+                var btn = document.getElementById('map-coord-picker-btn');
+                
+                // Original CoordDisplay Picker aufrufen
+                if (njs && njs.AppManager && njs.AppManager.Tools && 
+                    njs.AppManager.Tools.CoordDisplay && 
+                    njs.AppManager.Tools.CoordDisplay['map'] && 
+                    njs.AppManager.Tools.CoordDisplay['map']['coord2']) {
+                    njs.AppManager.Tools.CoordDisplay['map']['coord2'].togglePicker('map');
+                }
+                
+                // Button-Status aus dem Original-Picker synchronisieren
+                setTimeout(function() {
+                    var pickerBtn = document.getElementById('coord2_picker');
+                    if (pickerBtn && btn) {
+                        // Wenn original Picker "Checked" hat, ist er aktiv (fixiert)
+                        if (pickerBtn.classList.contains('njsIconButtonCoordPickerChecked')) {
+                            btn.classList.add('active');
+                        } else {
+                            btn.classList.remove('active');
+                        }
+                    }
+                }, 50);
+            };
+            
+            // Initialen Status synchronisieren
+            function syncPickerStatus() {
+                var btn = document.getElementById('map-coord-picker-btn');
+                var pickerBtn = document.getElementById('coord2_picker');
+                if (pickerBtn && btn) {
+                    if (pickerBtn.classList.contains('njsIconButtonCoordPickerChecked')) {
+                        btn.classList.add('active');
+                    } else {
+                        btn.classList.remove('active');
+                    }
+                }
+            }
+            
+            // Koordinaten-Anzeige aktualisieren
+            function updateCoordDisplay() {
+                var coordDisplay = document.getElementById('map-coord-display');
+                var lv95Input = document.getElementById('xy_coord2');
+                var wgs84Input = document.getElementById('xy_coord3');
+                
+                if (!coordDisplay) return;
+                
+                if (currentCoordSystem === 'lv95' && lv95Input) {
+                    coordDisplay.textContent = lv95Input.value || '--';
+                } else if (currentCoordSystem === 'wgs84' && wgs84Input) {
+                    coordDisplay.textContent = wgs84Input.value || '--';
+                }
+            }
+            
+            // Höhen-Anzeige aktualisieren
+            function updateAltitudeDisplay() {
+                var altDisplay = document.getElementById('map-coord-altitude');
+                var altInput = document.getElementById('z_alti1');
+                
+                if (altDisplay && altInput) {
+                    var val = altInput.value;
+                    if (val) {
+                        // Entferne m.ü.M und andere Texte, behalte nur Zahlen und | 
+                        val = val.replace(/m\.?ü\.?M\.?/gi, '').trim();
+                    }
+                    altDisplay.textContent = val ? val : '--';
+                }
+            }
+            
+            // Observer für Änderungen an den Original-Inputs
+            function setupObservers() {
+                console.log('Footer Bar: setupObservers aufgerufen');
+                
+                // Debug: Was ist verfügbar?
+                console.log('njs:', typeof njs);
+                if (njs) {
+                    console.log('njs.AppManager:', typeof njs.AppManager);
+                    if (njs.AppManager) {
+                        console.log('njs.AppManager.Maps:', njs.AppManager.Maps);
+                        if (njs.AppManager.Maps && njs.AppManager.Maps['main']) {
+                            console.log('Maps[main]:', njs.AppManager.Maps['main']);
+                            console.log('Maps[main].map:', njs.AppManager.Maps['main'].map);
+                            console.log('Maps[main] keys:', Object.keys(njs.AppManager.Maps['main']));
+                        }
+                    }
+                }
+                
+                var lv95Input = document.getElementById('xy_coord2');
+                var wgs84Input = document.getElementById('xy_coord3');
+                var altInput = document.getElementById('z_alti1');
+                
+                // Warte auf Map statt auf Inputs
+                if (!njs || !njs.AppManager || !njs.AppManager.Maps || !njs.AppManager.Maps['main'] || !njs.AppManager.Maps['main'].mapObj) {
+                    // Map noch nicht da, später nochmal versuchen
+                    console.log('Footer Bar: Map noch nicht bereit, warte 500ms...');
+                    setTimeout(setupObservers, 500);
+                    return;
+                }
+                
+                console.log('Footer Bar: Map gefunden!');
+                var map = njs.AppManager.Maps['main'].mapObj;
+                var view = map.getView();
+                console.log('Footer Bar: View:', view);
+                
+                // Initialen Picker-Status synchronisieren
+                syncPickerStatus();
+                
+                // Initiales Update
+                updateScaleDisplay();
+                updateCopyrightDisplay();
+                
+                // Event-Listener für Zoom/Resolution-Änderungen
+                view.on('change:resolution', updateScaleDisplay);
+                
+                // Auch bei Bewegung aktualisieren (für den Fall)
+                map.on('moveend', updateScaleDisplay);
+                
+                console.log('Map Footer Bar: Scale Listener registriert auf View', view);
+                
+                // Polling für Koordinaten und andere Updates (nur wenn Picker nicht fixiert)
+                setInterval(function() {
+                    updateCoordDisplay();
+                    updateAltitudeDisplay();
+                    syncPickerStatus();
+                }, 500);
+                
+                console.log('Map Footer Bar: Initialisiert');
+            }
+            
+            // Maßstab berechnen (korrekt mit Projektion)
+            function getMapScale(map) {
+                var view = map.getView();
+                var resolution = view.getResolution();
+                var projection = view.getProjection();
+                
+                if (!resolution || !projection) return null;
+                
+                // Meter pro Pixel unter Berücksichtigung der Projektion
+                var metersPerPixel = resolution * projection.getMetersPerUnit();
+                
+                // DPI-Konstante (96 dpi): 1 inch = 0.0254 m
+                var DPI = 96;
+                var inchesPerMeter = 39.37;
+                
+                // Maßstab 1 : N
+                var scale = metersPerPixel * inchesPerMeter * DPI;
+                return Math.round(scale);
+            }
+            
+            // Vordefinierte Maßstäbe für die Auswahl
+            var predefinedScales = [100, 250, 500, 1000, 2500, 5000, 10000, 25000, 50000, 100000, 200000, 500000, 1000000];
+            
+            // Resolution aus Maßstab berechnen (umgekehrte Formel)
+            function getResolutionFromScale(scale) {
+                if (!njs || !njs.AppManager || !njs.AppManager.Maps || !njs.AppManager.Maps['main'] || !njs.AppManager.Maps['main'].mapObj) return null;
+                var map = njs.AppManager.Maps['main'].mapObj;
+                var view = map.getView();
+                var projection = view.getProjection();
+                
+                var DPI = 96;
+                var inchesPerMeter = 39.37;
+                var metersPerUnit = projection.getMetersPerUnit();
+                
+                // scale = resolution * metersPerUnit * inchesPerMeter * DPI
+                // resolution = scale / (metersPerUnit * inchesPerMeter * DPI)
+                var resolution = scale / (metersPerUnit * inchesPerMeter * DPI);
+                return resolution;
+            }
+            
+            // Maßstab setzen (Zoom ändern)
+            window.setMapScale = function(scaleValue) {
+                var scale = parseInt(scaleValue);
+                if (!scale) return;
+                
+                var resolution = getResolutionFromScale(scale);
+                if (!resolution) return;
+                
+                var map = njs.AppManager.Maps['main'].mapObj;
+                var view = map.getView();
+                
+                // Sanft zum neuen Zoom animieren
+                view.animate({
+                    resolution: resolution,
+                    duration: 250
+                });
+            };
+            
+            // Nächsten vordefinierten Maßstab finden
+            function findClosestScale(actualScale) {
+                var closest = predefinedScales[0];
+                var minDiff = Math.abs(actualScale - closest);
+                
+                for (var i = 1; i < predefinedScales.length; i++) {
+                    var diff = Math.abs(actualScale - predefinedScales[i]);
+                    if (diff < minDiff) {
+                        minDiff = diff;
+                        closest = predefinedScales[i];
+                    }
+                }
+                return closest;
+            }
+            
+            // Maßstab im Footer aktualisieren (Dropdown)
+            function updateScaleDisplay() {
+                var scaleSelect = document.getElementById('map-scale-select');
+                if (!scaleSelect) {
+                    console.log('Scale: Element #map-scale-select nicht gefunden');
+                    return;
+                }
+                
+                if (njs && njs.AppManager && njs.AppManager.Maps && njs.AppManager.Maps['main'] && njs.AppManager.Maps['main'].mapObj) {
+                    var map = njs.AppManager.Maps['main'].mapObj;
+                    var scale = getMapScale(map);
+                    
+                    if (!scale) {
+                        console.log('Scale: Konnte Maßstab nicht berechnen');
+                        return;
+                    }
+                    
+                    // Nächsten vordefinierten Maßstab finden und im Dropdown auswählen
+                    var closestScale = findClosestScale(scale);
+                    scaleSelect.value = closestScale.toString();
+                } else {
+                    console.log('Scale: Map nicht verfügbar');
+                }
+            }
+            
+            // Copyright aus disclaimer_copyright übernehmen
+            function updateCopyrightDisplay() {
+                var copyrightTarget = document.getElementById('map-footer-copyright');
+                var copyrightSource = document.getElementById('disclaimer_copyright');
+                
+                if (copyrightTarget && copyrightSource && copyrightSource.textContent.trim()) {
+                    copyrightTarget.textContent = copyrightSource.textContent.trim();
+                }
+            }
+            
+            // Initialisieren wenn DOM bereit
+            console.log('Footer Bar: Warte auf DOM...');
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', function() {
+                    console.log('Footer Bar: DOMContentLoaded');
+                    setupObservers();
+                });
+            } else {
+                console.log('Footer Bar: DOM bereits geladen');
+                setupObservers();
+            }
+        })();
+
+        // ===== RECHTSKLICK-KONTEXTMENÜ =====
+        (function() {
+            var contextMenu = null;
+            var ctxCoordsDisplay = null;
+            var clickedCoords = null; // {lv95: [E, N], wgs84: [lon, lat], pixel: [x, y]}
+            
+            // Warte auf Map UND DOM
+            function waitForMapAndDOM(callback) {
+                var mapReady = njs && njs.AppManager && njs.AppManager.Maps && njs.AppManager.Maps['main'] && njs.AppManager.Maps['main'].mapObj;
+                var domReady = document.getElementById('map-context-menu') && document.getElementById('map');
+                
+                if (mapReady && domReady) {
+                    callback(njs.AppManager.Maps['main']);
+                } else {
+                    setTimeout(function() { waitForMapAndDOM(callback); }, 300);
+                }
+            }
+            
+            // Proj4 Transformation LV95 <-> WGS84
+            function lv95ToWgs84(e, n) {
+                // Vereinfachte Näherung für Schweiz
+                var y_aux = (e - 2600000) / 1000000;
+                var x_aux = (n - 1200000) / 1000000;
+                
+                var lon = 2.6779094 
+                    + 4.728982 * y_aux 
+                    + 0.791484 * y_aux * x_aux 
+                    + 0.1306 * y_aux * Math.pow(x_aux, 2) 
+                    - 0.0436 * Math.pow(y_aux, 3);
+                
+                var lat = 16.9023892 
+                    + 3.238272 * x_aux 
+                    - 0.270978 * Math.pow(y_aux, 2) 
+                    - 0.002528 * Math.pow(x_aux, 2) 
+                    - 0.0447 * Math.pow(y_aux, 2) * x_aux 
+                    - 0.0140 * Math.pow(x_aux, 3);
+                
+                lon = lon * 100 / 36;
+                lat = lat * 100 / 36;
+                
+                return [lon, lat];
+            }
+            
+            // Toast anzeigen
+            function showToast(message) {
+                var existing = document.querySelector('.ctx-toast');
+                if (existing) existing.remove();
+                
+                var toast = document.createElement('div');
+                toast.className = 'ctx-toast';
+                toast.textContent = message;
+                document.body.appendChild(toast);
+                
+                setTimeout(function() {
+                    toast.classList.add('fade-out');
+                    setTimeout(function() { toast.remove(); }, 300);
+                }, 2000);
+            }
+            
+            // Menü ausblenden
+            window.hideContextMenu = function() {
+                if (contextMenu) contextMenu.classList.remove('show');
+            };
+            
+            // Gemeinsame Marker-Funktion (wird von Linksklick UND Kontextmenü verwendet)
+            function setMarkerAtPosition(coords) {
+                if (!coords || !coords.lv95) return;
+                
+                if (njs && njs.AppManager && njs.AppManager.Maps && njs.AppManager.Maps['main']) {
+                    var mapWrapper = njs.AppManager.Maps['main'];
+                    var map = mapWrapper.mapObj;
+                    
+                    if (!map || typeof ol === 'undefined') return;
+                    
+                    // Marker-Layer erstellen falls nicht vorhanden
+                    if (!window.userMarkerLayer) {
+                        window.userMarkerLayer = new ol.layer.Vector({
+                            source: new ol.source.Vector(),
+                            zIndex: 999
+                        });
+                        map.addLayer(window.userMarkerLayer);
+                    }
+                    
+                    // Alten Marker entfernen (nur ein aktiver Marker)
+                    window.userMarkerLayer.getSource().clear();
+                    
+                    // Marker-Style mit externem SVG-Pin
+                    var markerStyle = new ol.style.Style({
+                        image: new ol.style.Icon({
+                            anchor: [0.5, 1],
+                            anchorXUnits: 'fraction',
+                            anchorYUnits: 'fraction',
+                            src: '/maps/tnet/resources/icons/marker-pin.svg',
+                            scale: 0.75
+                        })
+                    });
+                    
+                    var feature = new ol.Feature({
+                        geometry: new ol.geom.Point(coords.lv95),
+                        name: 'Marker',
+                        coords: coords
+                    });
+                    feature.setStyle(markerStyle);
+                    
+                    window.userMarkerLayer.getSource().addFeature(feature);
+                }
+            }
+            
+            // Globale Funktion für externe Aufrufe
+            window.setMarkerAtPosition = setMarkerAtPosition;
+            
+            // Bei Klick außerhalb oder Escape schließen
+            document.addEventListener('click', function(e) {
+                if (contextMenu && !contextMenu.contains(e.target)) {
+                    hideContextMenu();
+                }
+            });
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') hideContextMenu();
+            });
+            
+            // Map Rechtsklick
+            waitForMapAndDOM(function(mapWrapper) {
+                contextMenu = document.getElementById('map-context-menu');
+                ctxCoordsDisplay = document.getElementById('ctx-coords-display');
+                
+                var map = mapWrapper.mapObj; // OpenLayers Map
+                if (!map) {
+                    console.error('Context Menu: OpenLayers map nicht gefunden');
+                    return;
+                }
+                
+                var mapEl = document.getElementById('map');
+                if (!mapEl) {
+                    console.error('Context Menu: Map Element nicht gefunden');
+                    return;
+                }
+                
+                console.log('Context Menu: Initialisiert auf', mapEl);
+                
+                // Event direkt auf das canvas Element mit capture
+                function handleContextMenu(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    e.stopImmediatePropagation();
+                    
+                    console.log('Context Menu: Rechtsklick bei', e.clientX, e.clientY);
+                    
+                    // Pixel-Koordinaten
+                    var rect = mapEl.getBoundingClientRect();
+                    var pixel = [e.clientX - rect.left, e.clientY - rect.top];
+                    
+                    // Koordinaten aus Map holen (LV95)
+                    var coord = map.getCoordinateFromPixel(pixel);
+                    if (!coord) {
+                        console.log('Context Menu: Keine Koordinaten');
+                        return false;
+                    }
+                    
+                    var lv95 = [Math.round(coord[0]), Math.round(coord[1])];
+                    var wgs84 = lv95ToWgs84(coord[0], coord[1]);
+                    
+                    clickedCoords = {
+                        lv95: lv95,
+                        wgs84: wgs84,
+                        pixel: pixel
+                    };
+                    
+                    // Koordinaten im Header anzeigen
+                    if (ctxCoordsDisplay) {
+                        ctxCoordsDisplay.textContent = lv95[0].toLocaleString('de-CH') + ' / ' + lv95[1].toLocaleString('de-CH');
+                    }
+                    
+                    console.log('Context Menu: Koordinaten', lv95);
+                    
+                    // Position des Menüs
+                    var menuWidth = 240;
+                    var menuHeight = 380;
+                    var posX = e.clientX;
+                    var posY = e.clientY;
+                    
+                    // Am rechten Rand anpassen
+                    if (posX + menuWidth > window.innerWidth) {
+                        posX = window.innerWidth - menuWidth - 10;
+                    }
+                    // Am unteren Rand anpassen
+                    if (posY + menuHeight > window.innerHeight) {
+                        posY = window.innerHeight - menuHeight - 10;
+                    }
+                    
+                    contextMenu.style.left = posX + 'px';
+                    contextMenu.style.top = posY + 'px';
+                    contextMenu.classList.add('show');
+                    
+                    console.log('Context Menu: Angezeigt');
+                    return false;
+                }
+                
+                // Event auf mapEl mit capture:true (fängt Event vor OpenLayers)
+                mapEl.addEventListener('contextmenu', handleContextMenu, true);
+                
+                // Auch auf document als Fallback
+                document.addEventListener('contextmenu', function(e) {
+                    // Nur wenn innerhalb des Map-Containers
+                    if (mapEl.contains(e.target) || e.target === mapEl) {
+                        handleContextMenu(e);
+                    }
+                }, true);
+                
+                // Linksklick auf Karte: Marker setzen
+                map.on('singleclick', function(evt) {
+                    // Koordinaten aus Event
+                    var coord = evt.coordinate;
+                    if (!coord) return;
+                    
+                    var lv95 = [Math.round(coord[0]), Math.round(coord[1])];
+                    var wgs84 = lv95ToWgs84(coord[0], coord[1]);
+                    
+                    var coords = {
+                        lv95: lv95,
+                        wgs84: wgs84,
+                        pixel: evt.pixel
+                    };
+                    
+                    // Marker an Klickposition setzen
+                    setMarkerAtPosition(coords);
+                });
+            });
+            
+            // Menü-Aktionen
+            window.ctxCopyCoords = function(format) {
+                if (!clickedCoords) return;
+                var text;
+                if (format === 'lv95') {
+                    // Versuche zuerst aus bestehendem Input-Feld zu lesen
+                    var lv95Input = document.getElementById('xy_coord2');
+                    if (lv95Input && lv95Input.value) {
+                        text = lv95Input.value;
+                    } else {
+                        text = clickedCoords.lv95[0] + ', ' + clickedCoords.lv95[1];
+                    }
+                    showToast('LV95 kopiert: ' + text);
+                } else {
+                    // Versuche zuerst aus bestehendem Input-Feld zu lesen
+                    var wgs84Input = document.getElementById('xy_coord3');
+                    if (wgs84Input && wgs84Input.value) {
+                        text = wgs84Input.value;
+                    } else {
+                        text = clickedCoords.wgs84[1].toFixed(6) + ', ' + clickedCoords.wgs84[0].toFixed(6);
+                    }
+                    showToast('WGS84 kopiert: ' + text);
+                }
+                navigator.clipboard.writeText(text);
+                hideContextMenu();
+            };
+            
+            // Koordinaten fixieren (Picker toggle)
+            window.ctxFixCoords = function() {
+                hideContextMenu();
+                // Toggle den CoordDisplay Picker
+                if (njs && njs.AppManager && njs.AppManager.Tools && 
+                    njs.AppManager.Tools.CoordDisplay && 
+                    njs.AppManager.Tools.CoordDisplay['map'] && 
+                    njs.AppManager.Tools.CoordDisplay['map']['coord2']) {
+                    njs.AppManager.Tools.CoordDisplay['map']['coord2'].togglePicker('map');
+                    showToast('Koordinaten-Anzeige fixiert');
+                } else {
+                    // Fallback: Klick auf Picker-Button simulieren
+                    var pickerBtn = document.getElementById('coord2_picker');
+                    if (pickerBtn) {
+                        pickerBtn.click();
+                        showToast('Koordinaten-Anzeige fixiert');
+                    }
+                }
+            };
+            
+            window.ctxWhatIsHere = function() {
+                if (!clickedCoords) return;
+                hideContextMenu();
+                
+                // Marker setzen an der Position
+                setMarkerAtPosition(clickedCoords);
+                
+                // Feature-Info an Position abfragen (simuliere Linksklick)
+                if (njs && njs.AppManager && njs.AppManager.Maps && njs.AppManager.Maps['main']) {
+                    var mapWrapper = njs.AppManager.Maps['main'];
+                    var map = mapWrapper.mapObj;
+                    
+                    if (map) {
+                        // Simuliere singleclick Event an der Position
+                        map.dispatchEvent({
+                            type: 'singleclick', 
+                            coordinate: clickedCoords.lv95, 
+                            pixel: clickedCoords.pixel,
+                            originalEvent: { preventDefault: function(){}, stopPropagation: function(){} }
+                        });
+                    }
+                }
+            };
+            
+            window.ctxZoomHere = function() {
+                if (!clickedCoords) return;
+                hideContextMenu();
+                if (njs && njs.AppManager && njs.AppManager.Maps && njs.AppManager.Maps['main']) {
+                    var map = njs.AppManager.Maps['main'].mapObj;
+                    if (map) {
+                        var view = map.getView();
+                        view.animate({
+                            center: clickedCoords.lv95,
+                            zoom: Math.max(view.getZoom() + 2, 15),
+                            duration: 500
+                        });
+                    }
+                }
+            };
+            
+            window.ctxSetMarker = function() {
+                if (!clickedCoords) return;
+                hideContextMenu();
+                setMarkerAtPosition(clickedCoords);
+                showToast('Marker gesetzt');
+            };
+            
+            window.ctxRouteFrom = function() {
+                if (!clickedCoords) return;
+                hideContextMenu();
+                // Routing-Start setzen
+                showToast('Start-Position gesetzt: ' + clickedCoords.lv95[0] + ', ' + clickedCoords.lv95[1]);
+                window.routeStartCoords = clickedCoords;
+                // Falls Routing-Modul vorhanden
+                if (njs && njs.AppManager && njs.AppManager.getModule) {
+                    var routing = njs.AppManager.getModule('routing');
+                    if (routing && routing.setStart) {
+                        routing.setStart(clickedCoords.lv95);
+                    }
+                }
+            };
+            
+            window.ctxRouteTo = function() {
+                if (!clickedCoords) return;
+                hideContextMenu();
+                // Routing-Ziel setzen
+                showToast('Ziel-Position gesetzt: ' + clickedCoords.lv95[0] + ', ' + clickedCoords.lv95[1]);
+                window.routeEndCoords = clickedCoords;
+                // Falls Routing-Modul vorhanden
+                if (njs && njs.AppManager && njs.AppManager.getModule) {
+                    var routing = njs.AppManager.getModule('routing');
+                    if (routing && routing.setEnd) {
+                        routing.setEnd(clickedCoords.lv95);
+                    }
+                }
+            };
+            
+            window.ctxOpenGoogleMaps = function() {
+                if (!clickedCoords) return;
+                hideContextMenu();
+                var lat = clickedCoords.wgs84[1].toFixed(6);
+                var lon = clickedCoords.wgs84[0].toFixed(6);
+                var url = 'https://www.google.com/maps?q=' + lat + ',' + lon + '&z=18';
+                window.open(url, '_blank');
+            };
+            
+            window.ctxOpenStreetView = function() {
+                if (!clickedCoords) return;
+                hideContextMenu();
+                var lat = clickedCoords.wgs84[1].toFixed(6);
+                var lon = clickedCoords.wgs84[0].toFixed(6);
+                var url = 'https://www.google.com/maps?layer=c&cbll=' + lat + ',' + lon;
+                window.open(url, '_blank');
+            };
+            
+            window.ctxCopyLink = function() {
+                hideContextMenu();
+                // Einfach die aktuelle URL kopieren (enthält bereits alle Parameter)
+                var currentUrl = window.location.href;
+                navigator.clipboard.writeText(currentUrl);
+                showToast('URL kopiert!');
+            };
         })();
     </script>
 
