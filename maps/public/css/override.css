@@ -110,7 +110,198 @@ input[type="range"]::-webkit-slider-thumb:hover {
   background-color: #4b7b81 !important;
 }
 
-/* FloatingPane (Maptips Dialog) - Verschieben durch Header-Bereich verhindern */
+/* ===== INFO PANE (Objektinformation) - Gleiches Styling wie Räumliche Abfrage ===== */
+#njs_info_pane {
+  min-width: 350px;
+  min-height: 150px;
+  border-radius: 6px !important;
+  overflow: hidden !important;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.25) !important;
+  border: none !important;
+}
+
+/* Header wie Räumliche Abfrage - gleiche Höhe */
+#njs_info_pane .dojoxFloatingPaneTitle {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  padding: 8px 10px !important;
+  background: #4b7b81 !important;
+  color: white !important;
+  font-weight: 500 !important;
+  cursor: move !important;
+  user-select: none !important;
+  height: 36px !important;
+  min-height: 36px !important;
+  box-sizing: border-box !important;
+}
+
+/* Original Close-Button verstecken (wird durch custom ersetzt) */
+#njs_info_pane .dojoxFloatingCloseIcon {
+  display: none !important;
+}
+
+/* Titel-Text - zuerst, dann flex-grow */
+#njs_info_pane .dijitTitleNode {
+  flex: 1 !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  color: white !important;
+  order: 1 !important;
+  margin-left: 0 !important;
+}
+
+#njs_info_pane .dijitTitleNode table {
+  color: white !important;
+}
+
+/* Verstecke originale Dojo-Icons */
+#njs_info_pane .dojoxFloatingMaximizeIcon,
+#njs_info_pane .dojoxFloatingRestoreIcon,
+#njs_info_pane .dojoxFloatingMinimizeIcon {
+  display: none !important;
+}
+
+/* Custom Action Buttons - rechts */
+#njs_info_pane .info-pane-actions {
+  display: flex !important;
+  align-items: center !important;
+  gap: 4px !important;
+  margin-left: auto !important;
+  margin-right: 0 !important;
+  order: 2 !important;
+}
+
+#njs_info_pane .info-pane-btn {
+  background: rgba(255,255,255,0.15) !important;
+  border: none !important;
+  color: white !important;
+  width: 24px !important;
+  height: 24px !important;
+  border-radius: 4px !important;
+  cursor: pointer !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  transition: background 0.2s !important;
+}
+
+#njs_info_pane .info-pane-btn:hover {
+  background: rgba(255,255,255,0.3) !important;
+}
+
+#njs_info_pane .info-pane-btn svg {
+  width: 16px !important;
+  height: 16px !important;
+}
+
+/* Original Dojo Close-Button bleibt versteckt - Custom Button wird verwendet */
+
+/* Content-Bereich */
+#njs_info_pane .dojoxFloatingPaneCanvasInfo {
+  background: white !important;
+  flex: 1 !important;
+  overflow: hidden !important;
+  position: relative !important;
+}
+
+#njs_info_pane .dojoxFloatingPaneContentInfo {
+  overflow-y: auto !important;
+  overflow-x: auto !important;
+  height: 100% !important;
+  padding: 0 !important;
+}
+
+/* Resize Handle (Dojo original) */
+#njs_info_pane .dojoxFloatingResizeHandle {
+  display: block !important;
+  position: absolute !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  width: 16px !important;
+  height: 16px !important;
+  cursor: nwse-resize !important;
+  background: linear-gradient(135deg, transparent 50%, rgba(75,123,129,0.5) 50%) !important;
+  z-index: 10 !important;
+}
+
+#njs_info_pane .dojoxFloatingResizeHandle:hover {
+  background: linear-gradient(135deg, transparent 50%, #4b7b81 50%) !important;
+}
+
+/* Custom Resize Handle (als Fallback) */
+#njs_info_pane .info-pane-resize-handle {
+  position: absolute !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  width: 16px !important;
+  height: 16px !important;
+  cursor: nwse-resize !important;
+  background: linear-gradient(135deg, transparent 50%, rgba(75,123,129,0.5) 50%) !important;
+  z-index: 100 !important;
+}
+
+#njs_info_pane .info-pane-resize-handle:hover {
+  background: linear-gradient(135deg, transparent 50%, #4b7b81 50%) !important;
+}
+
+/* Angedockt rechts */
+#njs_info_pane.docked-right {
+  position: fixed !important;
+  top: 69px !important;
+  right: 0 !important;
+  left: auto !important;
+  bottom: 32px !important;
+  width: 400px;
+  height: auto !important;
+  max-height: none !important;
+  border-radius: 0 !important;
+  box-shadow: -4px 0 12px rgba(0,0,0,0.15) !important;
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+/* Im angedockten Modus: Standard Resize-Handle und Custom-Handle verstecken, linken zeigen */
+#njs_info_pane.docked-right .dojoxFloatingResizeHandle,
+#njs_info_pane.docked-right .info-pane-resize-handle {
+  display: none !important;
+}
+
+/* Linker Resize-Handle für angedockten Modus */
+#njs_info_pane .info-pane-resize-left {
+  display: none;
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 6px;
+  cursor: ew-resize;
+  background: linear-gradient(to right, rgba(75,123,129,0.3), transparent);
+  z-index: 10;
+}
+
+#njs_info_pane .info-pane-resize-left:hover {
+  background: linear-gradient(to right, rgba(75,123,129,0.6), transparent);
+}
+
+#njs_info_pane.docked-right .info-pane-resize-left {
+  display: block !important;
+}
+
+/* Content im angedockten Modus flexibel */
+#njs_info_pane.docked-right .dojoxFloatingPaneCanvasInfo {
+  flex: 1 !important;
+  min-height: 0 !important;
+  overflow: hidden !important;
+}
+
+#njs_info_pane.docked-right .dojoxFloatingPaneContentInfo {
+  height: 100% !important;
+  max-height: none !important;
+}
+
+/* FloatingPane Title allgemein */
 .dojoxFloatingPane .dojoxFloatingPaneTitle {
   position: relative;
   z-index: 1000;
@@ -135,6 +326,55 @@ input[type="range"]::-webkit-slider-thumb:hover {
 #layer_menu .dijitTitlePaneTextNode {
   margin-left: 11px;
   margin-top: -12px;
+}
+
+/* ===== Layer Manager TitlePane vertikale Zentrierung ===== */
+/* TitlePaneTitle als Flex-Container für vertikale Zentrierung */
+.dijitTitlePaneTitle {
+  display: flex !important;
+  align-items: center !important;
+  min-height: 32px !important;
+}
+
+/* TitlePaneTitleFocus (enthält Arrow + Text + Buttons) */
+.dijitTitlePaneTitleFocus {
+  display: flex !important;
+  align-items: center !important;
+  flex: 1 !important;
+  min-height: 28px !important;
+}
+
+/* TextNode mit allen Kindelementen vertikal zentrieren */
+.dijitTitlePaneTextNode {
+  display: inline-flex !important;
+  align-items: center !important;
+  flex-wrap: nowrap !important;
+  gap: 4px !important;
+}
+
+/* Checkbox und andere inline-Elemente zentrieren */
+.dijitTitlePaneTextNode .dijitCheckBox,
+.dijitTitlePaneTextNode .dijitInline,
+.dijitTitlePaneTextNode img,
+.dijitTitlePaneTextNode a {
+  vertical-align: middle !important;
+  margin-top: 0 !important;
+  margin-bottom: 0 !important;
+}
+
+/* Arrow-Icon vertikal zentrieren */
+.dijitArrowNode {
+  display: inline-flex !important;
+  align-items: center !important;
+  align-self: center !important;
+}
+
+/* Icons/Buttons rechts im TitlePane zentrieren */
+.dijitTitlePaneTextNode .imagelink,
+.dijitTitlePaneTextNode > a > img {
+  display: inline-flex !important;
+  align-items: center !important;
+  vertical-align: middle !important;
 }
 
 .ol-overviewmap {
@@ -356,6 +596,41 @@ div#freepane {
   bottom: 0 !important;
   height: auto !important;
   overflow: visible !important;
+  pointer-events: none !important; /* Container lässt Klicks durch */
+}
+
+/* Spring Container - braucht pointer-events für Scrolling */
+#spring {
+  pointer-events: auto; /* Scroll muss funktionieren */
+  width: 340px !important; /* Begrenzt auf Panel-Breite */
+}
+
+/* Während Polygon-Zeichnen: Freepane komplett deaktivieren */
+body.drawing-mode #freepane {
+  pointer-events: none !important;
+}
+
+body.drawing-mode #freepane * {
+  pointer-events: none !important;
+}
+
+/* Spatial Query Panel bleibt IMMER bedienbar */
+.spatial-query-panel {
+  pointer-events: auto !important;
+}
+
+.spatial-query-panel * {
+  pointer-events: auto;
+}
+
+/* Nur echte interaktive Elemente bekommen pointer-events zurück */
+#freepane #leftPaneHeader,
+#freepane .dijitTitlePane,
+#freepane .close_switch,
+#freepane #scrollToTopBtn,
+#freepane .dijitTitlePaneTitle,
+#freepane .dijitTitlePaneContentOuter {
+  pointer-events: auto;
 }
 
 /* Spring Container - scrollbar ohne Scrollbalken */
@@ -437,6 +712,7 @@ div#freepane {
   display: flex;
   flex-direction: column;
   position: relative;
+  /* pointer-events wird oben bereits auf none gesetzt */
 }
 
 /* Panel-Schatten wird per JavaScript positioniert */
@@ -490,6 +766,12 @@ div#freepane {
 #freepane.close {
   max-height: 10px !important;
   min-height: 0 !important;
+}
+
+/* Freepane kürzen wenn Spatial Query Panel angedockt */
+#freepane.panel-docked {
+  /* bottom wird dynamisch per JS gesetzt */
+  transition: bottom 0.15s ease;
 }
 
 #freepane.close .close_switch {
@@ -1057,7 +1339,7 @@ h3 {
 
 /* Basemap Widget - wächst aus der Kachel */
 #basemap_widget {
-  position: fixed;
+  position: absolute;
   right: 20px;
   bottom: 30px;
   width: 340px;
@@ -1449,7 +1731,7 @@ h3 {
   align-items: center;
   justify-content: space-between;
   height: 26px;
-  background: rgba(90, 90, 90, 0.9);
+  background: rgba(120, 120, 120, 0.7);
   font-family: 'Roboto', Arial, sans-serif;
   font-size: 11px;
   color: #fff;
@@ -1628,8 +1910,8 @@ h3 {
   visibility: visible !important;
   top: auto !important;
   right: auto !important;
-  bottom: 32px !important;
-  left: 100px !important;
+  bottom: 60px !important;
+  left: 20px !important;
   background: transparent !important;
   z-index: 1001 !important;
 }
@@ -1639,34 +1921,405 @@ h3 {
   visibility: visible !important;
 }
 
+/* Button-Styling entfernen - standalone Pfeil */
 .ol-rotate-reset {
-  width: 28px !important;
-  height: 28px !important;
-  background: rgba(255,255,255,0.9) !important;
+  width: 32px !important;
+  height: 40px !important;
+  background: transparent !important;
   border: none !important;
-  border-radius: 4px !important;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.2) !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
   cursor: pointer !important;
-  padding: 4px !important;
-  transition: background 0.15s !important;
+  padding: 0 !important;
 }
 
 .ol-rotate-reset:hover {
-  background: white !important;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.25) !important;
+  background: transparent !important;
+  box-shadow: none !important;
 }
 
 .ol-rotate-reset:focus {
   outline: none !important;
 }
 
-/* Schlichter Nordpfeil als SVG */
-.ol-compass {
-  display: block !important;
-  width: 100% !important;
-  height: 100% !important;
-  font-size: 0 !important;
-  color: transparent !important;
-  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23e8423f' d='M12 2L9 11h6L12 2z'/%3E%3Cpath fill='%23555' d='M12 22l3-9H9l3 9z'/%3E%3C/svg%3E") center/contain no-repeat !important;
-  transform-origin: center center !important;
+/* Original OpenLayers Kompass-Zeichen ausblenden */
+.ol-rotate-reset span,
+.ol-rotate-reset::before,
+.ol-rotate-reset::after {
+  display: none !important;
 }
+
+/* Nordpfeil als SVG - minimalistisch wie Vorlage */
+.ol-compass {
+  display: none !important;
+}
+
+.ol-rotate-reset {
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 32'%3E%3Cpath fill='%23333' d='M12 0L24 24L12 18L12 0z'/%3E%3Cpath fill='%23888' d='M12 0L0 24L12 18L12 0z'/%3E%3C/svg%3E") center/contain no-repeat !important;
+}
+
+/* ===== POLYGON-TOOL BUTTON ===== */
+#polygon-tool-btn {
+  position: absolute;
+  top: 10px;
+  right: 60px;
+  width: 36px;
+  height: 36px;
+  background: white;
+  border-radius: 4px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  transition: all 0.2s ease;
+}
+
+#polygon-tool-btn:hover {
+  background: #f0f0f0;
+  box-shadow: 0 3px 8px rgba(0,0,0,0.35);
+}
+
+#polygon-tool-btn.active {
+  background: #4b7b81;
+}
+
+#polygon-tool-btn.active svg path {
+  fill: white;
+  stroke: white;
+}
+
+#polygon-tool-btn svg {
+  width: 22px;
+  height: 22px;
+}
+
+/* ===== SPATIAL QUERY PANEL ===== */
+/* Panel ist ausserhalb mapContainer, verwendet position: fixed */
+.spatial-query-panel {
+  position: fixed;
+  top: 60px;
+  left: calc(100vw - 526px); /* 420px Breite + 106px Abstand rechts */
+  width: 420px;
+  max-height: calc(100vh - 120px);
+  min-height: 200px;
+  background: white;
+  border-radius: 6px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.25);
+  z-index: 1001;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  /* Native Resize für abgedockten Modus */
+  resize: both;
+}
+
+.spatial-query-panel.hidden {
+  display: none;
+}
+
+/* Resize-Handle oben (nur sichtbar wenn angedockt) */
+.spatial-query-resize-top {
+  display: none;
+  height: 6px;
+  background: linear-gradient(to bottom, #3a6268, #4b7b81);
+  cursor: ns-resize;
+  flex-shrink: 0;
+}
+
+.spatial-query-resize-top:hover {
+  background: linear-gradient(to bottom, #2d4f54, #3a6268);
+}
+
+.spatial-query-resize-top::after {
+  content: '';
+  display: block;
+  width: 40px;
+  height: 4px;
+  margin: 1px auto 0;
+  background: rgba(255,255,255,0.4);
+  border-radius: 2px;
+}
+
+/* Angedockt unten */
+.spatial-query-panel.docked-bottom {
+  position: fixed;
+  top: auto !important;
+  right: 0 !important;
+  bottom: 32px !important;
+  left: 0 !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  height: 280px;
+  max-height: 50vh;
+  border-radius: 0;
+  resize: none !important;  /* Kein natives Resize wenn angedockt */
+}
+
+.spatial-query-panel.docked-bottom .spatial-query-resize-top {
+  display: block;
+}
+
+.spatial-query-panel.docked-bottom .spatial-query-results {
+  max-height: none;
+}
+
+.spatial-query-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  background: #4b7b81;
+  color: white;
+  font-weight: 500;
+  cursor: move;
+  user-select: none;
+  height: 36px;
+  min-height: 36px;
+  box-sizing: border-box;
+}
+
+.spatial-query-title {
+  flex: 1;
+  font-size: 13px;
+}
+
+.spatial-query-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.spatial-query-btn {
+  background: rgba(255,255,255,0.15);
+  border: none;
+  color: white;
+  width: 28px;
+  height: 28px;
+  border-radius: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s;
+}
+
+.spatial-query-btn:hover {
+  background: rgba(255,255,255,0.3);
+}
+
+.spatial-query-header h3 {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.spatial-query-close {
+  background: rgba(255,255,255,0.15);
+  border: none;
+  color: white;
+  width: 28px;
+  height: 28px;
+  font-size: 18px;
+  cursor: pointer;
+  border-radius: 4px;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s;
+}
+
+.spatial-query-close:hover {
+  background: rgba(255,255,255,0.3);
+}
+
+.spatial-query-status {
+  padding: 8px 12px;
+  font-size: 12px;
+  color: #666;
+  background: #f8f8f8;
+  border-bottom: 1px solid #eee;
+  flex-shrink: 0;
+}
+
+.spatial-query-results {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 8px;
+  min-height: 100px;
+}
+
+/* Custom Scrollbar */
+.spatial-query-results::-webkit-scrollbar {
+  width: 8px;
+}
+
+.spatial-query-results::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+.spatial-query-results::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 4px;
+}
+
+.spatial-query-results::-webkit-scrollbar-thumb:hover {
+  background: #a1a1a1;
+}
+
+/* Ergebnis-Layer */
+.query-result-layer {
+  margin-bottom: 6px;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.query-result-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  background: #f5f5f5;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.query-result-header:hover {
+  background: #ebebeb;
+}
+
+.query-result-icon {
+  color: #666;
+  font-size: 10px;
+  width: 12px;
+}
+
+.query-result-name {
+  flex: 1;
+  font-size: 13px;
+  font-weight: 500;
+  color: #333;
+}
+
+.query-result-count {
+  background: #4b7b81;
+  color: white;
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 10px;
+  min-width: 24px;
+  text-align: center;
+}
+
+.query-result-content {
+  padding: 8px 12px;
+  background: white;
+}
+
+.query-result-content.hidden {
+  display: none;
+}
+
+/* Ergebnis-Tabelle */
+.query-result-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 11px;
+}
+
+.query-result-table th,
+.query-result-table td {
+  padding: 6px 8px;
+  text-align: left;
+  border-bottom: 1px solid #eee;
+  max-width: 120px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.query-result-table th {
+  background: #f9f9f9;
+  font-weight: 500;
+  color: #555;
+  position: sticky;
+  top: 0;
+}
+
+.query-result-table tbody tr:hover {
+  background: #f5f9f9;
+}
+
+/* Klickbare Zeilen für Highlighting */
+.query-result-row {
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.query-result-row:hover {
+  background: #e8f4f5 !important;
+}
+
+.query-result-row:active {
+  background: #d0ebee !important;
+}
+
+.zoom-cell {
+  width: 24px;
+  text-align: center;
+  padding: 4px !important;
+}
+
+.zoom-icon {
+  font-size: 14px;
+  opacity: 0.6;
+  transition: opacity 0.15s;
+}
+
+.query-result-row:hover .zoom-icon {
+  opacity: 1;
+}
+
+/* Status-Meldungen */
+.spatial-query-results .no-results,
+.spatial-query-results .error,
+.spatial-query-results .no-features {
+  padding: 12px;
+  text-align: center;
+  color: #888;
+  font-size: 12px;
+}
+
+.spatial-query-results .error {
+  color: #c44;
+}
+
+.more-results {
+  padding: 8px;
+  text-align: center;
+  color: #888;
+  font-size: 11px;
+  font-style: italic;
+}
+
+/* Loading Spinner */
+.loading-spinner {
+  width: 24px;
+  height: 24px;
+  margin: 20px auto;
+  border: 3px solid #e0e0e0;
+  border-top: 3px solid #4b7b81;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+

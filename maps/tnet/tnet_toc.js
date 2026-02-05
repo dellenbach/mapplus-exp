@@ -209,7 +209,7 @@
           if (targetPane) {
             targetPane.classList.add('active-tab');
             // TitlePane öffnen falls geschlossen
-            if (typeof dijit !== 'undefined') {
+            if (typeof dijit !== 'undefined' && typeof dijit.byId === 'function') {
               var widget = dijit.byId(pane.id);
               if (widget && !widget.get('open')) {
                 widget.set('open', true);
@@ -231,7 +231,7 @@
       
       // Widget öffnen
       function openFirstTab() {
-        if (typeof dijit !== 'undefined') {
+        if (typeof dijit !== 'undefined' && typeof dijit.byId === 'function') {
           var widget = dijit.byId(self.panes[0].id);
           if (widget) {
             widget.set('open', true);
@@ -262,7 +262,7 @@
     keepPanesOpen: function() {
       var self = this;
       
-      if (typeof dijit === 'undefined') return;
+      if (typeof dijit === 'undefined' || typeof dijit.byId !== 'function') return;
       
       this.panes.forEach(function(pane) {
         var widget = dijit.byId(pane.id);
@@ -382,7 +382,7 @@
             }
             
             // Öffne das Widget falls es existiert
-            if (typeof dijit !== 'undefined') {
+            if (typeof dijit !== 'undefined' && typeof dijit.byId === 'function') {
               var widget = dijit.byId(targetId);
               if (widget) {
                 // WICHTIG: Dijit-interne Flags direkt setzen
@@ -461,7 +461,7 @@
       }
       
       // Auch auf Dijit-Events reagieren falls verfügbar
-      if (typeof dijit !== 'undefined') {
+      if (typeof dijit !== 'undefined' && typeof dijit.byId === 'function') {
         var widget = dijit.byId('tp_overview_menu');
         if (widget) {
           widget.watch('open', function(name, oldValue, newValue) {

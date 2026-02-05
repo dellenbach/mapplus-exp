@@ -506,6 +506,18 @@
                     <div id="njs_main_shop_wrapper" style="display:none"></div>
                     <div id="map" class="map-cont" style="height:100%;"></div>
                     
+                    <!-- Polygon-Zeichnen Button -->
+                    <div id="polygon-tool-btn" class="map-tool-btn" onclick="togglePolygonDraw()" title="Flächenanalyse - Polygon zeichnen">
+                        <svg viewBox="0 0 24 24" width="20" height="20">
+                            <path fill="none" stroke="currentColor" stroke-width="1.5" d="M4 6L12 3L20 8L18 18L8 20L4 6Z"/>
+                            <circle fill="currentColor" cx="4" cy="6" r="2"/>
+                            <circle fill="currentColor" cx="12" cy="3" r="2"/>
+                            <circle fill="currentColor" cx="20" cy="8" r="2"/>
+                            <circle fill="currentColor" cx="18" cy="18" r="2"/>
+                            <circle fill="currentColor" cx="8" cy="20" r="2"/>
+                        </svg>
+                    </div>
+                    
                     <!-- Rechtsklick-Kontextmenü -->
                     <div id="map-context-menu" class="context-menu">
                         <div class="context-menu-header">
@@ -519,10 +531,6 @@
                             <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>
                             <span>Koordinaten kopieren (WGS84)</span>
                         </div>
-                        <div class="context-menu-item" onclick="ctxFixCoords()">
-                            <svg viewBox="0 0 24 24"><path d="M17 4h-3V2h-4v2H7c-1.1 0-2 .9-2 2v15c0 1.1.9 2 2 2h10c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 17H7V6h10v15z"/><path d="M8 10h8v2H8zm0 4h8v2H8z"/></svg>
-                            <span>Koordinaten fixieren</span>
-                        </div>
                         <div class="context-menu-divider"></div>
                         <div class="context-menu-item" onclick="ctxWhatIsHere()">
                             <svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
@@ -531,10 +539,6 @@
                         <div class="context-menu-item" onclick="ctxZoomHere()">
                             <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14zm.5-7H9v2H7v1h2v2h1v-2h2V9h-2z"/></svg>
                             <span>Hierher zoomen</span>
-                        </div>
-                        <div class="context-menu-item" onclick="ctxSetMarker()">
-                            <svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/></svg>
-                            <span>Marker setzen</span>
                         </div>
                         <div class="context-menu-divider"></div>
                         <div class="context-menu-item" onclick="ctxRouteFrom()">
@@ -558,6 +562,10 @@
                         <div class="context-menu-item" onclick="ctxCopyLink()">
                             <svg viewBox="0 0 24 24"><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"/></svg>
                             <span>Link zu Position kopieren</span>
+                        </div>
+                        <div class="context-menu-item" onclick="ctxMailLink()">
+                            <svg viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
+                            <span>Link zu Position mailen</span>
                         </div>
                     </div>
                     
@@ -1539,9 +1547,9 @@
                     // Marker-Style mit externem SVG-Pin
                     var markerStyle = new ol.style.Style({
                         image: new ol.style.Icon({
-                            anchor: [0.5, 1],
+                            anchor: [0.5, 70],
                             anchorXUnits: 'fraction',
-                            anchorYUnits: 'fraction',
+                            anchorYUnits: 'pixels',
                             src: '/maps/tnet/resources/icons/marker-pin.svg',
                             scale: 0.75
                         })
@@ -1661,6 +1669,9 @@
                 
                 // Linksklick auf Karte: Marker setzen
                 map.on('singleclick', function(evt) {
+                    // Nicht wenn Polygon-Tool aktiv ist
+                    if (window.isPolygonDrawing) return;
+                    
                     // Koordinaten aus Event
                     var coord = evt.coordinate;
                     if (!coord) return;
@@ -1815,10 +1826,30 @@
             window.ctxOpenStreetView = function() {
                 if (!clickedCoords) return;
                 hideContextMenu();
-                var lat = clickedCoords.wgs84[1].toFixed(6);
-                var lon = clickedCoords.wgs84[0].toFixed(6);
-                var url = 'https://www.google.com/maps?layer=c&cbll=' + lat + ',' + lon;
-                window.open(url, '_blank');
+                
+                // Nutze das bestehende StreetView-Tool von njs
+                if (njs && njs.AppManager && njs.AppManager.Tools && njs.AppManager.Tools.StreetView && njs.AppManager.Tools.StreetView['main']) {
+                    var svTool = njs.AppManager.Tools.StreetView['main'];
+                    var container = document.getElementById('streetviewContainer');
+                    var isVisible = container && container.style.display !== 'none' && container.offsetWidth > 0;
+                    
+                    if (isVisible) {
+                        // StreetView ist bereits offen - schliessen und mit neuer Position wieder öffnen
+                        svTool.toggleView(false); // Schliessen
+                        setTimeout(function() {
+                            svTool.toggleView(true); // Mit neuer Position öffnen
+                        }, 100);
+                    } else {
+                        // StreetView ist geschlossen - normal öffnen
+                        svTool.toggleView(true);
+                    }
+                } else {
+                    // Fallback: Google StreetView direkt öffnen
+                    var lat = clickedCoords.wgs84[1].toFixed(6);
+                    var lon = clickedCoords.wgs84[0].toFixed(6);
+                    var url = 'https://www.google.com/maps?layer=c&cbll=' + lat + ',' + lon;
+                    window.open(url, '_blank');
+                }
             };
             
             window.ctxCopyLink = function() {
@@ -1828,10 +1859,1932 @@
                 navigator.clipboard.writeText(currentUrl);
                 showToast('URL kopiert!');
             };
+            
+            window.ctxMailLink = function() {
+                hideContextMenu();
+                var currentUrl = window.location.href;
+                var subject = encodeURIComponent('Kartenposition');
+                var body = encodeURIComponent('Schau dir diese Position an:\n\n' + currentUrl);
+                window.location.href = 'mailto:?subject=' + subject + '&body=' + body;
+            };
+        })();
+        
+        // ===== POLYGON-ZEICHNEN UND RÄUMLICHE ABFRAGE =====
+        // Globale Variable um Zeichenmodus zu tracken
+        window.isPolygonDrawing = false;
+        
+        (function() {
+            var drawInteraction = null;
+            var drawLayer = null;
+            var isDrawing = false;
+            
+            // Warte auf Map
+            function waitForMap(callback) {
+                if (njs && njs.AppManager && njs.AppManager.Maps && njs.AppManager.Maps['main'] && njs.AppManager.Maps['main'].mapObj) {
+                    callback(njs.AppManager.Maps['main'].mapObj);
+                } else {
+                    setTimeout(function() { waitForMap(callback); }, 300);
+                }
+            }
+            
+            // Zeichnen-Layer erstellen
+            function getDrawLayer(map) {
+                if (!drawLayer) {
+                    drawLayer = new ol.layer.Vector({
+                        source: new ol.source.Vector(),
+                        style: new ol.style.Style({
+                            fill: new ol.style.Fill({
+                                color: 'rgba(75, 123, 129, 0.2)'
+                            }),
+                            stroke: new ol.style.Stroke({
+                                color: '#4b7b81',
+                                width: 2,
+                                lineDash: [5, 5]
+                            }),
+                            image: new ol.style.Circle({
+                                radius: 5,
+                                fill: new ol.style.Fill({ color: '#4b7b81' }),
+                                stroke: new ol.style.Stroke({ color: 'white', width: 2 })
+                            })
+                        }),
+                        zIndex: 1000
+                    });
+                    map.addLayer(drawLayer);
+                }
+                return drawLayer;
+            }
+            
+            // Polygon-Zeichnen aktivieren/deaktivieren
+            window.togglePolygonDraw = function() {
+                waitForMap(function(map) {
+                    var btn = document.getElementById('polygon-tool-btn');
+                    var panel = document.getElementById('spatial-query-panel');
+                    var statusEl = document.getElementById('spatial-query-status');
+                    var resultsEl = document.getElementById('spatial-query-results');
+                    
+                    if (isDrawing) {
+                        // Deaktivieren
+                        if (drawInteraction) {
+                            map.removeInteraction(drawInteraction);
+                            drawInteraction = null;
+                        }
+                        isDrawing = false;
+                        window.isPolygonDrawing = false;
+                        document.body.classList.remove('drawing-mode');
+                        btn.classList.remove('active');
+                        panel.classList.add('hidden');
+                        
+                        // Layer leeren
+                        if (drawLayer) {
+                            drawLayer.getSource().clear();
+                        }
+                    } else {
+                        // Aktivieren
+                        var layer = getDrawLayer(map);
+                        layer.getSource().clear();
+                        
+                        drawInteraction = new ol.interaction.Draw({
+                            source: layer.getSource(),
+                            type: 'Polygon',
+                            style: new ol.style.Style({
+                                fill: new ol.style.Fill({
+                                    color: 'rgba(75, 123, 129, 0.1)'
+                                }),
+                                stroke: new ol.style.Stroke({
+                                    color: '#4b7b81',
+                                    width: 2,
+                                    lineDash: [5, 5]
+                                }),
+                                image: new ol.style.Circle({
+                                    radius: 5,
+                                    fill: new ol.style.Fill({ color: '#4b7b81' }),
+                                    stroke: new ol.style.Stroke({ color: 'white', width: 2 })
+                                })
+                            })
+                        });
+                        
+                        drawInteraction.on('drawend', function(evt) {
+                            var polygon = evt.feature.getGeometry();
+                            var coords = polygon.getCoordinates()[0];
+                            
+                            // Zeichenmodus beenden
+                            isDrawing = false;
+                            window.isPolygonDrawing = false;
+                            document.body.classList.remove('drawing-mode');
+                            
+                            // Abfrage starten
+                            statusEl.textContent = 'Abfrage läuft...';
+                            resultsEl.innerHTML = '<div class="loading-spinner"></div>';
+                            
+                            // Räumliche Abfrage ausführen
+                            executeSpatialQuery(coords);
+                            
+                            // Zeichnen beenden
+                            setTimeout(function() {
+                                map.removeInteraction(drawInteraction);
+                                drawInteraction = null;
+                            }, 100);
+                        });
+                        
+                        map.addInteraction(drawInteraction);
+                        isDrawing = true;
+                        window.isPolygonDrawing = true;
+                        document.body.classList.add('drawing-mode');
+                        btn.classList.add('active');
+                        panel.classList.remove('hidden');
+                        statusEl.textContent = 'Zeichnen Sie ein Polygon auf der Karte (Doppelklick zum Beenden)...';
+                        resultsEl.innerHTML = '';
+                    }
+                });
+            };
+            
+            // Panel schließen
+            window.closeSpatialQueryPanel = function() {
+                var panel = document.getElementById('spatial-query-panel');
+                var btn = document.getElementById('polygon-tool-btn');
+                panel.classList.add('hidden');
+                btn.classList.remove('active');
+                isDrawing = false;
+                window.isPolygonDrawing = false;
+                document.body.classList.remove('drawing-mode');
+                
+                // Freepane zurücksetzen falls Panel angedockt war
+                var freepane = document.getElementById('freepane');
+                if (freepane) {
+                    freepane.classList.remove('panel-docked');
+                    freepane.style.bottom = '';
+                }
+                window.isPanelDocked = false;
+                
+                waitForMap(function(map) {
+                    if (drawInteraction) {
+                        map.removeInteraction(drawInteraction);
+                        drawInteraction = null;
+                    }
+                    if (drawLayer) {
+                        drawLayer.getSource().clear();
+                    }
+                });
+            };
+            
+            // ===== INFO PANE ERWEITERUNGEN =====
+            // Buttons zum Info-Panel hinzufügen und Resize aktivieren
+            // Verwendet MutationObserver um auch bei Neuöffnen zu funktionieren
+            (function initInfoPaneEnhancements() {
+                
+                function enhanceInfoPane() {
+                    var infoPane = document.getElementById('njs_info_pane');
+                    if (!infoPane) return false;
+                    
+                    var titleBar = infoPane.querySelector('.dojoxFloatingPaneTitle');
+                    if (!titleBar) return false;
+                    
+                    // Prüfe ob Actions bereits vorhanden
+                    if (titleBar.querySelector('.info-pane-actions')) {
+                        // Actions vorhanden - aber Resize-Handle prüfen
+                        if (!infoPane.querySelector('.info-pane-resize-handle')) {
+                            initInfoPaneResize(infoPane);
+                        }
+                        return true;
+                    }
+                    
+                    // Actions Container erstellen
+                    var actions = document.createElement('div');
+                    actions.className = 'info-pane-actions';
+                    
+                    // Clipboard Button
+                    var clipboardBtn = document.createElement('button');
+                    clipboardBtn.className = 'info-pane-btn';
+                    clipboardBtn.title = 'In Zwischenablage kopieren';
+                    clipboardBtn.innerHTML = '<svg viewBox="0 0 24 24"><path fill="currentColor" d="M19 21H8V7h11m0-2H8a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h11a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2m-3-4H4a2 2 0 0 0-2 2v14h2V3h12V1Z"/></svg>';
+                    clipboardBtn.onclick = function(e) {
+                        e.stopPropagation();
+                        copyInfoPaneToClipboard();
+                    };
+                    
+                    // Dock Button
+                    var dockBtn = document.createElement('button');
+                    dockBtn.className = 'info-pane-btn';
+                    dockBtn.id = 'info-pane-dock-btn';
+                    dockBtn.title = 'Rechts andocken';
+                    dockBtn.innerHTML = '<svg viewBox="0 0 24 24"><path fill="currentColor" d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16h-4V5h4v14z"/></svg>';
+                    dockBtn.onclick = function(e) {
+                        e.stopPropagation();
+                        toggleInfoPaneDock();
+                    };
+                    
+                    // Close Button (custom, da original versteckt)
+                    var closeBtn = document.createElement('button');
+                    closeBtn.className = 'info-pane-btn info-pane-close';
+                    closeBtn.title = 'Schließen';
+                    closeBtn.innerHTML = '<svg viewBox="0 0 24 24"><path fill="currentColor" d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"/></svg>';
+                    closeBtn.onclick = function(e) {
+                        e.stopPropagation();
+                        // Falls angedockt, mapContainer zurücksetzen
+                        if (isInfoPaneDocked) {
+                            var mapContainer = document.getElementById('mapContainer');
+                            if (mapContainer) {
+                                mapContainer.style.setProperty('width', '100%', 'important');
+                                setTimeout(function() {
+                                    triggerMapUpdate();
+                                }, 100);
+                            }
+                            stopMapContainerObserver();
+                            isInfoPaneDocked = false;
+                            infoPane.classList.remove('docked-right');
+                        }
+                        // Dojo FloatingPane close aufrufen
+                        var widget = dijit.byId('njs_info_pane');
+                        if (widget && widget.close) {
+                            widget.close();
+                        } else {
+                            infoPane.style.visibility = 'hidden';
+                        }
+                    };
+                    
+                    actions.appendChild(clipboardBtn);
+                    actions.appendChild(dockBtn);
+                    actions.appendChild(closeBtn);
+                    
+                    // Actions ans Ende des Headers
+                    titleBar.appendChild(actions);
+                    
+                    // Custom Resize-Handle hinzufügen
+                    initInfoPaneResize(infoPane);
+                    
+                    return true;
+                }
+                
+                // Initial versuchen
+                enhanceInfoPane();
+                
+                // MutationObserver für DOM-Änderungen
+                var observer = new MutationObserver(function(mutations) {
+                    mutations.forEach(function(mutation) {
+                        if (mutation.type === 'childList' || mutation.type === 'attributes') {
+                            var infoPane = document.getElementById('njs_info_pane');
+                            if (infoPane && infoPane.style.visibility !== 'hidden') {
+                                enhanceInfoPane();
+                                
+                                // Falls angedockt, Position und Breite SOFORT wiederherstellen (verhindert Flackern)
+                                if (isInfoPaneDocked && infoPane.classList.contains('docked-right')) {
+                                    var savedWidth = window._savedDockedPanelWidth || 350;
+                                    var streetviewContainer = document.getElementById('streetviewContainer');
+                                    var centerPane = document.getElementById('centerPaneLayout');
+                                    var streetviewWidth = 0;
+                                    if (streetviewContainer && streetviewContainer.offsetWidth > 0 && streetviewContainer.style.display !== 'none') {
+                                        streetviewWidth = streetviewContainer.offsetWidth;
+                                    }
+                                    
+                                    infoPane.style.setProperty('width', savedWidth + 'px', 'important');
+                                    infoPane.style.setProperty('right', streetviewWidth + 'px', 'important');
+                                    
+                                    var mapContainer = document.getElementById('mapContainer');
+                                    if (mapContainer) {
+                                        // Absolute Breite berechnen
+                                        var centerPaneWidth = centerPane ? centerPane.offsetWidth : window.innerWidth;
+                                        var mapWidth = centerPaneWidth - streetviewWidth - savedWidth;
+                                        mapContainer.style.setProperty('width', mapWidth + 'px', 'important');
+                                    }
+                                }
+                            }
+                        }
+                    });
+                });
+                
+                // Beobachte body für neue Elemente
+                observer.observe(document.body, {
+                    childList: true,
+                    subtree: true,
+                    attributes: true,
+                    attributeFilter: ['style', 'class']
+                });
+                
+                // Regelmäßig prüfen (Fallback - seltener da MutationObserver jetzt Hauptarbeit macht)
+                setInterval(function() {
+                    var infoPane = document.getElementById('njs_info_pane');
+                    if (infoPane && infoPane.style.visibility === 'visible') {
+                        enhanceInfoPane();
+                    }
+                }, 2000);
+            })();
+            
+            // Custom Resize für Info-Panel
+            function initInfoPaneResize(pane) {
+                // Bestehende Resize-Handles entfernen (falls vorhanden)
+                var existingHandle = pane.querySelector('.info-pane-resize-handle');
+                if (existingHandle) existingHandle.remove();
+                var existingLeftHandle = pane.querySelector('.info-pane-resize-left');
+                if (existingLeftHandle) existingLeftHandle.remove();
+                
+                // Neuen Resize-Handle erstellen (rechts unten) - für Floating-Modus
+                var resizeHandle = document.createElement('div');
+                resizeHandle.className = 'info-pane-resize-handle';
+                resizeHandle.style.cssText = 'position:absolute; bottom:0; right:0; width:20px; height:20px; cursor:nwse-resize; z-index:1000; background:linear-gradient(135deg, transparent 50%, rgba(75,123,129,0.5) 50%);';
+                pane.appendChild(resizeHandle);
+                
+                // Linken Resize-Handle für angedockten Modus erstellen
+                var leftHandle = document.createElement('div');
+                leftHandle.className = 'info-pane-resize-left';
+                leftHandle.style.cssText = 'position:absolute; left:0; top:0; bottom:0; width:8px; cursor:ew-resize; z-index:1000; background:linear-gradient(to right, rgba(75,123,129,0.4), transparent);';
+                pane.appendChild(leftHandle);
+                
+                var isResizing = false;
+                var isResizingLeft = false;
+                var startX, startY, startWidth, startHeight;
+                
+                // Standard Resize (rechts unten) - nur im floating Modus
+                resizeHandle.onmousedown = function(e) {
+                    if (pane.classList.contains('docked-right')) return;
+                    
+                    isResizing = true;
+                    startX = e.clientX;
+                    startY = e.clientY;
+                    startWidth = pane.offsetWidth;
+                    startHeight = pane.offsetHeight;
+                    
+                    document.body.style.cursor = 'nwse-resize';
+                    document.body.style.userSelect = 'none';
+                    e.preventDefault();
+                    e.stopPropagation();
+                };
+                
+                // Linker Resize - nur im angedockten Modus
+                leftHandle.onmousedown = function(e) {
+                    if (!pane.classList.contains('docked-right')) return;
+                    
+                    isResizingLeft = true;
+                    startX = e.clientX;
+                    startWidth = pane.offsetWidth;
+                    
+                    document.body.style.cursor = 'ew-resize';
+                    document.body.style.userSelect = 'none';
+                    e.preventDefault();
+                    e.stopPropagation();
+                };
+                
+                // Mousemove Handler - mit Closure für diese Instanz
+                var mouseMoveHandler = function(e) {
+                    if (isResizing) {
+                        var newWidth = Math.max(350, startWidth + (e.clientX - startX));
+                        var newHeight = Math.max(150, startHeight + (e.clientY - startY));
+                        
+                        // Mit setProperty und 'important' um Dojo-Styles zu überschreiben
+                        pane.style.setProperty('width', newWidth + 'px', 'important');
+                        pane.style.setProperty('height', newHeight + 'px', 'important');
+                        e.preventDefault();
+                    }
+                    
+                    if (isResizingLeft) {
+                        var dx = startX - e.clientX;
+                        var newWidth = Math.max(300, Math.min(startWidth + dx, window.innerWidth - 100));
+                        pane.style.setProperty('width', newWidth + 'px', 'important');
+                        
+                        // mapContainer-Breite entsprechend anpassen - absolute Berechnung
+                        var mapContainer = document.getElementById('mapContainer');
+                        if (mapContainer && isInfoPaneDocked) {
+                            var actualPanelWidth = pane.offsetWidth;
+                            var centerPane = document.getElementById('centerPaneLayout');
+                            var streetviewContainer = document.getElementById('streetviewContainer');
+                            var streetviewWidth = 0;
+                            if (streetviewContainer && streetviewContainer.offsetWidth > 0 && streetviewContainer.style.display !== 'none') {
+                                streetviewWidth = streetviewContainer.offsetWidth;
+                            }
+                            var centerPaneWidth = centerPane ? centerPane.offsetWidth : window.innerWidth;
+                            var mapWidth = centerPaneWidth - streetviewWidth - actualPanelWidth;
+                            mapContainer.style.setProperty('width', mapWidth + 'px', 'important');
+                            // Dock-Breite speichern
+                            window._savedDockedPanelWidth = actualPanelWidth;
+                        }
+                        e.preventDefault();
+                    }
+                };
+                
+                var mouseUpHandler = function() {
+                    if (isResizing || isResizingLeft) {
+                        // Nach Resize Map aktualisieren
+                        if (isResizingLeft && isInfoPaneDocked) {
+                            triggerMapUpdate();
+                        }
+                        isResizing = false;
+                        isResizingLeft = false;
+                        document.body.style.cursor = '';
+                        document.body.style.userSelect = '';
+                    }
+                };
+                
+                // Alte Handler entfernen falls vorhanden
+                if (window._infoPaneMouseMove) {
+                    document.removeEventListener('mousemove', window._infoPaneMouseMove);
+                }
+                if (window._infoPaneMouseUp) {
+                    document.removeEventListener('mouseup', window._infoPaneMouseUp);
+                }
+                
+                // Neue Handler speichern und registrieren
+                window._infoPaneMouseMove = mouseMoveHandler;
+                window._infoPaneMouseUp = mouseUpHandler;
+                
+                document.addEventListener('mousemove', mouseMoveHandler);
+                document.addEventListener('mouseup', mouseUpHandler);
+                
+                // CSS-Sichtbarkeit je nach Modus steuern
+                function updateHandleVisibility() {
+                    var isDocked = pane.classList.contains('docked-right');
+                    resizeHandle.style.display = isDocked ? 'none' : 'block';
+                    leftHandle.style.display = isDocked ? 'block' : 'none';
+                }
+                
+                // Initial setzen
+                updateHandleVisibility();
+                
+                // Auf Klassen-Änderungen reagieren
+                var classObserver = new MutationObserver(function(mutations) {
+                    mutations.forEach(function(mutation) {
+                        if (mutation.attributeName === 'class') {
+                            updateHandleVisibility();
+                        }
+                    });
+                });
+                classObserver.observe(pane, { attributes: true, attributeFilter: ['class'] });
+            }
+            
+            // Info-Panel Inhalt in Zwischenablage kopieren
+            window.copyInfoPaneToClipboard = function() {
+                var content = document.getElementById('njs_info_pane_content');
+                if (!content) return;
+                
+                // Versuche Tabellen-Daten zu extrahieren
+                var tables = content.querySelectorAll('table');
+                var text = '';
+                
+                if (tables.length > 0) {
+                    tables.forEach(function(table, idx) {
+                        if (idx > 0) text += '\n\n';
+                        
+                        // Titel falls vorhanden
+                        var prevEl = table.previousElementSibling;
+                        if (prevEl && (prevEl.tagName === 'H3' || prevEl.tagName === 'H4' || prevEl.className.indexOf('title') > -1)) {
+                            text += prevEl.textContent.trim() + '\n';
+                            text += '='.repeat(prevEl.textContent.trim().length) + '\n';
+                        }
+                        
+                        var rows = table.querySelectorAll('tr');
+                        rows.forEach(function(row) {
+                            var cells = row.querySelectorAll('td, th');
+                            var rowText = [];
+                            cells.forEach(function(cell) {
+                                rowText.push(cell.textContent.trim());
+                            });
+                            text += rowText.join('\t') + '\n';
+                        });
+                    });
+                } else {
+                    // Fallback: Nur Text
+                    text = content.textContent.trim();
+                }
+                
+                // In Zwischenablage kopieren
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                    navigator.clipboard.writeText(text).then(function() {
+                        showCopyNotification('In Zwischenablage kopiert!');
+                    }).catch(function(err) {
+                        console.error('Clipboard Error:', err);
+                        fallbackCopy(text);
+                    });
+                } else {
+                    fallbackCopy(text);
+                }
+            };
+            
+            function fallbackCopy(text) {
+                var textarea = document.createElement('textarea');
+                textarea.value = text;
+                textarea.style.position = 'fixed';
+                textarea.style.opacity = '0';
+                document.body.appendChild(textarea);
+                textarea.select();
+                try {
+                    document.execCommand('copy');
+                    showCopyNotification('In Zwischenablage kopiert!');
+                } catch (err) {
+                    alert('Kopieren fehlgeschlagen');
+                }
+                document.body.removeChild(textarea);
+            }
+            
+            function showCopyNotification(message) {
+                var notification = document.createElement('div');
+                notification.textContent = message;
+                notification.style.cssText = 'position:fixed;bottom:60px;left:50%;transform:translateX(-50%);background:#4b7b81;color:white;padding:10px 20px;border-radius:4px;z-index:10000;box-shadow:0 2px 8px rgba(0,0,0,0.3);';
+                document.body.appendChild(notification);
+                setTimeout(function() {
+                    notification.style.transition = 'opacity 0.3s';
+                    notification.style.opacity = '0';
+                    setTimeout(function() {
+                        document.body.removeChild(notification);
+                    }, 300);
+                }, 2000);
+            }
+            
+            // Info-Panel andocken/abdocken
+            var isInfoPaneDocked = false;
+            var savedInfoPanePosition = null;
+            
+            // Hilfsfunktion um Map-Update zu triggern
+            function triggerMapUpdate() {
+                setTimeout(function() {
+                    // Neapolis/OpenLayers Map
+                    if (window.njs && njs.AppManager && njs.AppManager.Maps && njs.AppManager.Maps['main']) {
+                        var mapObj = njs.AppManager.Maps['main'].mapObj;
+                        if (mapObj && mapObj.updateSize) {
+                            mapObj.updateSize();
+                        }
+                    }
+                    // Dijit Layout Container neu berechnen
+                    if (typeof dijit !== 'undefined' && dijit.byId('NeapolisContainer')) {
+                        dijit.byId('NeapolisContainer').resize();
+                    }
+                }, 350);
+            }
+            
+            window.toggleInfoPaneDock = function() {
+                var infoPane = document.getElementById('njs_info_pane');
+                var dockBtn = document.getElementById('info-pane-dock-btn');
+                var mapContainer = document.getElementById('mapContainer');
+                if (!infoPane) return;
+                
+                if (isInfoPaneDocked) {
+                    // Undock - zurück zur gespeicherten Position oder Default
+                    infoPane.classList.remove('docked-right');
+                    
+                    // Observer stoppen
+                    stopMapContainerObserver();
+                    
+                    // mapContainer wieder auf volle Breite
+                    if (mapContainer) {
+                        mapContainer.style.setProperty('width', '100%', 'important');
+                        setTimeout(function() {
+                            triggerMapUpdate();
+                        }, 100);
+                    }
+                    
+                    if (savedInfoPanePosition) {
+                        infoPane.style.setProperty('top', savedInfoPanePosition.top, 'important');
+                        infoPane.style.setProperty('left', savedInfoPanePosition.left, 'important');
+                        infoPane.style.setProperty('width', savedInfoPanePosition.width, 'important');
+                        infoPane.style.setProperty('height', savedInfoPanePosition.height, 'important');
+                    } else {
+                        infoPane.style.setProperty('top', '150px', 'important');
+                        infoPane.style.setProperty('left', '400px', 'important');
+                        infoPane.style.setProperty('width', '720px', 'important');
+                        infoPane.style.setProperty('height', '360px', 'important');
+                    }
+                    infoPane.style.setProperty('right', 'auto', 'important');
+                    infoPane.style.setProperty('bottom', 'auto', 'important');
+                    infoPane.style.setProperty('position', 'absolute', 'important');
+                    infoPane.style.maxHeight = '';
+                    
+                    if (dockBtn) {
+                        dockBtn.title = 'Rechts andocken';
+                        dockBtn.innerHTML = '<svg viewBox="0 0 24 24"><path fill="currentColor" d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16h-4V5h4v14z"/></svg>';
+                    }
+                    isInfoPaneDocked = false;
+                } else {
+                    // Position speichern vor dem Andocken
+                    savedInfoPanePosition = {
+                        top: infoPane.style.top || '150px',
+                        left: infoPane.style.left || '400px',
+                        width: infoPane.style.width || '720px',
+                        height: infoPane.style.height || '360px'
+                    };
+                    
+                    // Dock - Panel rechts am centerPaneLayout, mapContainer passt sich an
+                    infoPane.classList.add('docked-right');
+                    
+                    if (mapContainer) {
+                        // Gespeicherte Breite verwenden falls vorhanden, sonst 350px
+                        var panelWidth = window._savedDockedPanelWidth || 350;
+                        var centerPane = document.getElementById('centerPaneLayout');
+                        var streetviewContainer = document.getElementById('streetviewContainer');
+                        
+                        // Berechne den rechten Offset (falls StreetView offen)
+                        var streetviewWidth = 0;
+                        if (streetviewContainer && streetviewContainer.offsetWidth > 0 && streetviewContainer.style.display !== 'none') {
+                            streetviewWidth = streetviewContainer.offsetWidth;
+                        }
+                        
+                        // Panel am rechten Rand positionieren (neben StreetView falls offen)
+                        var centerRect = centerPane ? centerPane.getBoundingClientRect() : mapContainer.getBoundingClientRect();
+                        infoPane.style.setProperty('position', 'fixed', 'important');
+                        infoPane.style.setProperty('top', centerRect.top + 'px', 'important');
+                        infoPane.style.setProperty('right', streetviewWidth + 'px', 'important');
+                        infoPane.style.setProperty('bottom', (window.innerHeight - centerRect.bottom) + 'px', 'important');
+                        infoPane.style.setProperty('left', 'auto', 'important');
+                        infoPane.style.setProperty('width', panelWidth + 'px', 'important');
+                        infoPane.style.setProperty('height', 'auto', 'important');
+                        
+                        // mapContainer verkleinern: Absolute Berechnung
+                        var centerPaneWidth = centerPane ? centerPane.offsetWidth : window.innerWidth;
+                        var mapWidth = centerPaneWidth - streetviewWidth - panelWidth;
+                        mapContainer.style.setProperty('width', mapWidth + 'px', 'important');
+                        triggerMapUpdate();
+                    }
+                    
+                    // Observer für Layout-Änderungen starten (passt Panel an wenn StreetView etc. geöffnet wird)
+                    startMapContainerObserver();
+                    
+                    if (dockBtn) {
+                        dockBtn.title = 'Floating';
+                        dockBtn.innerHTML = '<svg viewBox="0 0 24 24"><path fill="currentColor" d="M19 11h-8v6h8v-6zm4 8V4.98C23 3.88 22.1 3 21 3H3c-1.1 0-2 .88-2 1.98V19c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2zm-2 .02H3V4.97h18v14.05z"/></svg>';
+                    }
+                    isInfoPaneDocked = true;
+                }
+                
+                // Container-Breite bei Panel-Resize synchron halten
+                updateContainerForInfoPane();
+            };
+            
+            // Observer für Layout-Änderungen (z.B. wenn StreetView geöffnet wird)
+            var mapContainerObserver = null;
+            var streetviewObserver = null;
+            function startMapContainerObserver() {
+                if (mapContainerObserver) mapContainerObserver.disconnect();
+                if (streetviewObserver) streetviewObserver.disconnect();
+                
+                var mapContainer = document.getElementById('mapContainer');
+                var streetviewContainer = document.getElementById('streetviewContainer');
+                var infoPane = document.getElementById('njs_info_pane');
+                if (!mapContainer || !infoPane) return;
+                
+                // ResizeObserver für Größenänderungen des mapContainer
+                if (window.ResizeObserver) {
+                    mapContainerObserver = new ResizeObserver(function() {
+                        if (!isInfoPaneDocked) return;
+                        updateDockedInfoPanePosition();
+                    });
+                    mapContainerObserver.observe(mapContainer);
+                    
+                    // Auch streetviewContainer beobachten
+                    if (streetviewContainer) {
+                        streetviewObserver = new ResizeObserver(function() {
+                            if (!isInfoPaneDocked) return;
+                            updateDockedInfoPanePosition();
+                        });
+                        streetviewObserver.observe(streetviewContainer);
+                    }
+                }
+                
+                // Auch auf Window-Resize reagieren
+                window.addEventListener('resize', updateDockedInfoPanePosition);
+            }
+            
+            function stopMapContainerObserver() {
+                if (mapContainerObserver) {
+                    mapContainerObserver.disconnect();
+                    mapContainerObserver = null;
+                }
+                if (streetviewObserver) {
+                    streetviewObserver.disconnect();
+                    streetviewObserver = null;
+                }
+                window.removeEventListener('resize', updateDockedInfoPanePosition);
+            }
+            
+            function updateDockedInfoPanePosition() {
+                if (!isInfoPaneDocked) return;
+                var mapContainer = document.getElementById('mapContainer');
+                var infoPane = document.getElementById('njs_info_pane');
+                var centerPane = document.getElementById('centerPaneLayout');
+                var streetviewContainer = document.getElementById('streetviewContainer');
+                if (!mapContainer || !infoPane) return;
+                
+                var panelWidth = window._savedDockedPanelWidth || infoPane.offsetWidth || 350;
+                
+                // Berechne den rechten Offset (falls StreetView offen)
+                var streetviewWidth = 0;
+                if (streetviewContainer && streetviewContainer.offsetWidth > 0 && streetviewContainer.style.display !== 'none') {
+                    streetviewWidth = streetviewContainer.offsetWidth;
+                }
+                
+                // Panel-Position aktualisieren - rechts neben StreetView
+                var centerRect = centerPane ? centerPane.getBoundingClientRect() : { top: 69, bottom: window.innerHeight - 32 };
+                infoPane.style.setProperty('top', centerRect.top + 'px', 'important');
+                infoPane.style.setProperty('right', streetviewWidth + 'px', 'important');
+                infoPane.style.setProperty('bottom', (window.innerHeight - centerRect.bottom) + 'px', 'important');
+                infoPane.style.setProperty('width', panelWidth + 'px', 'important');
+                
+                // mapContainer-Breite: Absolute Berechnung
+                // Verfügbare Breite = centerPaneLayout.width - streetviewWidth - panelWidth
+                var centerPaneWidth = centerPane ? centerPane.offsetWidth : window.innerWidth;
+                var mapWidth = centerPaneWidth - streetviewWidth - panelWidth;
+                mapContainer.style.setProperty('width', mapWidth + 'px', 'important');
+                
+                triggerMapUpdate();
+            }
+            
+            // Funktion um Panel-Position bei Resize zu aktualisieren (ohne Container zu ändern)
+            function updateContainerForInfoPane() {
+                // Nichts zu tun - mapContainer wird nicht mehr verändert
+                // Panel passt sich automatisch über updateDockedInfoPanePosition an
+            }
+            
+            // Räumliche Abfrage gegen ArcGIS Server
+            function executeSpatialQuery(polygonCoords) {
+                var statusEl = document.getElementById('spatial-query-status');
+                var resultsEl = document.getElementById('spatial-query-results');
+                
+                // Aktive Layer aus dem Layer-Manager holen
+                var visibleLayers = getVisibleQueryableLayers();
+                
+                console.log('=== SPATIAL QUERY DEBUG ===');
+                console.log('Gefundene Layer:', visibleLayers);
+                console.log('Polygon Koordinaten:', polygonCoords);
+                
+                if (visibleLayers.length === 0) {
+                    statusEl.textContent = 'Keine abfragbaren Layer aktiv.';
+                    resultsEl.innerHTML = '<p class="no-results">Aktivieren Sie Layer im Layer-Manager, die abgefragt werden können.</p>';
+                    return;
+                }
+                
+                // Polygon-BBOX berechnen für WMS GetFeatureInfo
+                var minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+                polygonCoords.forEach(function(coord) {
+                    if (coord[0] < minX) minX = coord[0];
+                    if (coord[1] < minY) minY = coord[1];
+                    if (coord[0] > maxX) maxX = coord[0];
+                    if (coord[1] > maxY) maxY = coord[1];
+                });
+                var polygonBbox = [minX, minY, maxX, maxY];
+                var polygonCenter = [(minX + maxX) / 2, (minY + maxY) / 2];
+                
+                // Polygon zu ArcGIS JSON Format konvertieren
+                var rings = [polygonCoords.map(function(coord) {
+                    return [Math.round(coord[0]), Math.round(coord[1])];
+                })];
+                
+                var geometryJson = JSON.stringify({
+                    rings: rings,
+                    spatialReference: { wkid: 2056 }
+                });
+                
+                console.log('Geometry JSON:', geometryJson);
+                console.log('Polygon BBOX:', polygonBbox);
+                
+                statusEl.textContent = 'Abfrage von ' + visibleLayers.length + ' Layer(n)...';
+                
+                var promises = visibleLayers.map(function(layer) {
+                    if (layer.type === 'wms') {
+                        return queryWfsLayer(layer, polygonBbox, polygonCoords);
+                    } else {
+                        return querySingleLayer(layer, geometryJson);
+                    }
+                });
+                
+                Promise.all(promises).then(function(results) {
+                    console.log('Query Results:', results);
+                    displayResults(results, visibleLayers);
+                }).catch(function(err) {
+                    console.error('Spatial Query Error:', err);
+                    statusEl.textContent = 'Fehler bei der Abfrage.';
+                    resultsEl.innerHTML = '<p class="error">' + err.message + '</p>';
+                });
+            }
+            
+            // WFS Layer abfragen (echte räumliche Abfrage mit Polygon)
+            // HINWEIS: Bei MapServer kann der WFS TYPENAME vom WMS LAYERS abweichen
+            function queryWfsLayer(layer, bbox, polygonCoords) {
+                return new Promise(function(resolve, reject) {
+                    console.log('WFS Query für Layer:', layer.name, layer.url, layer.mapParam);
+                    
+                    // WFS URL aus WMS URL ableiten
+                    var wfsUrl = layer.url;
+                    
+                    // MapServer: map Parameter (direkt aus Layer-Objekt)
+                    var mapParam = layer.mapParam || '';
+                    
+                    // Fallback: Versuche aus sourceParams oder URL zu extrahieren
+                    if (!mapParam && layer.sourceParams) {
+                        mapParam = layer.sourceParams.map || layer.sourceParams.MAP || '';
+                    }
+                    if (!mapParam && layer.url) {
+                        var urlMatch = layer.url.match(/[?&]map=([^&]+)/i);
+                        if (urlMatch) {
+                            mapParam = decodeURIComponent(urlMatch[1]);
+                        }
+                    }
+                    
+                    console.log('MapServer map Parameter:', mapParam);
+                    
+                    // Funktion um WFS GetFeature auszuführen
+                    function executeWfsQuery(typeName) {
+                        var params = new URLSearchParams({
+                            SERVICE: 'WFS',
+                            VERSION: '1.1.0',
+                            REQUEST: 'GetFeature',
+                            TYPENAME: typeName,
+                            BBOX: bbox.join(','),
+                            MAXFEATURES: '1000'
+                        });
+                        
+                        if (mapParam) {
+                            params.set('map', mapParam);
+                        }
+                        
+                        var queryUrl = wfsUrl + '?' + params.toString();
+                        console.log('WFS Query URL (BBOX):', queryUrl);
+                        
+                        return fetch(queryUrl).then(function(response) {
+                            return response.text();
+                        });
+                    }
+                    
+                    // Zuerst: Versuche mit WMS Layer-Name
+                    var wmsLayerName = layer.wmsLayers;
+                    
+                    executeWfsQuery(wmsLayerName)
+                        .then(function(text) {
+                            // Prüfe auf "TYPENAME doesn't exist" Fehler
+                            if (text.indexOf("doesn't exist") > -1 || text.indexOf('does not exist') > -1) {
+                                console.log('TYPENAME nicht gefunden, versuche mit _query Suffix...');
+                                // MapServer Pattern: oft ist der WFS Layer "layername_query"
+                                return executeWfsQuery(wmsLayerName + '_query');
+                            }
+                            return text;
+                        })
+                        .then(function(text) {
+                            // Prüfe auf weitere Fehler
+                            if (text.indexOf("doesn't exist") > -1 || text.indexOf('does not exist') > -1) {
+                                console.log('Auch _query Suffix nicht gefunden, versuche DescribeFeatureType...');
+                                // Letzter Versuch: DescribeFeatureType abrufen
+                                var descParams = new URLSearchParams({
+                                    SERVICE: 'WFS',
+                                    VERSION: '1.1.0',
+                                    REQUEST: 'DescribeFeatureType'
+                                });
+                                if (mapParam) descParams.set('map', mapParam);
+                                
+                                return fetch(wfsUrl + '?' + descParams.toString())
+                                    .then(function(r) { return r.text(); })
+                                    .then(function(descText) {
+                                        // Suche nach element name="..."
+                                        var match = descText.match(/element\s+name="([^"]+)"/);
+                                        if (match) {
+                                            console.log('FeatureType gefunden:', match[1]);
+                                            return executeWfsQuery(match[1]);
+                                        }
+                                        return text; // Gib Original-Fehler zurück
+                                    });
+                            }
+                            return text;
+                        })
+                        .then(function(text) {
+                            // Prüfe auf WFS Exception oder Fehler
+                            if (text.indexOf('ExceptionReport') > -1 || text.indexOf('Exception') > -1) {
+                                console.warn('WFS Exception:', text.substring(0, 500));
+                                // WFS nicht verfügbar - leere Ergebnisse zurückgeben
+                                return { features: [], error: 'WFS nicht verfügbar' };
+                            }
+                            
+                            // GML Response parsen
+                            return parseWfsGmlResponse(text, layer.wmsLayers, polygonCoords);
+                        })
+                        .then(function(data) {
+                            var features = [];
+                            
+                            if (data && data.features) {
+                                // Features aus GML/GeoJSON
+                                data.features.forEach(function(f) {
+                                    var geom = f.geometry;
+                                    var attrs = f.properties || f.attributes || {};
+                                    
+                                    // Bei BBOX-Abfrage: Prüfe ob Feature wirklich im Polygon liegt
+                                    // Falls keine Geometrie vorhanden (GML ohne Geometrie), akzeptieren
+                                    if (!geom || isGeometryInPolygon(geom, polygonCoords)) {
+                                        features.push({
+                                            attributes: attrs,
+                                            geometry: geom || null
+                                        });
+                                    }
+                                });
+                            }
+                            
+                            console.log('WFS Features gefunden:', features.length);
+                            resolve({
+                                layerName: layer.name + ' (WFS)',
+                                features: features,
+                                error: null
+                            });
+                        })
+                        .catch(function(err) {
+                            console.error('WFS Query Error:', err);
+                            resolve({
+                                layerName: layer.name + ' (WFS)',
+                                features: [],
+                                error: err.message
+                            });
+                        });
+                });
+            }
+            
+            // Prüfe ob eine Geometrie das Polygon schneidet
+            function isGeometryInPolygon(geom, polygonCoords) {
+                if (!geom) return false;
+                
+                // Punkt in Polygon prüfen
+                function pointInPolygon(x, y, polygon) {
+                    var inside = false;
+                    for (var i = 0, j = polygon.length - 1; i < polygon.length; j = i++) {
+                        var xi = polygon[i][0], yi = polygon[i][1];
+                        var xj = polygon[j][0], yj = polygon[j][1];
+                        if (((yi > y) !== (yj > y)) && (x < (xj - xi) * (y - yi) / (yj - yi) + xi)) {
+                            inside = !inside;
+                        }
+                    }
+                    return inside;
+                }
+                
+                if (geom.type === 'Point') {
+                    return pointInPolygon(geom.coordinates[0], geom.coordinates[1], polygonCoords);
+                } else if (geom.type === 'MultiPoint') {
+                    return geom.coordinates.some(function(c) {
+                        return pointInPolygon(c[0], c[1], polygonCoords);
+                    });
+                } else if (geom.type === 'LineString') {
+                    return geom.coordinates.some(function(c) {
+                        return pointInPolygon(c[0], c[1], polygonCoords);
+                    });
+                } else if (geom.type === 'Polygon' || geom.type === 'MultiPolygon') {
+                    // Für Polygone: Prüfe ob ein Punkt im Suchpolygon liegt
+                    var coords = geom.type === 'Polygon' ? geom.coordinates[0] : geom.coordinates[0][0];
+                    return coords.some(function(c) {
+                        return pointInPolygon(c[0], c[1], polygonCoords);
+                    });
+                }
+                
+                return true; // Im Zweifelsfall akzeptieren
+            }
+            
+            // Parse WFS GML Response (MapServer GML3)
+            function parseWfsGmlResponse(text, layerName, polygonCoords) {
+                var features = [];
+                
+                console.log('Parsing WFS Response, length:', text.length);
+                
+                // Versuche als JSON zu parsen (falls doch JSON)
+                try {
+                    var json = JSON.parse(text);
+                    return json;
+                } catch (e) {}
+                
+                // Prüfe auf Exception
+                if (text.indexOf('ExceptionReport') > -1 || text.indexOf('Exception') > -1) {
+                    console.error('WFS Exception:', text);
+                    return { features: [], error: text };
+                }
+                
+                // GML/XML parsen
+                try {
+                    var parser = new DOMParser();
+                    var xml = parser.parseFromString(text, 'text/xml');
+                    
+                    // Debug: Log XML structure
+                    console.log('XML Root:', xml.documentElement ? xml.documentElement.tagName : 'null');
+                    
+                    // Finde alle Feature-Member (verschiedene GML-Varianten)
+                    var members = xml.querySelectorAll('featureMember, member');
+                    
+                    // Fallback: Versuche mit Namespace-Präfix
+                    if (members.length === 0) {
+                        members = xml.getElementsByTagNameNS('http://www.opengis.net/gml', 'featureMember');
+                    }
+                    if (members.length === 0) {
+                        members = xml.getElementsByTagNameNS('http://www.opengis.net/wfs', 'member');
+                    }
+                    
+                    // MapServer-spezifisch: Suche nach Layer-Namen als Element
+                    if (members.length === 0 && layerName) {
+                        var layerElements = xml.getElementsByTagName(layerName);
+                        if (layerElements.length > 0) {
+                            members = Array.from(layerElements).map(function(el) {
+                                return { firstElementChild: el };
+                            });
+                        }
+                    }
+                    
+                    console.log('Found', members.length, 'feature members');
+                    
+                    Array.from(members).forEach(function(member) {
+                        var feature = { properties: {}, geometry: null };
+                        
+                        // Extrahiere alle Kind-Elemente als Properties
+                        var featureElement = member.firstElementChild || member;
+                        if (featureElement) {
+                            Array.from(featureElement.children || featureElement.childNodes).forEach(function(child) {
+                                if (child.nodeType !== 1) return; // Nur Element-Nodes
+                                
+                                var tagName = child.localName || child.tagName;
+                                // Entferne Namespace-Präfix
+                                if (tagName.indexOf(':') > -1) {
+                                    tagName = tagName.split(':')[1];
+                                }
+                                
+                                // Geometrie-Elemente speziell behandeln für Highlighting
+                                if (tagName === 'geom_gml' || tagName === 'msGeometry' || 
+                                    tagName === 'geometry' || tagName === 'geom' || tagName === 'the_geom') {
+                                    // Versuche GML-Geometrie zu parsen
+                                    var gmlGeom = parseGmlGeometry(child);
+                                    if (gmlGeom) {
+                                        feature.geometry = gmlGeom;
+                                    }
+                                    return;
+                                }
+                                
+                                // Überspringe andere Geometrie-Container
+                                if (tagName === 'boundedBy' || tagName === 'Envelope') {
+                                    return;
+                                }
+                                
+                                // Extrahiere Text-Inhalt
+                                var value = child.textContent || '';
+                                if (value.trim()) {
+                                    feature.properties[tagName] = value.trim();
+                                }
+                            });
+                        }
+                        
+                        if (Object.keys(feature.properties).length > 0) {
+                            features.push(feature);
+                        }
+                    });
+                    
+                    console.log('Parsed', features.length, 'features from GML');
+                    
+                } catch (e) {
+                    console.warn('GML Parse Error:', e);
+                }
+                
+                return { features: features };
+            }
+            
+            // GML Geometrie zu GeoJSON parsen
+            function parseGmlGeometry(gmlElement) {
+                try {
+                    // Finde das eigentliche Geometrie-Element
+                    var geomEl = gmlElement.querySelector('Point, MultiPoint, LineString, MultiLineString, Polygon, MultiPolygon, MultiSurface, MultiCurve');
+                    if (!geomEl) {
+                        // Versuche mit gml: Namespace
+                        geomEl = gmlElement.getElementsByTagNameNS('http://www.opengis.net/gml', 'Point')[0] ||
+                                 gmlElement.getElementsByTagNameNS('http://www.opengis.net/gml', 'MultiPoint')[0] ||
+                                 gmlElement.getElementsByTagNameNS('http://www.opengis.net/gml', 'Polygon')[0] ||
+                                 gmlElement.getElementsByTagNameNS('http://www.opengis.net/gml', 'MultiPolygon')[0] ||
+                                 gmlElement.getElementsByTagNameNS('http://www.opengis.net/gml', 'LineString')[0];
+                    }
+                    
+                    if (!geomEl) return null;
+                    
+                    var geomType = (geomEl.localName || geomEl.tagName).replace(/^gml:/, '');
+                    
+                    if (geomType === 'Point') {
+                        var coords = extractGmlCoords(geomEl);
+                        if (coords.length >= 1) {
+                            return { type: 'Point', coordinates: coords[0] };
+                        }
+                    } else if (geomType === 'MultiPoint') {
+                        var coords = extractGmlCoords(geomEl);
+                        return { type: 'MultiPoint', coordinates: coords };
+                    } else if (geomType === 'LineString') {
+                        var coords = extractGmlCoords(geomEl);
+                        return { type: 'LineString', coordinates: coords };
+                    } else if (geomType === 'Polygon') {
+                        var coords = extractGmlPolygonCoords(geomEl);
+                        if (coords.length > 0) {
+                            return { type: 'Polygon', coordinates: coords };
+                        }
+                    } else if (geomType === 'MultiPolygon' || geomType === 'MultiSurface') {
+                        // MultiSurface wird wie MultiPolygon behandelt
+                        var coords = extractGmlMultiPolygonCoords(geomEl);
+                        if (coords.length === 1) {
+                            // Nur ein Polygon - vereinfachen
+                            return { type: 'Polygon', coordinates: coords[0] };
+                        }
+                        return { type: 'MultiPolygon', coordinates: coords };
+                    }
+                } catch (e) {
+                    console.warn('GML Geometry Parse Error:', e);
+                }
+                return null;
+            }
+            
+            // GML Koordinaten extrahieren
+            function extractGmlCoords(element) {
+                var coords = [];
+                
+                // Versuche pos oder posList
+                var posList = element.querySelector('posList') || 
+                              element.getElementsByTagNameNS('http://www.opengis.net/gml', 'posList')[0];
+                if (posList) {
+                    var values = posList.textContent.trim().split(/\s+/);
+                    for (var i = 0; i < values.length - 1; i += 2) {
+                        coords.push([parseFloat(values[i]), parseFloat(values[i + 1])]);
+                    }
+                    return coords;
+                }
+                
+                // Versuche pos (einzelner Punkt)
+                var pos = element.querySelector('pos') ||
+                          element.getElementsByTagNameNS('http://www.opengis.net/gml', 'pos')[0];
+                if (pos) {
+                    var values = pos.textContent.trim().split(/\s+/);
+                    coords.push([parseFloat(values[0]), parseFloat(values[1])]);
+                    return coords;
+                }
+                
+                // Versuche coordinates (GML 2)
+                var coordinates = element.querySelector('coordinates');
+                if (coordinates) {
+                    var pairs = coordinates.textContent.trim().split(/\s+/);
+                    pairs.forEach(function(pair) {
+                        var xy = pair.split(',');
+                        if (xy.length >= 2) {
+                            coords.push([parseFloat(xy[0]), parseFloat(xy[1])]);
+                        }
+                    });
+                }
+                
+                return coords;
+            }
+            
+            // GML Polygon Koordinaten extrahieren
+            function extractGmlPolygonCoords(element) {
+                var rings = [];
+                
+                // Exterior Ring
+                var exterior = element.querySelector('exterior, outerBoundaryIs');
+                if (exterior) {
+                    var linearRing = exterior.querySelector('LinearRing');
+                    if (linearRing) {
+                        rings.push(extractGmlCoords(linearRing));
+                    }
+                }
+                
+                // Interior Rings (Löcher)
+                var interiors = element.querySelectorAll('interior, innerBoundaryIs');
+                interiors.forEach(function(interior) {
+                    var linearRing = interior.querySelector('LinearRing');
+                    if (linearRing) {
+                        rings.push(extractGmlCoords(linearRing));
+                    }
+                });
+                
+                return rings;
+            }
+            
+            // GML MultiPolygon Koordinaten extrahieren
+            function extractGmlMultiPolygonCoords(element) {
+                var polygons = [];
+                
+                // Suche nach verschiedenen Member-Typen
+                var members = element.querySelectorAll('polygonMember, surfaceMember');
+                if (members.length === 0) {
+                    // Versuche mit Namespace
+                    members = element.getElementsByTagNameNS('http://www.opengis.net/gml', 'surfaceMember');
+                    if (members.length === 0) {
+                        members = element.getElementsByTagNameNS('http://www.opengis.net/gml', 'polygonMember');
+                    }
+                }
+                
+                Array.from(members).forEach(function(member) {
+                    var polygon = member.querySelector('Polygon') ||
+                                  member.getElementsByTagNameNS('http://www.opengis.net/gml', 'Polygon')[0];
+                    if (polygon) {
+                        var polyCoords = extractGmlPolygonCoords(polygon);
+                        if (polyCoords.length > 0) {
+                            polygons.push(polyCoords);
+                        }
+                    }
+                });
+                
+                // Falls keine Members gefunden, versuche direkt Polygone zu finden
+                if (polygons.length === 0) {
+                    var directPolygons = element.querySelectorAll('Polygon');
+                    Array.from(directPolygons).forEach(function(polygon) {
+                        var polyCoords = extractGmlPolygonCoords(polygon);
+                        if (polyCoords.length > 0) {
+                            polygons.push(polyCoords);
+                        }
+                    });
+                }
+                
+                return polygons;
+            }
+            
+            // Einzelnen ArcGIS Layer abfragen
+            function querySingleLayer(layer, geometryJson) {
+                return new Promise(function(resolve, reject) {
+                    // Die layer.url kann verschiedene Formate haben:
+                    // 1. Proxy-URL: /maps/agsproxy.php/gis_oereb/service/MapServer/0
+                    // 2. Direkte URL: https://server/arcgis/rest/services/...
+                    
+                    var serviceUrl = layer.url;
+                    
+                    // Falls es eine Proxy-URL ist, benutze sie direkt mit /query
+                    // Der agsproxy leitet an den richtigen Service weiter
+                    if (serviceUrl.indexOf('agsproxy.php') > -1) {
+                        // URL ist bereits im Proxy-Format: /maps/agsproxy.php/service/MapServer/0
+                        // Füge /query direkt an
+                        var queryUrl = serviceUrl + '/query';
+                        
+                        var params = new URLSearchParams({
+                            f: 'json',
+                            geometry: geometryJson,
+                            geometryType: 'esriGeometryPolygon',
+                            spatialRel: 'esriSpatialRelIntersects',
+                            outFields: '*',
+                            returnGeometry: 'true',
+                            inSR: '2056',
+                            outSR: '2056'
+                        });
+                        
+                        // Proxy-URL mit Query-Parametern
+                        var fullUrl = queryUrl + '?' + params.toString();
+                        
+                        console.log('Query URL für Layer "' + layer.name + '":', fullUrl);
+                        
+                        fetch(fullUrl)
+                            .then(function(response) { 
+                                console.log('Response Status:', response.status);
+                                return response.json(); 
+                            })
+                            .then(function(data) {
+                                console.log('Response Data für "' + layer.name + '":', data);
+                                resolve({
+                                    layerName: layer.name,
+                                    features: data.features || [],
+                                    error: data.error ? data.error.message : null
+                                });
+                            })
+                            .catch(function(err) {
+                                console.error('Fetch Error für "' + layer.name + '":', err);
+                                resolve({
+                                    layerName: layer.name,
+                                    features: [],
+                                    error: err.message
+                                });
+                            });
+                    } else {
+                        // Direkte URL - über Proxy leiten
+                        var queryUrl = serviceUrl + '/query';
+                        
+                        var params = new URLSearchParams({
+                            f: 'json',
+                            geometry: geometryJson,
+                            geometryType: 'esriGeometryPolygon',
+                            spatialRel: 'esriSpatialRelIntersects',
+                            outFields: '*',
+                            returnGeometry: 'true',
+                            inSR: '2056',
+                            outSR: '2056'
+                        });
+                        
+                        var proxyUrl = '/maps/agsproxy.php?' + encodeURIComponent(queryUrl + '?' + params.toString());
+                        
+                        console.log('Proxy Query URL für Layer "' + layer.name + '":', proxyUrl);
+                        
+                        fetch(proxyUrl)
+                            .then(function(response) { 
+                                console.log('Response Status:', response.status);
+                                return response.json(); 
+                            })
+                            .then(function(data) {
+                                console.log('Response Data für "' + layer.name + '":', data);
+                                resolve({
+                                    layerName: layer.name,
+                                    features: data.features || [],
+                                    error: data.error ? data.error.message : null
+                                });
+                            })
+                            .catch(function(err) {
+                                console.error('Fetch Error für "' + layer.name + '":', err);
+                                resolve({
+                                    layerName: layer.name,
+                                    features: [],
+                                    error: err.message
+                                });
+                            });
+                    }
+                });
+            }
+            
+            // Sichtbare abfragbare Layer ermitteln
+            function getVisibleQueryableLayers() {
+                var layers = [];
+                
+                console.log('=== LAYER DETECTION DEBUG ===');
+                
+                // Versuche Layer aus dem njs Layer-Manager zu holen
+                if (njs && njs.AppManager && njs.AppManager.Maps && njs.AppManager.Maps['main']) {
+                    var mapWrapper = njs.AppManager.Maps['main'];
+                    var map = mapWrapper.mapObj;
+                    
+                    console.log('Map gefunden:', !!map);
+                    
+                    if (map) {
+                        var allLayers = map.getLayers().getArray();
+                        console.log('Anzahl Layer in Map:', allLayers.length);
+                        
+                        allLayers.forEach(function(layer, idx) {
+                            // Prüfe ob es ein gültiger Layer mit getSource ist
+                            if (!layer || typeof layer.getVisible !== 'function' || typeof layer.getSource !== 'function') {
+                                console.log('Layer ' + idx + ': Kein gültiger Layer (evtl. LayerGroup)');
+                                return;
+                            }
+                            
+                            var visible = layer.getVisible();
+                            var source = layer.getSource();
+                            var name = layer.get('name') || layer.get('title') || 'Layer ' + idx;
+                            var sourceType = source ? source.constructor.name : 'no source';
+                            
+                            console.log('Layer ' + idx + ':', {
+                                name: name,
+                                visible: visible,
+                                sourceType: sourceType,
+                                hasGetUrl: !!(source && source.getUrl),
+                                hasGetUrls: !!(source && source.getUrls),
+                                hasParams: !!(source && source.getParams)
+                            });
+                            
+                            if (visible && source) {
+                                var url = null;
+                                
+                                // Versuche verschiedene Methoden, die URL zu bekommen
+                                if (typeof source.getUrl === 'function') {
+                                    url = source.getUrl();
+                                } else if (typeof source.getUrls === 'function') {
+                                    var urls = source.getUrls();
+                                    if (urls && urls.length > 0) url = urls[0];
+                                }
+                                
+                                // Falls source.url_ direkt verfügbar
+                                if (!url && source.url_) {
+                                    url = source.url_;
+                                }
+                                
+                                // Falls TileArcGISRest oder ImageArcGISRest
+                                if (!url && source.urls_ && source.urls_.length > 0) {
+                                    url = source.urls_[0];
+                                }
+                                
+                                if (url) {
+                                    console.log('  URL:', url);
+                                }
+                                
+                                // Hole auch die Source-Parameter für zusätzliche Infos
+                                var sourceParams = null;
+                                if (typeof source.getParams === 'function') {
+                                    sourceParams = source.getParams();
+                                    console.log('  Source Params:', sourceParams);
+                                }
+                                
+                                // Prüfe ob es ein ArcGIS Layer ist (über Proxy oder direkt)
+                                // agsproxy.php = ArcGIS Server Proxy
+                                var isArcGIS = url && (url.indexOf('agsproxy.php') > -1 || 
+                                    (url.indexOf('MapServer') > -1 && url.indexOf('cgi-bin') === -1) || 
+                                    url.indexOf('FeatureServer') > -1);
+                                
+                                // Prüfe ob es ein WMS/MapServer Layer ist (UMN MapServer via cgi-bin)
+                                // WICHTIG: Nur wenn es NICHT bereits als ArcGIS erkannt wurde
+                                var isWMS = false;
+                                if (!isArcGIS) {
+                                    if (sourceType === 'TileWMS' || sourceType === 'ImageWMS') {
+                                        isWMS = true;
+                                    }
+                                    if (url && (url.indexOf('mapserv') > -1 || url.indexOf('cgi-bin') > -1)) {
+                                        isWMS = true;
+                                    }
+                                    if (sourceParams && sourceParams.SERVICE === 'WMS') {
+                                        isWMS = true;
+                                    }
+                                }
+                                
+                                console.log('  Layer-Typ:', isArcGIS ? 'ArcGIS' : (isWMS ? 'WMS/MapServer' : 'Unbekannt'));
+                                
+                                if (isArcGIS) {
+                                    console.log('  ArcGIS Layer erkannt');
+                                    
+                                    // Extrahiere den Service-Pfad
+                                    var serviceUrl = url;
+                                    var layerId = null;
+                                    
+                                    // Verschiedene URL-Formate handhaben:
+                                    // 1. /maps/agsproxy.php/gis_oereb/service/MapServer/0
+                                    // 2. /maps/agsproxy.php/gis_oereb/service/MapServer (mit LAYERS param)
+                                    // 3. https://server/arcgis/rest/services/folder/service/MapServer/0
+                                    
+                                    // Layer-ID am Ende der URL?
+                                    var layerMatch = url.match(/\/(\d+)\/?$/);
+                                    if (layerMatch) {
+                                        layerId = layerMatch[1];
+                                        serviceUrl = url.replace(/\/\d+\/?$/, '');
+                                    }
+                                    
+                                    // Falls LAYERS Parameter vorhanden und keine Layer-ID in URL
+                                    if (!layerId && sourceParams && sourceParams.LAYERS) {
+                                        var layerStr = sourceParams.LAYERS.replace('show:', '');
+                                        var layerIds = layerStr.split(',');
+                                        
+                                        // Für jeden Layer-ID einen Eintrag erstellen
+                                        layerIds.forEach(function(lid) {
+                                            var fullUrl = serviceUrl + '/' + lid.trim();
+                                            console.log('  -> Layer hinzugefügt:', fullUrl);
+                                            layers.push({
+                                                name: name + ' (Layer ' + lid + ')',
+                                                url: fullUrl,
+                                                layerId: lid.trim(),
+                                                type: 'arcgis'
+                                            });
+                                        });
+                                    } else if (layerId) {
+                                        // Einzelner Layer mit ID in URL
+                                        console.log('  -> Layer hinzugefügt:', serviceUrl + '/' + layerId);
+                                        layers.push({
+                                            name: name,
+                                            url: serviceUrl + '/' + layerId,
+                                            layerId: layerId,
+                                            type: 'arcgis'
+                                        });
+                                    } else {
+                                        // Fallback: Versuche alle Layer des Service abzufragen (Layer 0)
+                                        console.log('  -> Fallback Layer 0:', serviceUrl + '/0');
+                                        layers.push({
+                                            name: name,
+                                            url: serviceUrl + '/0',
+                                            layerId: '0',
+                                            type: 'arcgis'
+                                        });
+                                    }
+                                } else if (isWMS) {
+                                    console.log('  WMS Layer erkannt');
+                                    
+                                    // Extrahiere Basis-URL (ohne Query-Parameter)
+                                    var baseUrl = url.split('?')[0];
+                                    
+                                    // Extrahiere map-Parameter aus der URL (für MapServer)
+                                    var mapParam = null;
+                                    var urlMapMatch = url.match(/[?&]map=([^&]+)/i);
+                                    if (urlMapMatch) {
+                                        mapParam = decodeURIComponent(urlMapMatch[1]);
+                                        console.log('  MapServer map Parameter:', mapParam);
+                                    }
+                                    
+                                    // Hole LAYERS aus den Params
+                                    var wmsLayers = sourceParams && sourceParams.LAYERS ? sourceParams.LAYERS : '';
+                                    
+                                    if (wmsLayers) {
+                                        console.log('  -> WMS Layer hinzugefügt:', baseUrl, 'LAYERS:', wmsLayers);
+                                        layers.push({
+                                            name: name,
+                                            url: baseUrl,
+                                            wmsLayers: wmsLayers,
+                                            type: 'wms',
+                                            sourceParams: sourceParams,
+                                            mapParam: mapParam  // MapServer map-Parameter
+                                        });
+                                    }
+                                }
+                            }
+                        });
+                    }
+                }
+                
+                console.log('Gefundene abfragbare Layer:', layers);
+                return layers;
+            }
+            
+            // Highlight-Layer für Feature-Hervorhebung
+            var highlightLayer = null;
+            var allQueryFeatures = []; // Speichert alle Features für Klick-Zugriff
+            
+            function getHighlightLayer(map) {
+                if (!highlightLayer) {
+                    highlightLayer = new ol.layer.Vector({
+                        source: new ol.source.Vector(),
+                        style: new ol.style.Style({
+                            fill: new ol.style.Fill({
+                                color: 'rgba(255, 200, 0, 0.4)'
+                            }),
+                            stroke: new ol.style.Stroke({
+                                color: '#ff8c00',
+                                width: 3
+                            }),
+                            image: new ol.style.Circle({
+                                radius: 8,
+                                fill: new ol.style.Fill({ color: '#ff8c00' }),
+                                stroke: new ol.style.Stroke({ color: 'white', width: 2 })
+                            })
+                        }),
+                        zIndex: 1001
+                    });
+                    map.addLayer(highlightLayer);
+                }
+                return highlightLayer;
+            }
+            
+            // Feature auf Karte hervorheben
+            window.highlightFeature = function(layerIdx, featureIdx) {
+                // Map direkt holen
+                var map = null;
+                if (njs && njs.AppManager && njs.AppManager.Maps && njs.AppManager.Maps['main'] && njs.AppManager.Maps['main'].mapObj) {
+                    map = njs.AppManager.Maps['main'].mapObj;
+                }
+                
+                if (!map) {
+                    console.warn('Map nicht verfügbar');
+                    return;
+                }
+                
+                var layer = getHighlightLayer(map);
+                layer.getSource().clear();
+                
+                // Feature aus gespeicherten Daten holen
+                console.log('highlightFeature:', layerIdx, featureIdx, allQueryFeatures);
+                
+                if (allQueryFeatures[layerIdx] && allQueryFeatures[layerIdx][featureIdx]) {
+                    var featureData = allQueryFeatures[layerIdx][featureIdx];
+                    var geometry = featureData.geometry;
+                    
+                    console.log('Feature data:', featureData);
+                    console.log('Geometry:', geometry);
+                    
+                    if (geometry) {
+                        var olGeom = null;
+                        
+                        // ArcGIS Geometrie zu OpenLayers konvertieren
+                        if (geometry.rings) {
+                            // ArcGIS Polygon
+                            olGeom = new ol.geom.Polygon(geometry.rings);
+                        } else if (geometry.paths) {
+                            // ArcGIS Polyline
+                            olGeom = new ol.geom.MultiLineString(geometry.paths);
+                        } else if (geometry.x !== undefined && geometry.y !== undefined) {
+                            // ArcGIS Point
+                            olGeom = new ol.geom.Point([geometry.x, geometry.y]);
+                        } else if (geometry.points) {
+                            // ArcGIS MultiPoint
+                            olGeom = new ol.geom.MultiPoint(geometry.points);
+                        }
+                        // GeoJSON Geometrien
+                        else if (geometry.type === 'Point' && geometry.coordinates) {
+                            olGeom = new ol.geom.Point(geometry.coordinates);
+                        } else if (geometry.type === 'MultiPoint' && geometry.coordinates) {
+                            olGeom = new ol.geom.MultiPoint(geometry.coordinates);
+                        } else if (geometry.type === 'LineString' && geometry.coordinates) {
+                            olGeom = new ol.geom.LineString(geometry.coordinates);
+                        } else if (geometry.type === 'MultiLineString' && geometry.coordinates) {
+                            olGeom = new ol.geom.MultiLineString(geometry.coordinates);
+                        } else if (geometry.type === 'Polygon' && geometry.coordinates) {
+                            olGeom = new ol.geom.Polygon(geometry.coordinates);
+                        } else if (geometry.type === 'MultiPolygon' && geometry.coordinates) {
+                            olGeom = new ol.geom.MultiPolygon(geometry.coordinates);
+                        }
+                        
+                        if (olGeom) {
+                            var feature = new ol.Feature({ geometry: olGeom });
+                            layer.getSource().addFeature(feature);
+                            
+                            // Zur Geometrie zoomen
+                            var extent = olGeom.getExtent();
+                            
+                            // Bei Punkten oder sehr kleinen Extents: Mindestgrösse setzen
+                            var minSize = 100; // Mindestens 100m in jede Richtung
+                            var width = extent[2] - extent[0];
+                            var height = extent[3] - extent[1];
+                            if (width < minSize || height < minSize) {
+                                var centerX = (extent[0] + extent[2]) / 2;
+                                var centerY = (extent[1] + extent[3]) / 2;
+                                extent = [
+                                    centerX - minSize,
+                                    centerY - minSize,
+                                    centerX + minSize,
+                                    centerY + minSize
+                                ];
+                            }
+                            
+                            map.getView().fit(extent, {
+                                padding: [50, 50, 50, 50],
+                                duration: 500
+                            });
+                        }
+                    }
+                }
+            };
+            
+            // Highlight entfernen
+            window.clearHighlight = function() {
+                if (highlightLayer) {
+                    highlightLayer.getSource().clear();
+                }
+            };
+            
+            // Ergebnisse anzeigen
+            function displayResults(results, layers) {
+                var statusEl = document.getElementById('spatial-query-status');
+                var resultsEl = document.getElementById('spatial-query-results');
+                
+                // Features für späteren Zugriff speichern
+                allQueryFeatures = results.map(function(r) { return r.features || []; });
+                
+                var totalFeatures = 0;
+                var html = '';
+                
+                results.forEach(function(result, layerIdx) {
+                    var count = result.features ? result.features.length : 0;
+                    totalFeatures += count;
+                    
+                    html += '<div class="query-result-layer">';
+                    html += '<div class="query-result-header" onclick="toggleQueryResult(this)">';
+                    html += '<span class="query-result-icon">▶</span>';
+                    html += '<span class="query-result-name">' + result.layerName + '</span>';
+                    html += '<span class="query-result-count">' + count + '</span>';
+                    html += '</div>';
+                    
+                    if (result.error) {
+                        html += '<div class="query-result-content hidden"><p class="error">' + result.error + '</p></div>';
+                    } else if (count > 0) {
+                        html += '<div class="query-result-content hidden">';
+                        html += '<table class="query-result-table">';
+                        
+                        // Header
+                        var attrs = result.features[0].attributes;
+                        var keys = Object.keys(attrs).slice(0, 6); // Max 6 Spalten
+                        html += '<thead><tr>';
+                        html += '<th></th>'; // Spalte für Zoom-Button
+                        keys.forEach(function(key) {
+                            html += '<th>' + key + '</th>';
+                        });
+                        html += '</tr></thead>';
+                        
+                        // Daten (max 50 Zeilen)
+                        html += '<tbody>';
+                        result.features.slice(0, 50).forEach(function(feature, featureIdx) {
+                            var hasGeom = feature.geometry ? 'true' : 'false';
+                            html += '<tr class="query-result-row" data-layer="' + layerIdx + '" data-feature="' + featureIdx + '" onclick="highlightFeature(' + layerIdx + ',' + featureIdx + ')">';
+                            html += '<td class="zoom-cell"><span class="zoom-icon" title="In Karte zeigen">🔍</span></td>';
+                            keys.forEach(function(key) {
+                                var val = feature.attributes[key];
+                                if (val === null || val === undefined) val = '-';
+                                html += '<td>' + val + '</td>';
+                            });
+                            html += '</tr>';
+                        });
+                        html += '</tbody></table>';
+                        
+                        if (count > 50) {
+                            html += '<p class="more-results">... und ' + (count - 50) + ' weitere</p>';
+                        }
+                        html += '</div>';
+                    } else {
+                        html += '<div class="query-result-content hidden"><p class="no-features">Keine Objekte gefunden</p></div>';
+                    }
+                    
+                    html += '</div>';
+                });
+                
+                statusEl.textContent = totalFeatures + ' Objekte in ' + results.length + ' Layer(n) gefunden';
+                resultsEl.innerHTML = html;
+            }
+            
+            // Ergebnis auf-/zuklappen
+            window.toggleQueryResult = function(header) {
+                var content = header.nextElementSibling;
+                var icon = header.querySelector('.query-result-icon');
+                
+                if (content.classList.contains('hidden')) {
+                    content.classList.remove('hidden');
+                    icon.textContent = '▼';
+                } else {
+                    content.classList.add('hidden');
+                    icon.textContent = '▶';
+                }
+            };
+            
+            // Excel Export
+            window.exportQueryToExcel = function() {
+                if (!allQueryFeatures || allQueryFeatures.length === 0) {
+                    alert('Keine Daten zum Exportieren vorhanden.');
+                    return;
+                }
+                
+                var csvContent = '';
+                var hasData = false;
+                
+                allQueryFeatures.forEach(function(features, layerIdx) {
+                    if (features && features.length > 0) {
+                        hasData = true;
+                        
+                        // Layer-Name als Überschrift
+                        var layerName = document.querySelectorAll('.query-result-name')[layerIdx];
+                        csvContent += '\n"' + (layerName ? layerName.textContent : 'Layer ' + layerIdx) + '"\n';
+                        
+                        // Header
+                        var attrs = features[0].attributes;
+                        var keys = Object.keys(attrs);
+                        csvContent += keys.map(function(k) { return '"' + k + '"'; }).join(';') + '\n';
+                        
+                        // Daten
+                        features.forEach(function(feature) {
+                            var row = keys.map(function(key) {
+                                var val = feature.attributes[key];
+                                if (val === null || val === undefined) val = '';
+                                // Escape quotes
+                                val = String(val).replace(/"/g, '""');
+                                return '"' + val + '"';
+                            });
+                            csvContent += row.join(';') + '\n';
+                        });
+                    }
+                });
+                
+                if (!hasData) {
+                    alert('Keine Daten zum Exportieren vorhanden.');
+                    return;
+                }
+                
+                // BOM für UTF-8 hinzufügen
+                var BOM = '\uFEFF';
+                var blob = new Blob([BOM + csvContent], { type: 'text/csv;charset=utf-8;' });
+                var url = URL.createObjectURL(blob);
+                var link = document.createElement('a');
+                link.href = url;
+                link.download = 'raeumliche_abfrage_' + new Date().toISOString().slice(0,10) + '.csv';
+                link.click();
+                URL.revokeObjectURL(url);
+            };
+            
+            // Panel andocken (unten)
+            window.isPanelDocked = false;  // Globale Variable für Drag/Resize Checks
+            window.toggleDockPanel = function() {
+                var panel = document.getElementById('spatial-query-panel');
+                var dockBtn = document.getElementById('dock-btn');
+                var freepane = document.getElementById('freepane');
+                
+                if (window.isPanelDocked) {
+                    // Undock - zurück zu floating
+                    panel.classList.remove('docked-bottom');
+                    panel.style.left = '';
+                    panel.style.top = '';
+                    panel.style.height = '';
+                    dockBtn.innerHTML = '<svg viewBox="0 0 24 24" width="16" height="16"><path fill="currentColor" d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5v-3h14v3zm0-5H5V5h14v9z"/></svg>';
+                    dockBtn.title = 'Unten andocken';
+                    window.isPanelDocked = false;
+                    // Freepane wieder auf volle Höhe
+                    if (freepane) {
+                        freepane.classList.remove('panel-docked');
+                        freepane.style.bottom = '';
+                    }
+                } else {
+                    // Dock - unten andocken
+                    panel.classList.add('docked-bottom');
+                    panel.style.left = '';
+                    panel.style.top = '';
+                    dockBtn.innerHTML = '<svg viewBox="0 0 24 24" width="16" height="16"><path fill="currentColor" d="M19 11h-8v6h8v-6zm4 8V4.98C23 3.88 22.1 3 21 3H3c-1.1 0-2 .88-2 1.98V19c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2zm-2 .02H3V4.97h18v14.05z"/></svg>';
+                    dockBtn.title = 'Floating';
+                    window.isPanelDocked = true;
+                    // Freepane kürzen bis Panel-Oberkante
+                    if (freepane) {
+                        freepane.classList.add('panel-docked');
+                        // Kurze Verzögerung damit Panel-Höhe korrekt berechnet wird
+                        setTimeout(function() {
+                            updateFreepaneHeight();
+                        }, 50);
+                    }
+                }
+            };
+            
+            // Freepane-Höhe anpassen wenn Panel angedockt
+            window.updateFreepaneHeight = function() {
+                var panel = document.getElementById('spatial-query-panel');
+                var freepane = document.getElementById('freepane');
+                if (panel && freepane && window.isPanelDocked) {
+                    var panelHeight = panel.offsetHeight;
+                    freepane.style.bottom = (panelHeight + 32) + 'px'; // +32 für footer-bar
+                }
+            };
         })();
     </script>
 
+    <!-- Ergebnis-Panel für räumliche Abfrage (ausserhalb mapContainer für korrekte Pointer-Events) -->
+    <div id="spatial-query-panel" class="spatial-query-panel hidden">
+        <div class="spatial-query-resize-top" id="spatial-query-resize-top"></div>
+        <div class="spatial-query-header" id="spatial-query-header">
+            <span class="spatial-query-title">Räumliche Abfrage</span>
+            <div class="spatial-query-actions">
+                <button class="spatial-query-btn" onclick="exportQueryToExcel()" title="Als Excel exportieren">
+                    <svg viewBox="0 0 24 24" width="16" height="16"><path fill="currentColor" d="M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6zm4 18H6V4h7v5h5v11zm-5-7l-3 3.5L7 13h2.5V9h3v4H15z"/></svg>
+                </button>
+                <button class="spatial-query-btn" onclick="toggleDockPanel()" title="Unten andocken" id="dock-btn">
+                    <svg viewBox="0 0 24 24" width="16" height="16"><path fill="currentColor" d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5v-3h14v3zm0-5H5V5h14v9z"/></svg>
+                </button>
+                <button class="spatial-query-close" onclick="closeSpatialQueryPanel()">&times;</button>
+            </div>
+        </div>
+        <div class="spatial-query-status" id="spatial-query-status">Zeichnen Sie ein Polygon auf der Karte...</div>
+        <div class="spatial-query-results" id="spatial-query-results"></div>
+    </div>
+
+    <!-- Panel Drag & Resize Initialisierung (NACH dem Panel-Element) -->
+    <script>
+    (function() {
+        // Panel verschiebbar machen
+        var panel = document.getElementById('spatial-query-panel');
+        var header = document.getElementById('spatial-query-header');
+        
+        if (!panel || !header) {
+            console.error('Spatial Query Panel oder Header nicht gefunden!');
+            return;
+        }
+        
+        var isDragging = false;
+        var startX, startY, startLeft, startTop;
+        
+        header.addEventListener('mousedown', function(e) {
+            // Nicht draggen wenn auf Button geklickt
+            if (e.target.closest('button')) return;
+            if (window.isPanelDocked) return;
+            
+            isDragging = true;
+            
+            var rect = panel.getBoundingClientRect();
+            startX = e.clientX;
+            startY = e.clientY;
+            startLeft = rect.left;
+            startTop = rect.top;
+            
+            panel.style.right = 'auto';
+            panel.style.left = startLeft + 'px';
+            panel.style.top = startTop + 'px';
+            
+            e.preventDefault();
+        });
+        
+        document.addEventListener('mousemove', function(e) {
+            if (!isDragging) return;
+            
+            var dx = e.clientX - startX;
+            var dy = e.clientY - startY;
+            
+            panel.style.left = (startLeft + dx) + 'px';
+            panel.style.top = (startTop + dy) + 'px';
+        });
+        
+        document.addEventListener('mouseup', function() {
+            isDragging = false;
+        });
+        
+        // Resize-Handle oben für angedockten Modus
+        var resizeHandle = document.getElementById('spatial-query-resize-top');
+        
+        if (resizeHandle) {
+            var isResizing = false;
+            var resizeStartY, resizeStartHeight;
+            
+            resizeHandle.addEventListener('mousedown', function(e) {
+                if (!window.isPanelDocked) return;
+                
+                isResizing = true;
+                resizeStartY = e.clientY;
+                resizeStartHeight = panel.offsetHeight;
+                
+                document.body.style.cursor = 'ns-resize';
+                document.body.style.userSelect = 'none';
+                e.preventDefault();
+            });
+            
+            document.addEventListener('mousemove', function(e) {
+                if (!isResizing) return;
+                
+                var dy = resizeStartY - e.clientY;
+                var newHeight = Math.max(150, Math.min(resizeStartHeight + dy, window.innerHeight - 100));
+                panel.style.height = newHeight + 'px';
+                // Freepane-Höhe anpassen
+                if (window.updateFreepaneHeight) {
+                    window.updateFreepaneHeight();
+                }
+            });
+            
+            document.addEventListener('mouseup', function() {
+                if (isResizing) {
+                    isResizing = false;
+                    document.body.style.cursor = '';
+                    document.body.style.userSelect = '';
+                    // Finale Höhenanpassung
+                    if (window.updateFreepaneHeight) {
+                        window.updateFreepaneHeight();
+                    }
+                }
+            });
+        }
+    })();
+    </script>
 
 </body>
-
-</html>
