@@ -99,7 +99,6 @@
             0% { transform: translateX(-100%); }
             100% { transform: translateX(400%); }
         }
-        }
     </style>
     
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ol@v10.6.0/ol.css"
@@ -2041,8 +2040,8 @@
                     
                     // Prüfe ob Actions bereits vorhanden
                     if (titleBar.querySelector('.info-pane-actions')) {
-                        // Actions vorhanden - aber Resize-Handle prüfen
-                        if (!infoPane.querySelector('.info-pane-resize-handle')) {
+                        // Actions vorhanden - aber Resize-Handles prüfen
+                        if (!infoPane.querySelector('.info-pane-resize-left')) {
                             initInfoPaneResize(infoPane);
                         }
                         return true;
@@ -2172,102 +2171,149 @@
             // Custom Resize für Info-Panel
             function initInfoPaneResize(pane) {
                 // Bestehende Resize-Handles entfernen (falls vorhanden)
-                var existingHandle = pane.querySelector('.info-pane-resize-handle');
-                if (existingHandle) existingHandle.remove();
-                var existingLeftHandle = pane.querySelector('.info-pane-resize-left');
-                if (existingLeftHandle) existingLeftHandle.remove();
+                var existingHandles = pane.querySelectorAll('[class*="info-pane-resize"]');
+                existingHandles.forEach(function(h) { h.remove(); });
                 
-                // Neuen Resize-Handle erstellen (rechts unten) - für Floating-Modus
-                var resizeHandle = document.createElement('div');
-                resizeHandle.className = 'info-pane-resize-handle';
-                resizeHandle.style.cssText = 'position:absolute; bottom:0; right:0; width:20px; height:20px; cursor:nwse-resize; z-index:1000; background:linear-gradient(135deg, transparent 50%, rgba(75,123,129,0.5) 50%);';
-                pane.appendChild(resizeHandle);
+                // Alle Resize-Handles erstellen
+                var handles = {
+                    top: createHandle('info-pane-resize-top', 'position:absolute; top:0; left:0; right:0; height:6px; cursor:ns-resize; z-index:1000;'),
+                    bottom: createHandle('info-pane-resize-bottom', 'position:absolute; bottom:0; left:0; right:0; height:6px; cursor:ns-resize; z-index:1000;'),
+                    left: createHandle('info-pane-resize-left', 'position:absolute; left:0; top:0; bottom:0; width:8px; cursor:ew-resize; z-index:1000; background:linear-gradient(to right, rgba(75,123,129,0.15), transparent);'),
+                    right: createHandle('info-pane-resize-right', 'position:absolute; right:0; top:0; bottom:0; width:8px; cursor:ew-resize; z-index:1000; background:linear-gradient(to left, rgba(75,123,129,0.15), transparent);'),
+                    tl: createHandle('info-pane-resize-corner-tl', 'position:absolute; top:0; left:0; width:12px; height:12px; cursor:nwse-resize; z-index:1001;'),
+                    tr: createHandle('info-pane-resize-corner-tr', 'position:absolute; top:0; right:0; width:12px; height:12px; cursor:nesw-resize; z-index:1001;'),
+                    bl: createHandle('info-pane-resize-corner-bl', 'position:absolute; bottom:0; left:0; width:12px; height:12px; cursor:nesw-resize; z-index:1001;'),
+                    br: createHandle('info-pane-resize-corner-br', 'position:absolute; bottom:0; right:0; width:20px; height:20px; cursor:nwse-resize; z-index:1001; background:linear-gradient(135deg, transparent 50%, rgba(75,123,129,0.5) 50%);')
+                };
                 
-                // Linken Resize-Handle für angedockten Modus erstellen
-                var leftHandle = document.createElement('div');
-                leftHandle.className = 'info-pane-resize-left';
-                leftHandle.style.cssText = 'position:absolute; left:0; top:0; bottom:0; width:8px; cursor:ew-resize; z-index:1000; background:linear-gradient(to right, rgba(75,123,129,0.4), transparent);';
-                pane.appendChild(leftHandle);
+                function createHandle(className, style) {
+                    var handle = document.createElement('div');
+                    handle.className = className;
+                    handle.style.cssText = style;
+                    pane.appendChild(handle);
+                    return handle;
+                }
                 
                 var isResizing = false;
-                var isResizingLeft = false;
-                var startX, startY, startWidth, startHeight;
+                var resizeDirection = '';
+                var startX, startY, startWidth, startHeight, startLeft, startTop;
                 
-                // Standard Resize (rechts unten) - nur im floating Modus
-                resizeHandle.onmousedown = function(e) {
-                    if (pane.classList.contains('docked-right')) return;
+                function startResize(e, direction) {
+                    // Im angedockten Modus nur linken Rand erlauben
+                    if (pane.classList.contains('docked-right') && direction !== 'left' && direction !== 'tl' && direction !== 'bl') return;
                     
                     isResizing = true;
+                    resizeDirection = direction;
                     startX = e.clientX;
                     startY = e.clientY;
-                    startWidth = pane.offsetWidth;
-                    startHeight = pane.offsetHeight;
                     
-                    document.body.style.cursor = 'nwse-resize';
+                    var rect = pane.getBoundingClientRect();
+                    startWidth = rect.width;
+                    startHeight = rect.height;
+                    startLeft = rect.left;
+                    startTop = rect.top;
+                    
                     document.body.style.userSelect = 'none';
                     e.preventDefault();
                     e.stopPropagation();
-                };
+                }
                 
-                // Linker Resize - nur im angedockten Modus
-                leftHandle.onmousedown = function(e) {
-                    if (!pane.classList.contains('docked-right')) return;
-                    
-                    isResizingLeft = true;
-                    startX = e.clientX;
-                    startWidth = pane.offsetWidth;
-                    
-                    document.body.style.cursor = 'ew-resize';
-                    document.body.style.userSelect = 'none';
-                    e.preventDefault();
-                    e.stopPropagation();
-                };
+                // Mousedown für alle Handles
+                handles.top.onmousedown = function(e) { startResize(e, 'top'); };
+                handles.bottom.onmousedown = function(e) { startResize(e, 'bottom'); };
+                handles.left.onmousedown = function(e) { startResize(e, 'left'); };
+                handles.right.onmousedown = function(e) { startResize(e, 'right'); };
+                handles.tl.onmousedown = function(e) { startResize(e, 'tl'); };
+                handles.tr.onmousedown = function(e) { startResize(e, 'tr'); };
+                handles.bl.onmousedown = function(e) { startResize(e, 'bl'); };
+                handles.br.onmousedown = function(e) { startResize(e, 'br'); };
                 
-                // Mousemove Handler - mit Closure für diese Instanz
+                // Mousemove Handler
                 var mouseMoveHandler = function(e) {
-                    if (isResizing) {
-                        var newWidth = Math.max(350, startWidth + (e.clientX - startX));
-                        var newHeight = Math.max(150, startHeight + (e.clientY - startY));
-                        
-                        // Mit setProperty und 'important' um Dojo-Styles zu überschreiben
-                        pane.style.setProperty('width', newWidth + 'px', 'important');
-                        pane.style.setProperty('height', newHeight + 'px', 'important');
-                        e.preventDefault();
-                    }
+                    if (!isResizing) return;
                     
-                    if (isResizingLeft) {
-                        var dx = startX - e.clientX;
-                        var newWidth = Math.max(300, Math.min(startWidth + dx, window.innerWidth - 100));
-                        pane.style.setProperty('width', newWidth + 'px', 'important');
-                        
-                        // mapContainer-Breite entsprechend anpassen - absolute Berechnung
-                        var mapContainer = document.getElementById('mapContainer');
-                        if (mapContainer && isInfoPaneDocked) {
-                            var actualPanelWidth = pane.offsetWidth;
-                            var centerPane = document.getElementById('centerPaneLayout');
-                            var streetviewContainer = document.getElementById('streetviewContainer');
-                            var streetviewWidth = 0;
-                            if (streetviewContainer && streetviewContainer.offsetWidth > 0 && streetviewContainer.style.display !== 'none') {
-                                streetviewWidth = streetviewContainer.offsetWidth;
+                    var dx = e.clientX - startX;
+                    var dy = e.clientY - startY;
+                    var newWidth = startWidth;
+                    var newHeight = startHeight;
+                    
+                    // Angedockt: nur Breite über linken Rand ändern
+                    if (pane.classList.contains('docked-right')) {
+                        if (resizeDirection === 'left' || resizeDirection === 'tl' || resizeDirection === 'bl') {
+                            newWidth = Math.max(300, Math.min(startWidth - dx, window.innerWidth - 100));
+                            pane.style.setProperty('width', newWidth + 'px', 'important');
+                            
+                            // mapContainer anpassen
+                            var mapContainer = document.getElementById('mapContainer');
+                            if (mapContainer && isInfoPaneDocked) {
+                                var actualPanelWidth = pane.offsetWidth;
+                                mapContainer.style.setProperty('width', 'calc(100% - ' + actualPanelWidth + 'px)', 'important');
                             }
-                            var centerPaneWidth = centerPane ? centerPane.offsetWidth : window.innerWidth;
-                            var mapWidth = centerPaneWidth - streetviewWidth - actualPanelWidth;
-                            mapContainer.style.setProperty('width', mapWidth + 'px', 'important');
-                            // Dock-Breite speichern
-                            window._savedDockedPanelWidth = actualPanelWidth;
                         }
                         e.preventDefault();
+                        return;
                     }
+                    
+                    // Freischwebend: alle Richtungen
+                    switch(resizeDirection) {
+                        case 'top':
+                            newHeight = Math.max(150, startHeight - dy);
+                            pane.style.setProperty('height', newHeight + 'px', 'important');
+                            pane.style.setProperty('top', (startTop + dy) + 'px', 'important');
+                            break;
+                        case 'bottom':
+                            newHeight = Math.max(150, startHeight + dy);
+                            pane.style.setProperty('height', newHeight + 'px', 'important');
+                            break;
+                        case 'left':
+                            newWidth = Math.max(350, startWidth - dx);
+                            pane.style.setProperty('width', newWidth + 'px', 'important');
+                            pane.style.setProperty('left', (startLeft + dx) + 'px', 'important');
+                            break;
+                        case 'right':
+                            newWidth = Math.max(350, startWidth + dx);
+                            pane.style.setProperty('width', newWidth + 'px', 'important');
+                            break;
+                        case 'tl':
+                            newWidth = Math.max(350, startWidth - dx);
+                            newHeight = Math.max(150, startHeight - dy);
+                            pane.style.setProperty('width', newWidth + 'px', 'important');
+                            pane.style.setProperty('height', newHeight + 'px', 'important');
+                            pane.style.setProperty('left', (startLeft + dx) + 'px', 'important');
+                            pane.style.setProperty('top', (startTop + dy) + 'px', 'important');
+                            break;
+                        case 'tr':
+                            newWidth = Math.max(350, startWidth + dx);
+                            newHeight = Math.max(150, startHeight - dy);
+                            pane.style.setProperty('width', newWidth + 'px', 'important');
+                            pane.style.setProperty('height', newHeight + 'px', 'important');
+                            pane.style.setProperty('top', (startTop + dy) + 'px', 'important');
+                            break;
+                        case 'bl':
+                            newWidth = Math.max(350, startWidth - dx);
+                            newHeight = Math.max(150, startHeight + dy);
+                            pane.style.setProperty('width', newWidth + 'px', 'important');
+                            pane.style.setProperty('height', newHeight + 'px', 'important');
+                            pane.style.setProperty('left', (startLeft + dx) + 'px', 'important');
+                            break;
+                        case 'br':
+                            newWidth = Math.max(350, startWidth + dx);
+                            newHeight = Math.max(150, startHeight + dy);
+                            pane.style.setProperty('width', newWidth + 'px', 'important');
+                            pane.style.setProperty('height', newHeight + 'px', 'important');
+                            break;
+                    }
+                    e.preventDefault();
                 };
                 
                 var mouseUpHandler = function() {
-                    if (isResizing || isResizingLeft) {
-                        // Nach Resize Map aktualisieren
-                        if (isResizingLeft && isInfoPaneDocked) {
+                    if (isResizing) {
+                        // Nach Resize Map aktualisieren falls angedockt
+                        if (pane.classList.contains('docked-right')) {
                             triggerMapUpdate();
                         }
                         isResizing = false;
-                        isResizingLeft = false;
+                        resizeDirection = '';
                         document.body.style.cursor = '';
                         document.body.style.userSelect = '';
                     }
@@ -2288,25 +2334,7 @@
                 document.addEventListener('mousemove', mouseMoveHandler);
                 document.addEventListener('mouseup', mouseUpHandler);
                 
-                // CSS-Sichtbarkeit je nach Modus steuern
-                function updateHandleVisibility() {
-                    var isDocked = pane.classList.contains('docked-right');
-                    resizeHandle.style.display = isDocked ? 'none' : 'block';
-                    leftHandle.style.display = isDocked ? 'block' : 'none';
-                }
-                
-                // Initial setzen
-                updateHandleVisibility();
-                
-                // Auf Klassen-Änderungen reagieren
-                var classObserver = new MutationObserver(function(mutations) {
-                    mutations.forEach(function(mutation) {
-                        if (mutation.attributeName === 'class') {
-                            updateHandleVisibility();
-                        }
-                    });
-                });
-                classObserver.observe(pane, { attributes: true, attributeFilter: ['class'] });
+                // CSS-Sichtbarkeit wird über CSS gesteuert - die .docked-right Klasse verbirgt die nicht-benötigten Handles automatisch
             }
             
             // Info-Panel Inhalt in Zwischenablage kopieren
@@ -2680,11 +2708,11 @@
                     function executeWfsQuery(typeName) {
                         var params = new URLSearchParams({
                             SERVICE: 'WFS',
-                            VERSION: '1.1.0',
+                            VERSION: '2.0.0',
                             REQUEST: 'GetFeature',
-                            TYPENAME: typeName,
-                            BBOX: bbox.join(','),
-                            MAXFEATURES: '1000'
+                            TYPENAMES: typeName,  // WFS 2.0 nutzt TYPENAMES (Plural)
+                            BBOX: bbox.join(',') + ',EPSG:2056',  // WFS 2.0: BBOX enthält CRS
+                            COUNT: '1000'  // WFS 2.0 nutzt COUNT statt MAXFEATURES
                         });
                         
                         if (mapParam) {
@@ -2692,7 +2720,9 @@
                         }
                         
                         var queryUrl = wfsUrl + '?' + params.toString();
-                        console.log('WFS Query URL (BBOX):', queryUrl);
+                        console.log('WFS 2.0 Query URL (BBOX):', queryUrl);
+                        console.log('  TYPENAMES:', typeName);
+                        console.log('  BBOX:', bbox.join(',') + ',EPSG:2056');
                         
                         return fetch(queryUrl).then(function(response) {
                             return response.text();
@@ -2702,48 +2732,189 @@
                     // Zuerst: Versuche mit WMS Layer-Name
                     var wmsLayerName = layer.wmsLayers;
                     
+                    // Spezialfall: Liegenschaften-Layer (av_ls_eigentuemer.map)
+                    // Dieser enthält mehrere Kantone - abfrage direkt via GetCapabilities alle
+                    var isLiegenschaftenLayer = mapParam && mapParam.indexOf('av_ls_eigentuemer') > -1;
+                    
+                    if (isLiegenschaftenLayer) {
+                        console.log('Liegenschaften-Layer erkannt (av_ls_eigentuemer.map), lade GetCapabilities für Multi-Kanton-Abfrage...');
+                        
+                        var capParams = new URLSearchParams({
+                            SERVICE: 'WFS',
+                            VERSION: '2.0.0',
+                            REQUEST: 'GetCapabilities'
+                        });
+                        if (mapParam) capParams.set('map', mapParam);
+                        
+                        fetch(wfsUrl + '?' + capParams.toString())
+                            .then(function(r) { return r.text(); })
+                            .then(function(capText) {
+                                console.log('GetCapabilities Response (first 1000):', capText.substring(0, 1000));
+                                var parser = new DOMParser();
+                                var capXml = parser.parseFromString(capText, 'text/xml');
+                                var featureTypes = capXml.querySelectorAll('FeatureType Name, FeatureType > Name');
+                                console.log('FeatureType Elements gefunden:', featureTypes.length);
+                                var allTypes = Array.from(featureTypes).map(function(ft) { return ft.textContent.trim(); });
+                                console.log('Alle FeatureTypes:', allTypes);
+                                
+                                var liegenschaftenTypes = allTypes.filter(function(t) {
+                                    return t.indexOf('liegenschaften_') > -1;
+                                });
+                                
+                                // Sortiere NW vor OW (für Test)
+                                liegenschaftenTypes.sort(function(a, b) {
+                                    if (a.indexOf('_nw') > -1) return -1;
+                                    if (b.indexOf('_nw') > -1) return 1;
+                                    return 0;
+                                });
+                                
+                                console.log('Liegenschaften-Kantone (NW zuerst):', liegenschaftenTypes.join(', '));
+                                
+                                // Abfrage alle Kantone parallel
+                                var queries = liegenschaftenTypes.map(function(typeName) {
+                                    console.log('Starte WFS Query für:', typeName);
+                                    return executeWfsQuery(typeName)
+                                        .then(function(response) {
+                                            console.log('Response für ' + typeName + ':', response ? response.substring(0, 200) : 'null');
+                                            if (response && response.indexOf('FeatureCollection') > -1) {
+                                                var parsed = parseWfsGmlResponse(response, typeName, polygonCoords);
+                                                console.log('Geparste Features für ' + typeName + ':', parsed.features ? parsed.features.length : 0);
+                                                return { typeName: typeName, data: parsed };
+                                            }
+                                            console.log('Keine FeatureCollection für ' + typeName);
+                                            return { typeName: typeName, data: { features: [] } };
+                                        })
+                                        .catch(function(err) {
+                                            console.error('WFS Query für ' + typeName + ' fehlgeschlagen:', err);
+                                            return { typeName: typeName, data: { features: [] } };
+                                        });
+                                });
+                                
+                                return Promise.all(queries);
+                            })
+                            .then(function(results) {
+                                // Kombiniere alle Features
+                                var allFeatures = [];
+                                results.forEach(function(result) {
+                                    if (result.data && result.data.features && result.data.features.length > 0) {
+                                        console.log('Features von ' + result.typeName + ':', result.data.features.length);
+                                        // Konvertiere Features in das erwartete Format
+                                        result.data.features.forEach(function(f) {
+                                            allFeatures.push({
+                                                attributes: f.properties || f.attributes || {},
+                                                geometry: f.geometry || null
+                                            });
+                                        });
+                                    }
+                                });
+                                
+                                console.log('Gesamt Features aus allen Kantonen:', allFeatures.length);
+                                
+                                resolve({
+                                    layerName: layer.name + ' (WFS Multi-Kanton)',
+                                    features: allFeatures,
+                                    error: null
+                                });
+                            })
+                            .catch(function(err) {
+                                console.error('Multi-Kanton WFS Fehler:', err);
+                                resolve({
+                                    layerName: layer.name + ' (WFS)',
+                                    features: [],
+                                    error: 'Multi-Kanton WFS Fehler: ' + err.message
+                                });
+                            });
+                        
+                        return; // Beende Funktion hier für Liegenschaften
+                    }
+                    
+                    // Normaler Single-Layer WFS Query
                     executeWfsQuery(wmsLayerName)
                         .then(function(text) {
                             // Prüfe auf "TYPENAME doesn't exist" Fehler
                             if (text.indexOf("doesn't exist") > -1 || text.indexOf('does not exist') > -1) {
-                                console.log('TYPENAME nicht gefunden, versuche mit _query Suffix...');
-                                // MapServer Pattern: oft ist der WFS Layer "layername_query"
-                                return executeWfsQuery(wmsLayerName + '_query');
-                            }
-                            return text;
-                        })
-                        .then(function(text) {
-                            // Prüfe auf weitere Fehler
-                            if (text.indexOf("doesn't exist") > -1 || text.indexOf('does not exist') > -1) {
-                                console.log('Auch _query Suffix nicht gefunden, versuche DescribeFeatureType...');
-                                // Letzter Versuch: DescribeFeatureType abrufen
-                                var descParams = new URLSearchParams({
+                                console.log('TYPENAME "' + wmsLayerName + '" nicht gefunden, lade GetCapabilities...');
+                                // GetCapabilities abrufen um verfügbare Layer zu finden
+                                var capParams = new URLSearchParams({
                                     SERVICE: 'WFS',
-                                    VERSION: '1.1.0',
-                                    REQUEST: 'DescribeFeatureType'
+                                    VERSION: '2.0.0',
+                                    REQUEST: 'GetCapabilities'
                                 });
-                                if (mapParam) descParams.set('map', mapParam);
+                                if (mapParam) capParams.set('map', mapParam);
                                 
-                                return fetch(wfsUrl + '?' + descParams.toString())
+                                return fetch(wfsUrl + '?' + capParams.toString())
                                     .then(function(r) { return r.text(); })
-                                    .then(function(descText) {
-                                        // Suche nach element name="..."
-                                        var match = descText.match(/element\s+name="([^"]+)"/);
-                                        if (match) {
-                                            console.log('FeatureType gefunden:', match[1]);
-                                            return executeWfsQuery(match[1]);
+                                    .then(function(capText) {
+                                        // Parse XML und finde FeatureType Names
+                                        var parser = new DOMParser();
+                                        var capXml = parser.parseFromString(capText, 'text/xml');
+                                        var featureTypes = capXml.querySelectorAll('FeatureType Name, FeatureType > Name');
+                                        
+                                        if (featureTypes.length > 0) {
+                                            var allTypes = Array.from(featureTypes).map(function(ft) { return ft.textContent.trim(); });
+                                            console.log('Verfügbare FeatureTypes:', allTypes.join(', '));
+                                            
+                                            // Suche nach passenden FeatureType basierend auf WMS Layer-Name
+                                            var matchingType = null;
+                                            
+                                            // 1. Versuch: Exakte Übereinstimmung
+                                            matchingType = allTypes.find(function(t) { return t === wmsLayerName; });
+                                            
+                                            // 2. Versuch: WMS Layer-Name enthält FeatureType
+                                            if (!matchingType) {
+                                                matchingType = allTypes.find(function(t) { 
+                                                    return wmsLayerName.toLowerCase().indexOf(t.toLowerCase()) > -1; 
+                                                });
+                                            }
+                                            
+                                            // 3. Versuch: FeatureType enthält WMS Layer-Name
+                                            if (!matchingType) {
+                                                matchingType = allTypes.find(function(t) { 
+                                                    return t.toLowerCase().indexOf(wmsLayerName.toLowerCase()) > -1; 
+                                                });
+                                            }
+                                            
+                                            // 4. Versuch: Suche nach Kanton-Kürzel (nw, ow, etc.) im WMS-Namen
+                                            if (!matchingType) {
+                                                var kantonMatch = wmsLayerName.match(/_(nw|ow|ur|sz|gl|zg|be|lu|ag|zh|so|bs|bl|sh|sg|ai|ar|ti|tg|vs|ge|fr|ne|ju|vd)_/i);
+                                                if (kantonMatch) {
+                                                    var kanton = kantonMatch[1].toLowerCase();
+                                                    matchingType = allTypes.find(function(t) { 
+                                                        return t.toLowerCase().indexOf('_' + kanton) > -1 || t.toLowerCase().endsWith('_' + kanton);
+                                                    });
+                                                    console.log('Suche nach Kanton "' + kanton + '" in FeatureTypes...');
+                                                }
+                                            }
+                                            
+                                            // Fallback: erster FeatureType
+                                            if (!matchingType) {
+                                                matchingType = allTypes[0];
+                                                console.warn('Kein passender FeatureType gefunden, verwende ersten:', matchingType);
+                                            } else {
+                                                console.log('Passender FeatureType gefunden:', matchingType);
+                                            }
+                                            
+                                            return executeWfsQuery(matchingType);
                                         }
                                         return text; // Gib Original-Fehler zurück
                                     });
                             }
                             return text;
                         })
-                        .then(function(text) {
+                        .then(function(textOrData) {
+                            // Spezialfall: Kombinierte Daten (von Multi-Kanton-Abfrage)
+                            if (textOrData && textOrData._combined) {
+                                console.log('Kombinierte Multi-Kanton-Daten erhalten:', textOrData.features.length, 'Features');
+                                return textOrData; // Bereits geparste Daten
+                            }
+                            
+                            var text = textOrData;
+                            
                             // Prüfe auf WFS Exception oder Fehler
                             if (text.indexOf('ExceptionReport') > -1 || text.indexOf('Exception') > -1) {
-                                console.warn('WFS Exception:', text.substring(0, 500));
+                                console.warn('WFS Exception oder Fehler:', text.substring(0, 500));
                                 // WFS nicht verfügbar - leere Ergebnisse zurückgeben
-                                return { features: [], error: 'WFS nicht verfügbar' };
+                                return { features: [], error: 'WFS nicht verfügbar oder Layer nicht gefunden' };
                             }
                             
                             // GML Response parsen
@@ -2758,18 +2929,17 @@
                                     var geom = f.geometry;
                                     var attrs = f.properties || f.attributes || {};
                                     
-                                    // Bei BBOX-Abfrage: Prüfe ob Feature wirklich im Polygon liegt
-                                    // Falls keine Geometrie vorhanden (GML ohne Geometrie), akzeptieren
-                                    if (!geom || isGeometryInPolygon(geom, polygonCoords)) {
-                                        features.push({
-                                            attributes: attrs,
-                                            geometry: geom || null
-                                        });
-                                    }
+                                    // WFS 2.0 mit BBOX filtert bereits serverseitig
+                                    // Nur noch prüfen ob Geometrie vorhanden, nicht mehr punktgenau filtern
+                                    // (die BBOX-Abfrage ist bereits räumlich korrekt)
+                                    features.push({
+                                        attributes: attrs,
+                                        geometry: geom || null
+                                    });
                                 });
                             }
                             
-                            console.log('WFS Features gefunden:', features.length);
+                            console.log('WFS Features nach BBOX-Filterung:', features.length);
                             resolve({
                                 layerName: layer.name + ' (WFS)',
                                 features: features,
@@ -2830,6 +3000,7 @@
                 var features = [];
                 
                 console.log('Parsing WFS Response, length:', text.length);
+                console.log('WFS Response (first 500):', text.substring(0, 500));
                 
                 // Versuche als JSON zu parsen (falls doch JSON)
                 try {
@@ -2843,6 +3014,13 @@
                     return { features: [], error: text };
                 }
                 
+                // Prüfe auf leere FeatureCollection
+                if (text.indexOf('numberReturned="0"') > -1 || 
+                    (text.indexOf('FeatureCollection') > -1 && text.indexOf('member>') === -1 && text.indexOf('featureMember>') === -1)) {
+                    console.log('Leere FeatureCollection');
+                    return { features: [] };
+                }
+                
                 // GML/XML parsen
                 try {
                     var parser = new DOMParser();
@@ -2851,23 +3029,35 @@
                     // Debug: Log XML structure
                     console.log('XML Root:', xml.documentElement ? xml.documentElement.tagName : 'null');
                     
-                    // Finde alle Feature-Member (verschiedene GML-Varianten)
-                    var members = xml.querySelectorAll('featureMember, member');
+                    // WFS 2.0: wfs:member
+                    var members = xml.getElementsByTagNameNS('http://www.opengis.net/wfs/2.0', 'member');
                     
-                    // Fallback: Versuche mit Namespace-Präfix
+                    // WFS 1.1/1.0: gml:featureMember
+                    if (members.length === 0) {
+                        members = xml.getElementsByTagNameNS('http://www.opengis.net/gml/3.2', 'featureMember');
+                    }
                     if (members.length === 0) {
                         members = xml.getElementsByTagNameNS('http://www.opengis.net/gml', 'featureMember');
                     }
+                    
+                    // Fallback ohne Namespace
                     if (members.length === 0) {
-                        members = xml.getElementsByTagNameNS('http://www.opengis.net/wfs', 'member');
+                        members = xml.querySelectorAll('member, featureMember');
                     }
                     
                     // MapServer-spezifisch: Suche nach Layer-Namen als Element
                     if (members.length === 0 && layerName) {
-                        var layerElements = xml.getElementsByTagName(layerName);
+                        // Versuche mit ms: Namespace
+                        var layerElements = xml.getElementsByTagNameNS('http://mapserver.gis.umn.edu/mapserver', layerName);
+                        if (layerElements.length === 0) {
+                            layerElements = xml.getElementsByTagName(layerName);
+                        }
+                        if (layerElements.length === 0) {
+                            layerElements = xml.getElementsByTagName('ms:' + layerName);
+                        }
                         if (layerElements.length > 0) {
                             members = Array.from(layerElements).map(function(el) {
-                                return { firstElementChild: el };
+                                return { firstElementChild: el, children: [el] };
                             });
                         }
                     }
@@ -2891,7 +3081,8 @@
                                 
                                 // Geometrie-Elemente speziell behandeln für Highlighting
                                 if (tagName === 'geom_gml' || tagName === 'msGeometry' || 
-                                    tagName === 'geometry' || tagName === 'geom' || tagName === 'the_geom') {
+                                    tagName === 'geometry' || tagName === 'geom' || tagName === 'the_geom' ||
+                                    tagName === 'shape' || tagName === 'wkb_geometry') {
                                     // Versuche GML-Geometrie zu parsen
                                     var gmlGeom = parseGmlGeometry(child);
                                     if (gmlGeom) {
@@ -2900,7 +3091,7 @@
                                     return;
                                 }
                                 
-                                // Überspringe andere Geometrie-Container
+                                // Überspringe Geometrie-Container
                                 if (tagName === 'boundedBy' || tagName === 'Envelope') {
                                     return;
                                 }
@@ -2930,15 +3121,22 @@
             // GML Geometrie zu GeoJSON parsen
             function parseGmlGeometry(gmlElement) {
                 try {
-                    // Finde das eigentliche Geometrie-Element
-                    var geomEl = gmlElement.querySelector('Point, MultiPoint, LineString, MultiLineString, Polygon, MultiPolygon, MultiSurface, MultiCurve');
+                    // GML Namespaces (3.2 und 3.1)
+                    var gmlNs32 = 'http://www.opengis.net/gml/3.2';
+                    var gmlNs31 = 'http://www.opengis.net/gml';
+                    
+                    // Finde das eigentliche Geometrie-Element (verschiedene Namespaces)
+                    var geomTypes = ['Point', 'MultiPoint', 'LineString', 'MultiLineString', 'Polygon', 'MultiPolygon', 'MultiSurface', 'MultiCurve'];
+                    var geomEl = null;
+                    
+                    for (var i = 0; i < geomTypes.length && !geomEl; i++) {
+                        geomEl = gmlElement.getElementsByTagNameNS(gmlNs32, geomTypes[i])[0] ||
+                                 gmlElement.getElementsByTagNameNS(gmlNs31, geomTypes[i])[0];
+                    }
+                    
+                    // Fallback ohne Namespace
                     if (!geomEl) {
-                        // Versuche mit gml: Namespace
-                        geomEl = gmlElement.getElementsByTagNameNS('http://www.opengis.net/gml', 'Point')[0] ||
-                                 gmlElement.getElementsByTagNameNS('http://www.opengis.net/gml', 'MultiPoint')[0] ||
-                                 gmlElement.getElementsByTagNameNS('http://www.opengis.net/gml', 'Polygon')[0] ||
-                                 gmlElement.getElementsByTagNameNS('http://www.opengis.net/gml', 'MultiPolygon')[0] ||
-                                 gmlElement.getElementsByTagNameNS('http://www.opengis.net/gml', 'LineString')[0];
+                        geomEl = gmlElement.querySelector('Point, MultiPoint, LineString, MultiLineString, Polygon, MultiPolygon, MultiSurface, MultiCurve');
                     }
                     
                     if (!geomEl) return null;
@@ -2979,21 +3177,26 @@
             // GML Koordinaten extrahieren
             function extractGmlCoords(element) {
                 var coords = [];
+                var gmlNs32 = 'http://www.opengis.net/gml/3.2';
+                var gmlNs31 = 'http://www.opengis.net/gml';
                 
-                // Versuche pos oder posList
-                var posList = element.querySelector('posList') || 
-                              element.getElementsByTagNameNS('http://www.opengis.net/gml', 'posList')[0];
+                // Versuche pos oder posList (GML 3.x)
+                var posList = element.getElementsByTagNameNS(gmlNs32, 'posList')[0] ||
+                              element.getElementsByTagNameNS(gmlNs31, 'posList')[0] ||
+                              element.querySelector('posList');
                 if (posList) {
                     var values = posList.textContent.trim().split(/\s+/);
-                    for (var i = 0; i < values.length - 1; i += 2) {
+                    var dim = parseInt(posList.getAttribute('srsDimension')) || 2;
+                    for (var i = 0; i < values.length - (dim - 1); i += dim) {
                         coords.push([parseFloat(values[i]), parseFloat(values[i + 1])]);
                     }
                     return coords;
                 }
                 
                 // Versuche pos (einzelner Punkt)
-                var pos = element.querySelector('pos') ||
-                          element.getElementsByTagNameNS('http://www.opengis.net/gml', 'pos')[0];
+                var pos = element.getElementsByTagNameNS(gmlNs32, 'pos')[0] ||
+                          element.getElementsByTagNameNS(gmlNs31, 'pos')[0] ||
+                          element.querySelector('pos');
                 if (pos) {
                     var values = pos.textContent.trim().split(/\s+/);
                     coords.push([parseFloat(values[0]), parseFloat(values[1])]);
@@ -3018,20 +3221,34 @@
             // GML Polygon Koordinaten extrahieren
             function extractGmlPolygonCoords(element) {
                 var rings = [];
+                var gmlNs32 = 'http://www.opengis.net/gml/3.2';
+                var gmlNs31 = 'http://www.opengis.net/gml';
                 
                 // Exterior Ring
-                var exterior = element.querySelector('exterior, outerBoundaryIs');
+                var exterior = element.getElementsByTagNameNS(gmlNs32, 'exterior')[0] ||
+                               element.getElementsByTagNameNS(gmlNs31, 'exterior')[0] ||
+                               element.querySelector('exterior, outerBoundaryIs');
                 if (exterior) {
-                    var linearRing = exterior.querySelector('LinearRing');
+                    var linearRing = exterior.getElementsByTagNameNS(gmlNs32, 'LinearRing')[0] ||
+                                     exterior.getElementsByTagNameNS(gmlNs31, 'LinearRing')[0] ||
+                                     exterior.querySelector('LinearRing');
                     if (linearRing) {
                         rings.push(extractGmlCoords(linearRing));
                     }
                 }
                 
                 // Interior Rings (Löcher)
-                var interiors = element.querySelectorAll('interior, innerBoundaryIs');
-                interiors.forEach(function(interior) {
-                    var linearRing = interior.querySelector('LinearRing');
+                var interiors = element.getElementsByTagNameNS(gmlNs32, 'interior');
+                if (interiors.length === 0) {
+                    interiors = element.getElementsByTagNameNS(gmlNs31, 'interior');
+                }
+                if (interiors.length === 0) {
+                    interiors = element.querySelectorAll('interior, innerBoundaryIs');
+                }
+                Array.from(interiors).forEach(function(interior) {
+                    var linearRing = interior.getElementsByTagNameNS(gmlNs32, 'LinearRing')[0] ||
+                                     interior.getElementsByTagNameNS(gmlNs31, 'LinearRing')[0] ||
+                                     interior.querySelector('LinearRing');
                     if (linearRing) {
                         rings.push(extractGmlCoords(linearRing));
                     }
@@ -3043,20 +3260,28 @@
             // GML MultiPolygon Koordinaten extrahieren
             function extractGmlMultiPolygonCoords(element) {
                 var polygons = [];
+                var gmlNs32 = 'http://www.opengis.net/gml/3.2';
+                var gmlNs31 = 'http://www.opengis.net/gml';
                 
                 // Suche nach verschiedenen Member-Typen
-                var members = element.querySelectorAll('polygonMember, surfaceMember');
+                var members = element.getElementsByTagNameNS(gmlNs32, 'surfaceMember');
                 if (members.length === 0) {
-                    // Versuche mit Namespace
-                    members = element.getElementsByTagNameNS('http://www.opengis.net/gml', 'surfaceMember');
-                    if (members.length === 0) {
-                        members = element.getElementsByTagNameNS('http://www.opengis.net/gml', 'polygonMember');
-                    }
+                    members = element.getElementsByTagNameNS(gmlNs31, 'surfaceMember');
+                }
+                if (members.length === 0) {
+                    members = element.getElementsByTagNameNS(gmlNs32, 'polygonMember');
+                }
+                if (members.length === 0) {
+                    members = element.getElementsByTagNameNS(gmlNs31, 'polygonMember');
+                }
+                if (members.length === 0) {
+                    members = element.querySelectorAll('polygonMember, surfaceMember');
                 }
                 
                 Array.from(members).forEach(function(member) {
-                    var polygon = member.querySelector('Polygon') ||
-                                  member.getElementsByTagNameNS('http://www.opengis.net/gml', 'Polygon')[0];
+                    var polygon = member.getElementsByTagNameNS(gmlNs32, 'Polygon')[0] ||
+                                  member.getElementsByTagNameNS(gmlNs31, 'Polygon')[0] ||
+                                  member.querySelector('Polygon');
                     if (polygon) {
                         var polyCoords = extractGmlPolygonCoords(polygon);
                         if (polyCoords.length > 0) {
@@ -3067,7 +3292,13 @@
                 
                 // Falls keine Members gefunden, versuche direkt Polygone zu finden
                 if (polygons.length === 0) {
-                    var directPolygons = element.querySelectorAll('Polygon');
+                    var directPolygons = element.getElementsByTagNameNS(gmlNs32, 'Polygon');
+                    if (directPolygons.length === 0) {
+                        directPolygons = element.getElementsByTagNameNS(gmlNs31, 'Polygon');
+                    }
+                    if (directPolygons.length === 0) {
+                        directPolygons = element.querySelectorAll('Polygon');
+                    }
                     Array.from(directPolygons).forEach(function(polygon) {
                         var polyCoords = extractGmlPolygonCoords(polygon);
                         if (polyCoords.length > 0) {
@@ -3449,6 +3680,30 @@
                         }
                         
                         if (olGeom) {
+                            // LV03 → LV95 Konvertierung falls nötig
+                            // LV03: E ~480'000-840'000, N ~75'000-300'000
+                            // LV95: E ~2'480'000-2'840'000, N ~1'075'000-1'300'000
+                            var coords = olGeom.getFirstCoordinate();
+                            var isLV03 = coords && 
+                                coords[0] > 400000 && coords[0] < 900000 && 
+                                coords[1] > 50000 && coords[1] < 400000;
+                            if (isLV03) {
+                                console.log('LV03 Koordinaten erkannt, konvertiere zu LV95:', coords);
+                                olGeom.applyTransform(function(input, output, dim) {
+                                    var d = dim || 2;
+                                    for (var i = 0; i < input.length; i += d) {
+                                        output[i] = input[i] + 2000000;
+                                        output[i + 1] = input[i + 1] + 1000000;
+                                        // Weitere Dimensionen (z.B. Z) unverändert lassen
+                                        for (var j = 2; j < d; j++) {
+                                            output[i + j] = input[i + j];
+                                        }
+                                    }
+                                    return output;
+                                });
+                                console.log('Konvertiert zu LV95:', olGeom.getFirstCoordinate());
+                            }
+                            
                             var feature = new ol.Feature({ geometry: olGeom });
                             layer.getSource().addFeature(feature);
                             
@@ -3494,12 +3749,37 @@
                 // Features für späteren Zugriff speichern
                 allQueryFeatures = results.map(function(r) { return r.features || []; });
                 
-                var totalFeatures = 0;
-                var html = '';
+                // Layer in Kategorien einteilen
+                var layersWithResults = [];
+                var layersWithoutResults = [];
+                var layersNotQueryable = [];
                 
                 results.forEach(function(result, layerIdx) {
                     var count = result.features ? result.features.length : 0;
-                    totalFeatures += count;
+                    
+                    if (result.error && (result.error.indexOf('WFS nicht verfügbar') > -1 || result.error.indexOf('nicht unterstützt') > -1)) {
+                        layersNotQueryable.push({ result: result, layerIdx: layerIdx });
+                    } else if (count === 0 && !result.error) {
+                        layersWithoutResults.push({ result: result, layerIdx: layerIdx });
+                    } else if (count > 0) {
+                        layersWithResults.push({ result: result, layerIdx: layerIdx });
+                    } else {
+                        // Fehler - zu layersNotQueryable
+                        layersNotQueryable.push({ result: result, layerIdx: layerIdx });
+                    }
+                });
+                
+                var totalFeatures = layersWithResults.reduce(function(sum, item) {
+                    return sum + (item.result.features ? item.result.features.length : 0);
+                }, 0);
+                
+                var html = '';
+                
+                // 1. Layer mit Resultaten
+                layersWithResults.forEach(function(item) {
+                    var result = item.result;
+                    var layerIdx = item.layerIdx;
+                    var count = result.features.length;
                     
                     html += '<div class="query-result-layer">';
                     html += '<div class="query-result-header" onclick="toggleQueryResult(this)">';
@@ -3507,50 +3787,79 @@
                     html += '<span class="query-result-name">' + result.layerName + '</span>';
                     html += '<span class="query-result-count">' + count + '</span>';
                     html += '</div>';
+                    html += '<div class="query-result-content hidden">';
+                    html += '<table class="query-result-table">';
                     
-                    if (result.error) {
-                        html += '<div class="query-result-content hidden"><p class="error">' + result.error + '</p></div>';
-                    } else if (count > 0) {
-                        html += '<div class="query-result-content hidden">';
-                        html += '<table class="query-result-table">';
-                        
-                        // Header
-                        var attrs = result.features[0].attributes;
-                        var keys = Object.keys(attrs).slice(0, 6); // Max 6 Spalten
-                        html += '<thead><tr>';
-                        html += '<th></th>'; // Spalte für Zoom-Button
+                    // Header
+                    var attrs = result.features[0].attributes;
+                    var keys = Object.keys(attrs).slice(0, 6); // Max 6 Spalten
+                    html += '<thead><tr>';
+                    html += '<th></th>'; // Spalte für Zoom-Button
+                    keys.forEach(function(key) {
+                        html += '<th>' + key + '</th>';
+                    });
+                    html += '</tr></thead>';
+                    
+                    // Daten (max 50 Zeilen)
+                    html += '<tbody>';
+                    result.features.slice(0, 50).forEach(function(feature, featureIdx) {
+                        var hasGeom = feature.geometry ? 'true' : 'false';
+                        html += '<tr class="query-result-row" data-layer="' + layerIdx + '" data-feature="' + featureIdx + '" onclick="highlightFeature(' + layerIdx + ',' + featureIdx + ')">';
+                        html += '<td class="zoom-cell"><span class="zoom-icon" title="In Karte zeigen"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><line x1="12" y1="2" x2="12" y2="6"/><line x1="12" y1="18" x2="12" y2="22"/><line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/></svg></span></td>';
                         keys.forEach(function(key) {
-                            html += '<th>' + key + '</th>';
+                            var val = feature.attributes[key];
+                            if (val === null || val === undefined) val = '-';
+                            html += '<td>' + val + '</td>';
                         });
-                        html += '</tr></thead>';
-                        
-                        // Daten (max 50 Zeilen)
-                        html += '<tbody>';
-                        result.features.slice(0, 50).forEach(function(feature, featureIdx) {
-                            var hasGeom = feature.geometry ? 'true' : 'false';
-                            html += '<tr class="query-result-row" data-layer="' + layerIdx + '" data-feature="' + featureIdx + '" onclick="highlightFeature(' + layerIdx + ',' + featureIdx + ')">';
-                            html += '<td class="zoom-cell"><span class="zoom-icon" title="In Karte zeigen">🔍</span></td>';
-                            keys.forEach(function(key) {
-                                var val = feature.attributes[key];
-                                if (val === null || val === undefined) val = '-';
-                                html += '<td>' + val + '</td>';
-                            });
-                            html += '</tr>';
-                        });
-                        html += '</tbody></table>';
-                        
-                        if (count > 50) {
-                            html += '<p class="more-results">... und ' + (count - 50) + ' weitere</p>';
-                        }
-                        html += '</div>';
-                    } else {
-                        html += '<div class="query-result-content hidden"><p class="no-features">Keine Objekte gefunden</p></div>';
-                    }
+                        html += '</tr>';
+                    });
+                    html += '</tbody></table>';
                     
+                    if (count > 50) {
+                        html += '<p class="more-results">... und ' + (count - 50) + ' weitere</p>';
+                    }
+                    html += '</div>';
                     html += '</div>';
                 });
                 
-                statusEl.textContent = totalFeatures + ' Objekte in ' + results.length + ' Layer(n) gefunden';
+                // 2. Accordion für Layer ohne Treffer
+                if (layersWithoutResults.length > 0) {
+                    html += '<div class="query-result-layer query-result-empty">';
+                    html += '<div class="query-result-header" onclick="toggleQueryResult(this)">';
+                    html += '<span class="query-result-icon">▶</span>';
+                    html += '<span class="query-result-name">Keine Objekte gefunden</span>';
+                    html += '<span class="query-result-count">' + layersWithoutResults.length + '</span>';
+                    html += '</div>';
+                    html += '<div class="query-result-content hidden">';
+                    html += '<ul class="empty-layers-list">';
+                    layersWithoutResults.forEach(function(item) {
+                        html += '<li>' + item.result.layerName + '</li>';
+                    });
+                    html += '</ul>';
+                    html += '</div>';
+                    html += '</div>';
+                }
+                
+                // 3. Accordion für nicht abfragbare Layer
+                if (layersNotQueryable.length > 0) {
+                    html += '<div class="query-result-layer query-result-not-queryable">';
+                    html += '<div class="query-result-header" onclick="toggleQueryResult(this)">';
+                    html += '<span class="query-result-icon">▶</span>';
+                    html += '<span class="query-result-name">Räumliche Abfrage nicht unterstützt</span>';
+                    html += '<span class="query-result-count">' + layersNotQueryable.length + '</span>';
+                    html += '</div>';
+                    html += '<div class="query-result-content hidden">';
+                    html += '<ul class="not-queryable-layers-list">';
+                    layersNotQueryable.forEach(function(item) {
+                        var errorMsg = item.result.error || 'Unbekannter Fehler';
+                        html += '<li>' + item.result.layerName + ' <span class="error-hint">(' + errorMsg + ')</span></li>';
+                    });
+                    html += '</ul>';
+                    html += '</div>';
+                    html += '</div>';
+                }
+                
+                statusEl.textContent = totalFeatures + ' Objekte in ' + layersWithResults.length + ' Layer(n) gefunden';
                 resultsEl.innerHTML = html;
             }
             
@@ -3676,6 +3985,13 @@
     <!-- Ergebnis-Panel für räumliche Abfrage (ausserhalb mapContainer für korrekte Pointer-Events) -->
     <div id="spatial-query-panel" class="spatial-query-panel hidden">
         <div class="spatial-query-resize-top" id="spatial-query-resize-top"></div>
+        <div class="spatial-query-resize-left" id="spatial-query-resize-left"></div>
+        <div class="spatial-query-resize-right" id="spatial-query-resize-right"></div>
+        <div class="spatial-query-resize-bottom" id="spatial-query-resize-bottom"></div>
+        <div class="spatial-query-resize-corner-tl" id="spatial-query-resize-corner-tl"></div>
+        <div class="spatial-query-resize-corner-tr" id="spatial-query-resize-corner-tr"></div>
+        <div class="spatial-query-resize-corner-bl" id="spatial-query-resize-corner-bl"></div>
+        <div class="spatial-query-resize-corner-br" id="spatial-query-resize-corner-br"></div>
         <div class="spatial-query-header" id="spatial-query-header">
             <span class="spatial-query-title">Räumliche Abfrage</span>
             <div class="spatial-query-actions">
@@ -3741,49 +4057,156 @@
             isDragging = false;
         });
         
-        // Resize-Handle oben für angedockten Modus
-        var resizeHandle = document.getElementById('spatial-query-resize-top');
+        // ===== RESIZE FUNCTIONALITY =====
+        var isResizing = false;
+        var resizeDirection = '';
+        var resizeStartX, resizeStartY, resizeStartWidth, resizeStartHeight, resizeStartLeft, resizeStartTop;
         
-        if (resizeHandle) {
-            var isResizing = false;
-            var resizeStartY, resizeStartHeight;
+        // Resize-Handles
+        var handles = {
+            top: document.getElementById('spatial-query-resize-top'),
+            left: document.getElementById('spatial-query-resize-left'),
+            right: document.getElementById('spatial-query-resize-right'),
+            bottom: document.getElementById('spatial-query-resize-bottom'),
+            tl: document.getElementById('spatial-query-resize-corner-tl'),
+            tr: document.getElementById('spatial-query-resize-corner-tr'),
+            bl: document.getElementById('spatial-query-resize-corner-bl'),
+            br: document.getElementById('spatial-query-resize-corner-br')
+        };
+        
+        function startResize(e, direction) {
+            if (window.isPanelDocked && direction !== 'top') return; // Im angedockten Modus nur oben
             
-            resizeHandle.addEventListener('mousedown', function(e) {
-                if (!window.isPanelDocked) return;
-                
-                isResizing = true;
-                resizeStartY = e.clientY;
-                resizeStartHeight = panel.offsetHeight;
-                
-                document.body.style.cursor = 'ns-resize';
-                document.body.style.userSelect = 'none';
-                e.preventDefault();
-            });
+            isResizing = true;
+            resizeDirection = direction;
+            resizeStartX = e.clientX;
+            resizeStartY = e.clientY;
             
-            document.addEventListener('mousemove', function(e) {
-                if (!isResizing) return;
-                
-                var dy = resizeStartY - e.clientY;
-                var newHeight = Math.max(150, Math.min(resizeStartHeight + dy, window.innerHeight - 100));
+            var rect = panel.getBoundingClientRect();
+            resizeStartWidth = rect.width;
+            resizeStartHeight = rect.height;
+            resizeStartLeft = rect.left;
+            resizeStartTop = rect.top;
+            
+            document.body.style.userSelect = 'none';
+            e.preventDefault();
+            e.stopPropagation();
+        }
+        
+        // Mousedown Handler für alle Handles
+        if (handles.top) {
+            handles.top.addEventListener('mousedown', function(e) { startResize(e, 'top'); });
+        }
+        if (handles.left) {
+            handles.left.addEventListener('mousedown', function(e) { startResize(e, 'left'); });
+        }
+        if (handles.right) {
+            handles.right.addEventListener('mousedown', function(e) { startResize(e, 'right'); });
+        }
+        if (handles.bottom) {
+            handles.bottom.addEventListener('mousedown', function(e) { startResize(e, 'bottom'); });
+        }
+        if (handles.tl) {
+            handles.tl.addEventListener('mousedown', function(e) { startResize(e, 'tl'); });
+        }
+        if (handles.tr) {
+            handles.tr.addEventListener('mousedown', function(e) { startResize(e, 'tr'); });
+        }
+        if (handles.bl) {
+            handles.bl.addEventListener('mousedown', function(e) { startResize(e, 'bl'); });
+        }
+        if (handles.br) {
+            handles.br.addEventListener('mousedown', function(e) { startResize(e, 'br'); });
+        }
+        
+        document.addEventListener('mousemove', function(e) {
+            if (!isResizing) return;
+            
+            var dx = e.clientX - resizeStartX;
+            var dy = e.clientY - resizeStartY;
+            
+            var newWidth = resizeStartWidth;
+            var newHeight = resizeStartHeight;
+            var newLeft = resizeStartLeft;
+            var newTop = resizeStartTop;
+            
+            // Angedockt: nur Höhe ändern
+            if (window.isPanelDocked) {
+                newHeight = Math.max(150, Math.min(resizeStartHeight - dy, window.innerHeight - 100));
                 panel.style.height = newHeight + 'px';
-                // Freepane-Höhe anpassen
                 if (window.updateFreepaneHeight) {
                     window.updateFreepaneHeight();
                 }
-            });
+                return;
+            }
             
-            document.addEventListener('mouseup', function() {
-                if (isResizing) {
-                    isResizing = false;
-                    document.body.style.cursor = '';
-                    document.body.style.userSelect = '';
-                    // Finale Höhenanpassung
-                    if (window.updateFreepaneHeight) {
-                        window.updateFreepaneHeight();
-                    }
+            // Freischwebend: alle Richtungen
+            switch(resizeDirection) {
+                case 'top':
+                    newHeight = Math.max(200, resizeStartHeight - dy);
+                    newTop = resizeStartTop + (resizeStartHeight - newHeight);
+                    panel.style.height = newHeight + 'px';
+                    panel.style.top = newTop + 'px';
+                    break;
+                case 'bottom':
+                    newHeight = Math.max(200, resizeStartHeight + dy);
+                    panel.style.height = newHeight + 'px';
+                    break;
+                case 'left':
+                    newWidth = Math.max(300, resizeStartWidth - dx);
+                    newLeft = resizeStartLeft + (resizeStartWidth - newWidth);
+                    panel.style.width = newWidth + 'px';
+                    panel.style.left = newLeft + 'px';
+                    break;
+                case 'right':
+                    newWidth = Math.max(300, resizeStartWidth + dx);
+                    panel.style.width = newWidth + 'px';
+                    break;
+                case 'tl':
+                    newWidth = Math.max(300, resizeStartWidth - dx);
+                    newHeight = Math.max(200, resizeStartHeight - dy);
+                    newLeft = resizeStartLeft + (resizeStartWidth - newWidth);
+                    newTop = resizeStartTop + (resizeStartHeight - newHeight);
+                    panel.style.width = newWidth + 'px';
+                    panel.style.height = newHeight + 'px';
+                    panel.style.left = newLeft + 'px';
+                    panel.style.top = newTop + 'px';
+                    break;
+                case 'tr':
+                    newWidth = Math.max(300, resizeStartWidth + dx);
+                    newHeight = Math.max(200, resizeStartHeight - dy);
+                    newTop = resizeStartTop + (resizeStartHeight - newHeight);
+                    panel.style.width = newWidth + 'px';
+                    panel.style.height = newHeight + 'px';
+                    panel.style.top = newTop + 'px';
+                    break;
+                case 'bl':
+                    newWidth = Math.max(300, resizeStartWidth - dx);
+                    newHeight = Math.max(200, resizeStartHeight + dy);
+                    newLeft = resizeStartLeft + (resizeStartWidth - newWidth);
+                    panel.style.width = newWidth + 'px';
+                    panel.style.height = newHeight + 'px';
+                    panel.style.left = newLeft + 'px';
+                    break;
+                case 'br':
+                    newWidth = Math.max(300, resizeStartWidth + dx);
+                    newHeight = Math.max(200, resizeStartHeight + dy);
+                    panel.style.width = newWidth + 'px';
+                    panel.style.height = newHeight + 'px';
+                    break;
+            }
+        });
+        
+        document.addEventListener('mouseup', function() {
+            if (isResizing) {
+                isResizing = false;
+                resizeDirection = '';
+                document.body.style.userSelect = '';
+                if (window.isPanelDocked && window.updateFreepaneHeight) {
+                    window.updateFreepaneHeight();
                 }
-            });
-        }
+            }
+        });
     })();
     </script>
 
