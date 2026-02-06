@@ -1971,6 +1971,14 @@
                             window.isPolygonDrawing = false;
                             document.body.classList.remove('drawing-mode');
                             
+                            // DrawInteraction sofort entfernen damit normale Klicks wieder funktionieren
+                            waitForMap(function(map) {
+                                if (drawInteraction) {
+                                    map.removeInteraction(drawInteraction);
+                                    drawInteraction = null;
+                                }
+                            });
+                            
                             // Abfrage starten
                             statusEl.textContent = 'Abfrage läuft...';
                             resultsEl.innerHTML = '<div class="loading-spinner"></div>';
@@ -2174,16 +2182,12 @@
                 var existingHandles = pane.querySelectorAll('[class*="info-pane-resize"]');
                 existingHandles.forEach(function(h) { h.remove(); });
                 
-                // Alle Resize-Handles erstellen
+                // Resize-Handles erstellen (nur Kanten)
                 var handles = {
                     top: createHandle('info-pane-resize-top', 'position:absolute; top:0; left:0; right:0; height:6px; cursor:ns-resize; z-index:1000;'),
                     bottom: createHandle('info-pane-resize-bottom', 'position:absolute; bottom:0; left:0; right:0; height:6px; cursor:ns-resize; z-index:1000;'),
                     left: createHandle('info-pane-resize-left', 'position:absolute; left:0; top:0; bottom:0; width:8px; cursor:ew-resize; z-index:1000; background:linear-gradient(to right, rgba(75,123,129,0.15), transparent);'),
-                    right: createHandle('info-pane-resize-right', 'position:absolute; right:0; top:0; bottom:0; width:8px; cursor:ew-resize; z-index:1000; background:linear-gradient(to left, rgba(75,123,129,0.15), transparent);'),
-                    tl: createHandle('info-pane-resize-corner-tl', 'position:absolute; top:0; left:0; width:12px; height:12px; cursor:nwse-resize; z-index:1001;'),
-                    tr: createHandle('info-pane-resize-corner-tr', 'position:absolute; top:0; right:0; width:12px; height:12px; cursor:nesw-resize; z-index:1001;'),
-                    bl: createHandle('info-pane-resize-corner-bl', 'position:absolute; bottom:0; left:0; width:12px; height:12px; cursor:nesw-resize; z-index:1001;'),
-                    br: createHandle('info-pane-resize-corner-br', 'position:absolute; bottom:0; right:0; width:20px; height:20px; cursor:nwse-resize; z-index:1001; background:linear-gradient(135deg, transparent 50%, rgba(75,123,129,0.5) 50%);')
+                    right: createHandle('info-pane-resize-right', 'position:absolute; right:0; top:0; bottom:0; width:8px; cursor:ew-resize; z-index:1000; background:linear-gradient(to left, rgba(75,123,129,0.15), transparent);')
                 };
                 
                 function createHandle(className, style) {
@@ -2218,15 +2222,11 @@
                     e.stopPropagation();
                 }
                 
-                // Mousedown für alle Handles
+                // Mousedown für Kanten-Handles
                 handles.top.onmousedown = function(e) { startResize(e, 'top'); };
                 handles.bottom.onmousedown = function(e) { startResize(e, 'bottom'); };
                 handles.left.onmousedown = function(e) { startResize(e, 'left'); };
                 handles.right.onmousedown = function(e) { startResize(e, 'right'); };
-                handles.tl.onmousedown = function(e) { startResize(e, 'tl'); };
-                handles.tr.onmousedown = function(e) { startResize(e, 'tr'); };
-                handles.bl.onmousedown = function(e) { startResize(e, 'bl'); };
-                handles.br.onmousedown = function(e) { startResize(e, 'br'); };
                 
                 // Mousemove Handler
                 var mouseMoveHandler = function(e) {
@@ -2579,6 +2579,126 @@
                 window.removeEventListener('resize', updateDockedInfoPanePosition);
             }
             
+            // geo.admin.ch REST API Abfrage
+            function queryGeoAdminLayer(layer, polygonCoords) {
+                return new Promise(function(resolve, reject) {
+                    console.log('geo.admin.ch REST API Query für:', layer.name, layer.wmsLayers);
+                    
+                    // Layer-Name anpassen: ÖREB-Layer haben _v2_0.oereb Suffix, das muss entfernt werden
+                    // Beispiel: ch.astra.baulinien-nationalstrassen_v2_0.oereb → ch.astra.baulinien-nationalstrassen
+                    var layerName = layer.wmsLayers;
+                    if (layerName) {
+                        // Entferne .oereb Suffix
+                        if (layerName.endsWith('.oereb')) {
+                            layerName = layerName.substring(0, layerName.length - 6);
+                            console.log('Nach Entfernung von .oereb:', layerName);
+                        }
+                        // Entferne _vX_Y Versions-Suffix (z.B. _v2_0, _v1_0)
+                        layerName = layerName.replace(/_v\d+_\d+$/, '');
+                        console.log('ÖREB Layer-Name für API:', layerName);
+                    }
+                    
+                    // Polygon zu ESRI JSON Format konvertieren
+                    var rings = [polygonCoords.map(function(coord) {
+                        return [Math.round(coord[0]), Math.round(coord[1])];
+                    })];
+                    
+                    var geometryJson = {
+                        rings: rings,
+                        spatialReference: { wkid: 2056 }
+                    };
+                    
+                    // API-Endpunkt
+                    var apiUrl = 'https://api3.geo.admin.ch/rest/services/api/MapServer/identify';
+                    
+                    // Sprache fix auf Deutsch
+                    var lang = 'de';
+                    console.log('API Sprache:', lang);
+                    
+                    // Parameter
+                    var params = new URLSearchParams({
+                        geometry: JSON.stringify(geometryJson),
+                        geometryType: 'esriGeometryPolygon',
+                        layers: 'all:' + layerName, // Layer-Name (ohne _vX_Y.oereb)
+                        tolerance: '0',
+                        mapExtent: '0,0,0,0',
+                        imageDisplay: '0,0,0',
+                        sr: '2056',
+                        returnGeometry: 'true',
+                        geometryFormat: 'geojson',
+                        lang: lang
+                    });
+                    
+                    var queryUrl = apiUrl + '?' + params.toString();
+                    console.log('geo.admin.ch API URL:', queryUrl);
+                    
+                    fetch(queryUrl)
+                        .then(function(response) { return response.json(); })
+                        .then(function(data) {
+                            console.log('geo.admin.ch Response:', data);
+                            
+                            var features = [];
+                            if (data.results && data.results.length > 0) {
+                                features = data.results.map(function(result) {
+                                    var attrs = result.attributes || result.properties || {};
+                                    
+                                    // Datumsfelder formatieren (z.B. 2019-07-30T00:00:00 → 30.07.2019)
+                                    Object.keys(attrs).forEach(function(key) {
+                                        var value = attrs[key];
+                                        // Prüfe ob es ein ISO-Datum ist (YYYY-MM-DDTHH:mm:ss oder YYYY-MM-DD)
+                                        if (typeof value === 'string' && /^\d{4}-\d{2}-\d{2}(T\d{2}:\d{2}:\d{2})?/.test(value)) {
+                                            try {
+                                                var date = new Date(value);
+                                                if (!isNaN(date.getTime())) {
+                                                    // Formatiere als DD.MM.YYYY
+                                                    var day = ('0' + date.getDate()).slice(-2);
+                                                    var month = ('0' + (date.getMonth() + 1)).slice(-2);
+                                                    var year = date.getFullYear();
+                                                    attrs[key] = day + '.' + month + '.' + year;
+                                                }
+                                            } catch(e) {
+                                                // Bei Fehler Original-Wert behalten
+                                            }
+                                        }
+                                    });
+                                    
+                                    return {
+                                        attributes: attrs,
+                                        geometry: result.geometry || null
+                                    };
+                                });
+                            }
+                            
+                            console.log('geo.admin.ch Features:', features.length);
+                            
+                            // Besseren Layer-Namen verwenden (wmsLayers statt layer.name)
+                            var displayName = layer.wmsLayers || layer.name || 'Unbekannter Layer';
+                            // Entferne .oereb und _vX_Y Suffixe für Anzeige
+                            displayName = displayName.replace(/_v\d+_\d+(\.oereb)?$/, '');
+                            displayName = displayName.replace(/\.oereb$/, '');
+                            
+                            resolve({
+                                layerName: displayName + ' (geo.admin.ch)',
+                                features: features,
+                                error: null
+                            });
+                        })
+                        .catch(function(err) {
+                            console.error('geo.admin.ch API Fehler:', err);
+                            
+                            var displayName = layer.wmsLayers || layer.name || 'Unbekannter Layer';
+                            displayName = displayName.replace(/_v\d+_\d+(\.oereb)?$/, '');
+                            displayName = displayName.replace(/\.oereb$/, '');
+                            
+                            resolve({
+                                layerName: displayName + ' (geo.admin.ch)',
+                                features: [],
+                                error: 'API-Fehler: ' + err.message
+                            });
+                        });
+                });
+            }
+            
             function updateDockedInfoPanePosition() {
                 if (!isInfoPaneDocked) return;
                 var mapContainer = document.getElementById('mapContainer');
@@ -2679,11 +2799,21 @@
                 });
             }
             
-            // WFS Layer abfragen (echte räumliche Abfrage mit Polygon)
+            // WFS/API Layer abfragen (echte räumliche Abfrage mit Polygon)
             // HINWEIS: Bei MapServer kann der WFS TYPENAME vom WMS LAYERS abweichen
             function queryWfsLayer(layer, bbox, polygonCoords) {
                 return new Promise(function(resolve, reject) {
-                    console.log('WFS Query für Layer:', layer.name, layer.url, layer.mapParam);
+                    console.log('Query für Layer:', layer.name, layer.url, layer.mapParam);
+                    
+                    // geo.admin.ch / Schweizer Bundesdienste: Verwende REST API statt WFS
+                    // Erkennung: URL enthält geo.admin.ch ODER Layer-Name beginnt mit "ch."
+                    var isGeoAdmin = (layer.url && layer.url.indexOf('geo.admin.ch') > -1) ||
+                                     (layer.wmsLayers && layer.wmsLayers.indexOf('ch.') === 0);
+                    
+                    if (isGeoAdmin) {
+                        console.log('Schweizer Bundeslayer erkannt (geo.admin.ch), verwende REST API');
+                        return queryGeoAdminLayer(layer, polygonCoords).then(resolve).catch(reject);
+                    }
                     
                     // WFS URL aus WMS URL ableiten
                     var wfsUrl = layer.url;
@@ -3480,21 +3610,27 @@
                                 // Prüfe ob es ein ArcGIS Layer ist (über Proxy oder direkt)
                                 // agsproxy.php = ArcGIS Server Proxy
                                 var isArcGIS = url && (url.indexOf('agsproxy.php') > -1 || 
-                                    (url.indexOf('MapServer') > -1 && url.indexOf('cgi-bin') === -1) || 
+                                    (url.indexOf('MapServer') > -1 && url.indexOf('cgi-bin') === -1 && url.indexOf('geo.admin.ch') === -1) || 
                                     url.indexOf('FeatureServer') > -1);
                                 
                                 // Prüfe ob es ein WMS/MapServer Layer ist (UMN MapServer via cgi-bin)
                                 // WICHTIG: Nur wenn es NICHT bereits als ArcGIS erkannt wurde
+                                // Schweizer Bundeslayer (geo.admin.ch oder ch.* Layer) werden auch als WMS behandelt
                                 var isWMS = false;
                                 if (!isArcGIS) {
                                     if (sourceType === 'TileWMS' || sourceType === 'ImageWMS') {
                                         isWMS = true;
                                     }
-                                    if (url && (url.indexOf('mapserv') > -1 || url.indexOf('cgi-bin') > -1)) {
+                                    if (url && (url.indexOf('mapserv') > -1 || url.indexOf('cgi-bin') > -1 || url.indexOf('geo.admin.ch') > -1)) {
                                         isWMS = true;
                                     }
                                     if (sourceParams && sourceParams.SERVICE === 'WMS') {
                                         isWMS = true;
+                                    }
+                                    // Bundeslayer erkennen (ch.* Layer-Namen)
+                                    if (sourceParams && sourceParams.LAYERS && sourceParams.LAYERS.indexOf('ch.') === 0) {
+                                        isWMS = true;
+                                        console.log('  Schweizer Bundeslayer erkannt (ch.* Layer)');
                                     }
                                 }
                                 
@@ -3571,7 +3707,8 @@
                                     // Hole LAYERS aus den Params
                                     var wmsLayers = sourceParams && sourceParams.LAYERS ? sourceParams.LAYERS : '';
                                     
-                                    if (wmsLayers) {
+                                    // Filtere mask_layer aus (wird nicht abgefragt)
+                                    if (wmsLayers && wmsLayers !== 'mask_layer' && wmsLayers.toLowerCase() !== 'mask_layer') {
                                         console.log('  -> WMS Layer hinzugefügt:', baseUrl, 'LAYERS:', wmsLayers);
                                         layers.push({
                                             name: name,
@@ -3581,6 +3718,8 @@
                                             sourceParams: sourceParams,
                                             mapParam: mapParam  // MapServer map-Parameter
                                         });
+                                    } else if (wmsLayers === 'mask_layer' || wmsLayers.toLowerCase() === 'mask_layer') {
+                                        console.log('  -> mask_layer übersprungen (wird nicht abgefragt)');
                                     }
                                 }
                             }
@@ -3748,6 +3887,12 @@
                 
                 // Features für späteren Zugriff speichern
                 allQueryFeatures = results.map(function(r) { return r.features || []; });
+                
+                // Filtere mask_layer aus den Ergebnissen aus
+                results = results.filter(function(result) {
+                    return result.layerName !== 'mask_layer (WFS)' && 
+                           result.layerName.toLowerCase().indexOf('mask_layer') === -1;
+                });
                 
                 // Layer in Kategorien einteilen
                 var layersWithResults = [];

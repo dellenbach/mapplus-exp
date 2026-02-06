@@ -112,6 +112,8 @@ input[type="range"]::-webkit-slider-thumb:hover {
 
 /* ===== INFO PANE (Objektinformation) - Gleiches Styling wie Räumliche Abfrage ===== */
 #njs_info_pane {
+  width: 10cm !important;
+  max-width: 10cm !important;
   min-width: 350px;
   min-height: 150px;
   border-radius: 6px !important;
@@ -213,21 +215,16 @@ input[type="range"]::-webkit-slider-thumb:hover {
   padding: 0 !important;
 }
 
-/* Resize Handle (Dojo original) */
+/* Resize Handle (Dojo original) - KOMPLETT VERSTECKT */
 #njs_info_pane .dojoxFloatingResizeHandle {
-  display: block !important;
-  position: absolute !important;
-  right: 0 !important;
-  bottom: 0 !important;
-  width: 16px !important;
-  height: 16px !important;
-  cursor: nwse-resize !important;
-  background: linear-gradient(135deg, transparent 50%, rgba(75,123,129,0.5) 50%) !important;
-  z-index: 10 !important;
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
 }
 
 #njs_info_pane .dojoxFloatingResizeHandle:hover {
-  background: linear-gradient(135deg, transparent 50%, #4b7b81 50%) !important;
+  display: none !important;
 }
 
 /* Resize Handles für Info Panel - alle Seiten */
@@ -2084,8 +2081,7 @@ h3 {
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  /* Native Resize für abgedockten Modus */
-  resize: both;
+  resize: none !important; /* KEIN RESIZE */
 }
 
 .spatial-query-panel.hidden {
