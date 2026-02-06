@@ -113,8 +113,8 @@ input[type="range"]::-webkit-slider-thumb:hover {
 /* ===== INFO PANE (Objektinformation) - Gleiches Styling wie Räumliche Abfrage ===== */
 #njs_info_pane {
   width: 10cm !important;
-  max-width: 10cm !important;
   min-width: 350px;
+  max-width: none !important; /* Freies Resizen erlauben */
   min-height: 150px;
   border-radius: 6px !important;
   overflow: hidden !important;

@@ -2182,12 +2182,15 @@
                 var existingHandles = pane.querySelectorAll('[class*="info-pane-resize"]');
                 existingHandles.forEach(function(h) { h.remove(); });
                 
-                // Resize-Handles erstellen (nur Kanten)
+                // Alle Resize-Handles erstellen
                 var handles = {
                     top: createHandle('info-pane-resize-top', 'position:absolute; top:0; left:0; right:0; height:6px; cursor:ns-resize; z-index:1000;'),
                     bottom: createHandle('info-pane-resize-bottom', 'position:absolute; bottom:0; left:0; right:0; height:6px; cursor:ns-resize; z-index:1000;'),
                     left: createHandle('info-pane-resize-left', 'position:absolute; left:0; top:0; bottom:0; width:8px; cursor:ew-resize; z-index:1000; background:linear-gradient(to right, rgba(75,123,129,0.15), transparent);'),
-                    right: createHandle('info-pane-resize-right', 'position:absolute; right:0; top:0; bottom:0; width:8px; cursor:ew-resize; z-index:1000; background:linear-gradient(to left, rgba(75,123,129,0.15), transparent);')
+                    right: createHandle('info-pane-resize-right', 'position:absolute; right:0; top:0; bottom:0; width:8px; cursor:ew-resize; z-index:1000; background:linear-gradient(to left, rgba(75,123,129,0.15), transparent);'),
+                    tl: createHandle('info-pane-resize-corner-tl', 'position:absolute; top:0; left:0; width:12px; height:12px; cursor:nwse-resize; z-index:1001;'),
+                    tr: createHandle('info-pane-resize-corner-tr', 'position:absolute; top:0; right:0; width:12px; height:12px; cursor:nesw-resize; z-index:1001;'),
+                    bl: createHandle('info-pane-resize-corner-bl', 'position:absolute; bottom:0; left:0; width:12px; height:12px; cursor:nesw-resize; z-index:1001;')
                 };
                 
                 function createHandle(className, style) {
@@ -2222,11 +2225,14 @@
                     e.stopPropagation();
                 }
                 
-                // Mousedown für Kanten-Handles
+                // Mousedown für alle Handles
                 handles.top.onmousedown = function(e) { startResize(e, 'top'); };
                 handles.bottom.onmousedown = function(e) { startResize(e, 'bottom'); };
                 handles.left.onmousedown = function(e) { startResize(e, 'left'); };
                 handles.right.onmousedown = function(e) { startResize(e, 'right'); };
+                handles.tl.onmousedown = function(e) { startResize(e, 'tl'); };
+                handles.tr.onmousedown = function(e) { startResize(e, 'tr'); };
+                handles.bl.onmousedown = function(e) { startResize(e, 'bl'); };
                 
                 // Mousemove Handler
                 var mouseMoveHandler = function(e) {
