@@ -2,6 +2,8 @@
  * tnet-spatial-query.js
  * Polygon-Zeichnen und räumliche Abfrage: WFS, ArcGIS, geo.admin.ch
  * Layer-Erkennung, GML-Parsing, Feature-Highlighting, Ergebnis-Anzeige, Excel-Export
+ * 
+ * Abhängigkeiten: tnet-utils.js (TnetUtils.waitForMap, getMainMap)
  */
 
 // ===== POLYGON-ZEICHNEN UND RÄUMLICHE ABFRAGE =====
@@ -13,14 +15,8 @@ window.isPolygonDrawing = false;
     var drawLayer = null;
     var isDrawing = false;
     
-    // Warte auf Map
-    function waitForMap(callback) {
-        if (njs && njs.AppManager && njs.AppManager.Maps && njs.AppManager.Maps['main'] && njs.AppManager.Maps['main'].mapObj) {
-            callback(njs.AppManager.Maps['main'].mapObj);
-        } else {
-            setTimeout(function() { waitForMap(callback); }, 300);
-        }
-    }
+    // Shortcut für TnetUtils
+    var waitForMap = TnetUtils.waitForMap;
     
     // Zeichnen-Layer erstellen
     function getDrawLayer(map) {
@@ -1316,10 +1312,7 @@ window.isPolygonDrawing = false;
     // Feature auf Karte hervorheben
     window.highlightFeature = function(layerIdx, featureIdx) {
         // Map direkt holen
-        var map = null;
-        if (njs && njs.AppManager && njs.AppManager.Maps && njs.AppManager.Maps['main'] && njs.AppManager.Maps['main'].mapObj) {
-            map = njs.AppManager.Maps['main'].mapObj;
-        }
+        var map = TnetUtils.getMainMap();
         
         if (!map) {
             console.warn('Map nicht verfügbar');

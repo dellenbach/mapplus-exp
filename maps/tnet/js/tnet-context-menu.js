@@ -1,10 +1,10 @@
 /**
  * tnet-context-menu.js - Rechtsklick-Kontextmenü auf der Karte
  * 
+ * Abhängigkeiten: tnet-utils.js (TnetUtils.lv95ToWgs84, showToast, waitForMapAndDOM)
+ * 
  * Enthält:
  * - Kontextmenü bei Rechtsklick (Koordinaten, Routing, StreetView, etc.)
- * - LV95 <-> WGS84 Transformation
- * - Toast-Benachrichtigungen
  * - Marker-Funktion (Linksklick + Kontextmenü)
  * - Alle ctx*-Funktionen
  */
@@ -15,58 +15,9 @@
     var ctxCoordsDisplay = null;
     var clickedCoords = null; // {lv95: [E, N], wgs84: [lon, lat], pixel: [x, y]}
     
-    // Warte auf Map UND DOM
-    function waitForMapAndDOM(callback) {
-        var mapReady = njs && njs.AppManager && njs.AppManager.Maps && njs.AppManager.Maps['main'] && njs.AppManager.Maps['main'].mapObj;
-        var domReady = document.getElementById('map-context-menu') && document.getElementById('map');
-        
-        if (mapReady && domReady) {
-            callback(njs.AppManager.Maps['main']);
-        } else {
-            setTimeout(function() { waitForMapAndDOM(callback); }, 300);
-        }
-    }
-    
-    // Proj4 Transformation LV95 <-> WGS84
-    function lv95ToWgs84(e, n) {
-        // Vereinfachte Näherung für Schweiz
-        var y_aux = (e - 2600000) / 1000000;
-        var x_aux = (n - 1200000) / 1000000;
-        
-        var lon = 2.6779094 
-            + 4.728982 * y_aux 
-            + 0.791484 * y_aux * x_aux 
-            + 0.1306 * y_aux * Math.pow(x_aux, 2) 
-            - 0.0436 * Math.pow(y_aux, 3);
-        
-        var lat = 16.9023892 
-            + 3.238272 * x_aux 
-            - 0.270978 * Math.pow(y_aux, 2) 
-            - 0.002528 * Math.pow(x_aux, 2) 
-            - 0.0447 * Math.pow(y_aux, 2) * x_aux 
-            - 0.0140 * Math.pow(x_aux, 3);
-        
-        lon = lon * 100 / 36;
-        lat = lat * 100 / 36;
-        
-        return [lon, lat];
-    }
-    
-    // Toast anzeigen
-    function showToast(message) {
-        var existing = document.querySelector('.ctx-toast');
-        if (existing) existing.remove();
-        
-        var toast = document.createElement('div');
-        toast.className = 'ctx-toast';
-        toast.textContent = message;
-        document.body.appendChild(toast);
-        
-        setTimeout(function() {
-            toast.classList.add('fade-out');
-            setTimeout(function() { toast.remove(); }, 300);
-        }, 2000);
-    }
+    // Shortcuts für TnetUtils
+    var lv95ToWgs84 = TnetUtils.lv95ToWgs84;
+    var showToast = TnetUtils.showToast;
     
     // Menü ausblenden
     window.hideContextMenu = function() {
@@ -131,7 +82,7 @@
     });
     
     // Map Rechtsklick
-    waitForMapAndDOM(function(mapWrapper) {
+    TnetUtils.waitForMapAndDOM(function(mapWrapper) {
         contextMenu = document.getElementById('map-context-menu');
         ctxCoordsDisplay = document.getElementById('ctx-coords-display');
         
