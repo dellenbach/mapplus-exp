@@ -1,5 +1,4 @@
-/* Imports from index_de.htm */
-/* not found: @import "../../core/templates/nwow_floating/css/tundraGrid.css"; */
+/* Grid-CSS Imports (tundraGrid.css wird per <link> in index_de.htm geladen) */
 @import "/mapplus-lib/dojo-release/dojo-release-1.17.3/dojox/grid/enhanced/resources/tundra/EnhancedGrid.css";
 @import "/mapplus-lib/dojo-release/dojo-release-1.17.3/dojox/grid/enhanced/resources/EnhancedGrid_rtl.css";
 
