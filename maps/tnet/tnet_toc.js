@@ -212,7 +212,15 @@
             if (typeof dijit !== 'undefined' && typeof dijit.byId === 'function') {
               var widget = dijit.byId(pane.id);
               if (widget && !widget.get('open')) {
-                widget.set('open', true);
+                // Prüfe ob TitlePane-Animation bereits initialisiert ist
+                if (widget._wipeIn) {
+                  widget.set('open', true);
+                } else {
+                  // Widget noch nicht vollständig gestartet, verzögert öffnen
+                  setTimeout(function() {
+                    try { widget.set('open', true); } catch(e) {}
+                  }, 200);
+                }
               }
             }
           }
