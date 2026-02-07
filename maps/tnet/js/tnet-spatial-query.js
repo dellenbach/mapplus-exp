@@ -1361,10 +1361,43 @@ var isDrawing = false;
                 }
                 
                 if (olGeom) {
+                    // Koordinatensystem erkennen und nach LV95 transformieren
+                    var coords = olGeom.getFirstCoordinate();
+                    
+                    // WGS84 → LV95: Lon ~5-11°, Lat ~45-49° (Schweiz + Umgebung)
+                    var isWGS84 = coords && 
+                        coords[0] > 4 && coords[0] < 12 && 
+                        coords[1] > 44 && coords[1] < 50;
+                    if (isWGS84) {
+                        console.log('WGS84 Koordinaten erkannt, konvertiere zu LV95:', coords);
+                        // Bevorzugt ol.proj.transform (nutzt proj4 wenn registriert)
+                        try {
+                            olGeom.transform('EPSG:4326', 'EPSG:2056');
+                        } catch(e) {
+                            // Fallback: proj4 direkt nutzen
+                            console.warn('ol.transform fehlgeschlagen, nutze proj4 direkt:', e);
+                            if (window.proj4) {
+                                olGeom.applyTransform(function(input, output, dim) {
+                                    var d = dim || 2;
+                                    for (var i = 0; i < input.length; i += d) {
+                                        var transformed = proj4('EPSG:4326', 'EPSG:2056', [input[i], input[i + 1]]);
+                                        output[i] = transformed[0];
+                                        output[i + 1] = transformed[1];
+                                        for (var j = 2; j < d; j++) {
+                                            output[i + j] = input[i + j];
+                                        }
+                                    }
+                                    return output;
+                                });
+                            }
+                        }
+                        console.log('Konvertiert zu LV95:', olGeom.getFirstCoordinate());
+                    }
+                    
                     // LV03 → LV95 Konvertierung falls nötig
                     // LV03: E ~480'000-840'000, N ~75'000-300'000
                     // LV95: E ~2'480'000-2'840'000, N ~1'075'000-1'300'000
-                    var coords = olGeom.getFirstCoordinate();
+                    coords = olGeom.getFirstCoordinate();
                     var isLV03 = coords && 
                         coords[0] > 400000 && coords[0] < 900000 && 
                         coords[1] > 50000 && coords[1] < 400000;
