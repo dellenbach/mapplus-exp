@@ -1,5 +1,5 @@
 /**
- * tnet-header.js - Header, Login, Splash, Maps-Dialog, Basemap-Widget, FloatingPane-Fix
+ * tnet-header.js (ES Module) - Header, Login, Splash, Maps-Dialog, Basemap-Widget, FloatingPane-Fix
  * 
  * Enthält:
  * - Maps-Info-Dialog (iframe: öffnen/schliessen/zurück/refresh)
@@ -175,7 +175,7 @@ window.hideSplashScreen = function() {
 };
 
 // Login-Status beim Laden prüfen und Splash ausblenden
-(function checkAppReady() {
+function checkAppReady() {
     if (window.njs && njs.AppManager && njs.AppManager.Maps && njs.AppManager.Maps['main']) {
         updateLoginStatus();
         // App ist bereit - Splash ausblenden
@@ -183,7 +183,8 @@ window.hideSplashScreen = function() {
     } else {
         setTimeout(checkAppReady, 300);
     }
-})();
+}
+checkAppReady();
 
 // ===== BASEMAP WIDGET INTERAKTION =====
 document.addEventListener('DOMContentLoaded', function() {
@@ -227,65 +228,61 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // ===== FLOATING PANE POSITION FIX =====
 // FloatingPane (Maptips Dialog) unter Header positionieren
-(function() {
-    var headerHeight = 69;
-    var minTop = 80;
-    
-    function adjustPanePosition(pane) {
-        if (!pane) return;
-        var top = parseInt(pane.style.top) || 0;
-        if (top < headerHeight) {
-            pane.style.top = minTop + 'px';
-        }
+var headerHeight = 69;
+var minTop = 80;
+
+function adjustPanePosition(pane) {
+    if (!pane) return;
+    var top = parseInt(pane.style.top) || 0;
+    if (top < headerHeight) {
+        pane.style.top = minTop + 'px';
     }
-    
-    // Observer für das ganze Dokument - fängt neue Elemente ab
-    var bodyObserver = new MutationObserver(function(mutations) {
-        mutations.forEach(function(mutation) {
-            if (mutation.type === 'childList') {
-                mutation.addedNodes.forEach(function(node) {
-                    if (node.nodeType === 1 && node.classList && 
-                        node.classList.contains('dojoxFloatingPane')) {
+}
+
+// Observer für das ganze Dokument - fängt neue Elemente ab
+var bodyObserver = new MutationObserver(function(mutations) {
+    mutations.forEach(function(mutation) {
+        if (mutation.type === 'childList') {
+            mutation.addedNodes.forEach(function(node) {
+                if (node.nodeType === 1 && node.classList && 
+                    node.classList.contains('dojoxFloatingPane')) {
+                    adjustPanePosition(node);
+                    // Observer für Style-Änderungen auf diesem Pane
+                    var styleObserver = new MutationObserver(function() {
                         adjustPanePosition(node);
-                        // Observer für Style-Änderungen auf diesem Pane
-                        var styleObserver = new MutationObserver(function() {
-                            adjustPanePosition(node);
-                        });
-                        styleObserver.observe(node, { attributes: true, attributeFilter: ['style'] });
-                    }
-                });
-            }
-        });
+                    });
+                    styleObserver.observe(node, { attributes: true, attributeFilter: ['style'] });
+                }
+            });
+        }
     });
-    bodyObserver.observe(document.body, { childList: true, subtree: true });
-    
-    // Bestehende Panes auch behandeln
-    document.querySelectorAll('.dojoxFloatingPane').forEach(function(pane) {
+});
+bodyObserver.observe(document.body, { childList: true, subtree: true });
+
+// Bestehende Panes auch behandeln
+document.querySelectorAll('.dojoxFloatingPane').forEach(function(pane) {
+    adjustPanePosition(pane);
+    var styleObserver = new MutationObserver(function() {
         adjustPanePosition(pane);
-        var styleObserver = new MutationObserver(function() {
-            adjustPanePosition(pane);
-        });
-        styleObserver.observe(pane, { attributes: true, attributeFilter: ['style'] });
     });
-})();
+    styleObserver.observe(pane, { attributes: true, attributeFilter: ['style'] });
+});
 
 // ===== IFRAME PRELOAD =====
 // Preload des iFrames bei erster Nutzerinteraktion
-(function(){
-    var preloaded = false;
-    function preloadMapsInfoIframe(){
-        if (preloaded) return;
-        var iframe = document.getElementById('mapsInfoFrame');
-        if (!iframe) return;
-        var lazySrc = iframe.getAttribute('data-src') || '/maps/tnet/inframe-maps.html';
-        if (!iframe.getAttribute('src')) {
-            iframe.src = lazySrc;
-        }
-        preloaded = true;
+var preloaded = false;
+function preloadMapsInfoIframe(){
+    if (preloaded) return;
+    var iframe = document.getElementById('mapsInfoFrame');
+    if (!iframe) return;
+    var lazySrc = iframe.getAttribute('data-src') || '/maps/tnet/inframe-maps.html';
+    if (!iframe.getAttribute('src')) {
+        iframe.src = lazySrc;
     }
-    var opts = { once: true, passive: true };
-    document.addEventListener('pointerdown', preloadMapsInfoIframe, opts);
-    document.addEventListener('keydown', preloadMapsInfoIframe, opts);
-    document.addEventListener('touchstart', preloadMapsInfoIframe, opts);
-    document.addEventListener('mouseover', preloadMapsInfoIframe, opts);
-})();
+    preloaded = true;
+}
+var opts = { once: true, passive: true };
+document.addEventListener('pointerdown', preloadMapsInfoIframe, opts);
+document.addEventListener('keydown', preloadMapsInfoIframe, opts);
+document.addEventListener('touchstart', preloadMapsInfoIframe, opts);
+document.addEventListener('mouseover', preloadMapsInfoIframe, opts);

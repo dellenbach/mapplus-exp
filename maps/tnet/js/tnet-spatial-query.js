@@ -1,22 +1,18 @@
 /**
- * tnet-spatial-query.js
+ * tnet-spatial-query.js (ES Module)
  * Polygon-Zeichnen und räumliche Abfrage: WFS, ArcGIS, geo.admin.ch
  * Layer-Erkennung, GML-Parsing, Feature-Highlighting, Ergebnis-Anzeige, Excel-Export
- * 
- * Abhängigkeiten: tnet-utils.js (TnetUtils.waitForMap, getMainMap)
  */
+
+import { waitForMap, getMainMap } from './tnet-utils.js';
 
 // ===== POLYGON-ZEICHNEN UND RÄUMLICHE ABFRAGE =====
 // Globale Variable um Zeichenmodus zu tracken
 window.isPolygonDrawing = false;
 
-(function() {
-    var drawInteraction = null;
-    var drawLayer = null;
-    var isDrawing = false;
-    
-    // Shortcut für TnetUtils
-    var waitForMap = TnetUtils.waitForMap;
+var drawInteraction = null;
+var drawLayer = null;
+var isDrawing = false;
     
     // Zeichnen-Layer erstellen
     function getDrawLayer(map) {
@@ -1312,7 +1308,7 @@ window.isPolygonDrawing = false;
     // Feature auf Karte hervorheben
     window.highlightFeature = function(layerIdx, featureIdx) {
         // Map direkt holen
-        var map = TnetUtils.getMainMap();
+        var map = getMainMap();
         
         if (!map) {
             console.warn('Map nicht verfügbar');
@@ -1670,4 +1666,3 @@ window.isPolygonDrawing = false;
             freepane.style.bottom = (panelHeight + 32) + 'px'; // +32 für footer-bar
         }
     };
-})();

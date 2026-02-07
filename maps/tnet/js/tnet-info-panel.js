@@ -1,5 +1,5 @@
 /**
- * tnet-info-panel.js
+ * tnet-info-panel.js (ES Module)
  * Info-Panel Erweiterungen: Buttons (Clipboard, Dock, Close), Resize-Handles,
  * Dock/Undock-Logik mit mapContainer-Anpassung, MutationObserver
  */
@@ -7,15 +7,15 @@
 // ===== INFO PANE ERWEITERUNGEN =====
 // Buttons zum Info-Panel hinzufügen und Resize aktivieren
 // Verwendet MutationObserver um auch bei Neuöffnen zu funktionieren
-(function initInfoPaneEnhancements() {
-    
+function initInfoPaneEnhancements() {
+
     function enhanceInfoPane() {
         var infoPane = document.getElementById('njs_info_pane');
         if (!infoPane) return false;
-        
+
         var titleBar = infoPane.querySelector('.dojoxFloatingPaneTitle');
         if (!titleBar) return false;
-        
+
         // Prüfe ob Actions bereits vorhanden
         if (titleBar.querySelector('.info-pane-actions')) {
             // Actions vorhanden - aber Resize-Handles prüfen
@@ -24,11 +24,11 @@
             }
             return true;
         }
-        
+
         // Actions Container erstellen
         var actions = document.createElement('div');
         actions.className = 'info-pane-actions';
-        
+
         // Clipboard Button
         var clipboardBtn = document.createElement('button');
         clipboardBtn.className = 'info-pane-btn';
@@ -38,7 +38,7 @@
             e.stopPropagation();
             copyInfoPaneToClipboard();
         };
-        
+
         // Dock Button
         var dockBtn = document.createElement('button');
         dockBtn.className = 'info-pane-btn';
@@ -49,7 +49,7 @@
             e.stopPropagation();
             toggleInfoPaneDock();
         };
-        
+
         // Close Button (custom, da original versteckt)
         var closeBtn = document.createElement('button');
         closeBtn.className = 'info-pane-btn info-pane-close';
@@ -78,23 +78,23 @@
                 infoPane.style.visibility = 'hidden';
             }
         };
-        
+
         actions.appendChild(clipboardBtn);
         actions.appendChild(dockBtn);
         actions.appendChild(closeBtn);
-        
+
         // Actions ans Ende des Headers
         titleBar.appendChild(actions);
-        
+
         // Custom Resize-Handle hinzufügen
         initInfoPaneResize(infoPane);
-        
+
         return true;
     }
-    
+
     // Initial versuchen
     enhanceInfoPane();
-    
+
     // MutationObserver für DOM-Änderungen
     var observer = new MutationObserver(function(mutations) {
         mutations.forEach(function(mutation) {
@@ -102,7 +102,7 @@
                 var infoPane = document.getElementById('njs_info_pane');
                 if (infoPane && infoPane.style.visibility !== 'hidden') {
                     enhanceInfoPane();
-                    
+
                     // Falls angedockt, Position und Breite SOFORT wiederherstellen (verhindert Flackern)
                     if (isInfoPaneDocked && infoPane.classList.contains('docked-right')) {
                         var savedWidth = window._savedDockedPanelWidth || 350;
@@ -112,10 +112,10 @@
                         if (streetviewContainer && streetviewContainer.offsetWidth > 0 && streetviewContainer.style.display !== 'none') {
                             streetviewWidth = streetviewContainer.offsetWidth;
                         }
-                        
+
                         infoPane.style.setProperty('width', savedWidth + 'px', 'important');
                         infoPane.style.setProperty('right', streetviewWidth + 'px', 'important');
-                        
+
                         var mapContainer = document.getElementById('mapContainer');
                         if (mapContainer) {
                             // Absolute Breite berechnen
@@ -128,7 +128,7 @@
             }
         });
     });
-    
+
     // Beobachte body für neue Elemente
     observer.observe(document.body, {
         childList: true,
@@ -136,7 +136,7 @@
         attributes: true,
         attributeFilter: ['style', 'class']
     });
-    
+
     // Regelmäßig prüfen (Fallback - seltener da MutationObserver jetzt Hauptarbeit macht)
     setInterval(function() {
         var infoPane = document.getElementById('njs_info_pane');
@@ -144,7 +144,8 @@
             enhanceInfoPane();
         }
     }, 2000);
-})();
+}
+initInfoPaneEnhancements();
 
 // Custom Resize für Info-Panel
 function initInfoPaneResize(pane) {

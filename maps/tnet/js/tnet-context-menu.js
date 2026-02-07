@@ -1,7 +1,5 @@
 /**
- * tnet-context-menu.js - Rechtsklick-Kontextmenü auf der Karte
- * 
- * Abhängigkeiten: tnet-utils.js (TnetUtils.lv95ToWgs84, showToast, waitForMapAndDOM)
+ * tnet-context-menu.js - Rechtsklick-Kontextmenü auf der Karte (ES Module)
  * 
  * Enthält:
  * - Kontextmenü bei Rechtsklick (Koordinaten, Routing, StreetView, etc.)
@@ -9,17 +7,14 @@
  * - Alle ctx*-Funktionen
  */
 
+import { lv95ToWgs84, showToast, waitForMapAndDOM } from './tnet-utils.js';
+
 // ===== RECHTSKLICK-KONTEXTMENÜ =====
-(function() {
-    var contextMenu = null;
-    var ctxCoordsDisplay = null;
-    var clickedCoords = null; // {lv95: [E, N], wgs84: [lon, lat], pixel: [x, y]}
-    
-    // Shortcuts für TnetUtils
-    var lv95ToWgs84 = TnetUtils.lv95ToWgs84;
-    var showToast = TnetUtils.showToast;
-    
-    // Menü ausblenden
+var contextMenu = null;
+var ctxCoordsDisplay = null;
+var clickedCoords = null; // {lv95: [E, N], wgs84: [lon, lat], pixel: [x, y]}
+
+// Menü ausblenden
     window.hideContextMenu = function() {
         if (contextMenu) contextMenu.classList.remove('show');
     };
@@ -81,11 +76,11 @@
         if (e.key === 'Escape') hideContextMenu();
     });
     
-    // Map Rechtsklick
-    TnetUtils.waitForMapAndDOM(function(mapWrapper) {
+    // Map Rechtsklick — wartet auf Map + DOM-Elemente
+    waitForMapAndDOM(function(mapWrapper) {
         contextMenu = document.getElementById('map-context-menu');
         ctxCoordsDisplay = document.getElementById('ctx-coords-display');
-        
+
         var map = mapWrapper.mapObj; // OpenLayers Map
         if (!map) {
             console.error('Context Menu: OpenLayers map nicht gefunden');
@@ -190,7 +185,7 @@
             // Marker an Klickposition setzen
             setMarkerAtPosition(coords);
         });
-    });
+    }, ['map-context-menu', 'map']);
     
     // Menü-Aktionen
     window.ctxCopyCoords = function(format) {
@@ -369,4 +364,3 @@
         var body = encodeURIComponent('Schau dir diese Position an:\n\n' + currentUrl);
         window.location.href = 'mailto:?subject=' + subject + '&body=' + body;
     };
-})();
