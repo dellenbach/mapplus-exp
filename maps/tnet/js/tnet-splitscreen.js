@@ -157,22 +157,37 @@
             var newSource = null;
             
             if (source instanceof ol.source.TileWMS) {
+                var urls = source.getUrls();
+                if (!urls || urls.length === 0) {
+                    console.warn('[SplitScreen] TileWMS source has no URLs, skipping');
+                    return null;
+                }
                 newSource = new ol.source.TileWMS({
-                    url: source.getUrls()[0],
-                    params: source.getParams(),
+                    url: urls[0],
+                    params: Object.assign({}, source.getParams()),
                     serverType: source.getServerType(),
                     crossOrigin: 'anonymous'
                 });
             } else if (source instanceof ol.source.ImageWMS) {
+                var url = source.getUrl();
+                if (!url) {
+                    console.warn('[SplitScreen] ImageWMS source has no URL, skipping');
+                    return null;
+                }
                 newSource = new ol.source.ImageWMS({
-                    url: source.getUrl(),
-                    params: source.getParams(),
+                    url: url,
+                    params: Object.assign({}, source.getParams()),
                     serverType: source.getServerType(),
                     crossOrigin: 'anonymous'
                 });
             } else if (source instanceof ol.source.XYZ) {
+                var urls = source.getUrls();
+                if (!urls || urls.length === 0) {
+                    console.warn('[SplitScreen] XYZ source has no URLs, skipping');
+                    return null;
+                }
                 newSource = new ol.source.XYZ({
-                    url: source.getUrls()[0],
+                    url: urls[0],
                     crossOrigin: 'anonymous'
                 });
             } else if (source instanceof ol.source.OSM) {
